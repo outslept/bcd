@@ -1,5 +1,6 @@
 {
   "name": "mdn",
+  "version": "0.0.1",
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
@@ -28,9 +29,6 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@clack/prompts": "^0.10.1",
-    "ansis": "^3.17.0",
-    "cac": "^6.7.14",
     "ts-morph": "^25.0.1"
   },
   "simple-git-hooks": {
