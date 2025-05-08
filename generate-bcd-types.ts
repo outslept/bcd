@@ -1,13 +1,13 @@
-import type { GeneratedFiles, PathInfo } from './lib/types'
+import type { GeneratedFiles, PathInfo } from './src/types'
 import fs from 'node:fs'
 import { IndentationText, Project, QuoteKind } from 'ts-morph'
-import { generateIndexFile } from './generators/index-generator'
-import { generatePathsFile } from './generators/paths-generator'
-import { generateProxyFile } from './generators/proxy-generator'
-import { generateTypesFile } from './generators/types-generator'
-import { generateUtilsFile } from './generators/utils-generator'
-import { collectPaths } from './lib/path-collector'
-import { ensureDir, getOutputPath, log } from './lib/utils'
+import { generateIndexFile } from './src/generators/index-generator'
+import { generatePathsFile } from './src/generators/paths-generator'
+import { generateProxyFile } from './src/generators/proxy-generator'
+import { generateTypesFile } from './src/generators/types-generator'
+import { generateUtilsFile } from './src/generators/utils-generator'
+import { collectPaths } from './src/path-collector'
+import { ensureDir, getOutputPath, log } from './src/utils'
 
 export interface Config {
   outputDir: string

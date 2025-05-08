@@ -1,6 +1,6 @@
 import type { CodeBlockWriter, Project, SourceFile } from 'ts-morph'
-import type { PathInfo } from '../lib/types'
-import { getAllCategories } from '../lib/utils'
+import type { PathInfo } from '../types'
+import { getAllCategories } from '../utils'
 
 export function generateTypesFile(
   project: Project,

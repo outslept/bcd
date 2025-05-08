@@ -1,7 +1,7 @@
 import type { Project, SourceFile } from 'ts-morph'
-import type { PathInfo } from '../lib/types'
+import type { PathInfo } from '../types'
 import { VariableDeclarationKind } from 'ts-morph'
-import { createPathKey } from '../lib/utils'
+import { createPathKey } from '../utils'
 
 export function generatePathsFile(
   project: Project,

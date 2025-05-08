@@ -1,6 +1,6 @@
 import type { Project, SourceFile } from 'ts-morph'
 import { Scope, VariableDeclarationKind } from 'ts-morph'
-import { getAllCategories } from '../lib/utils'
+import { getAllCategories } from '../utils'
 
 export function generateProxyFile(project: Project): SourceFile {
   const sourceFile = project.createSourceFile('bcd-proxy.ts', '', {
