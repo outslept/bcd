@@ -3,9 +3,6 @@ import type { PathInfo } from '../lib/types'
 import { VariableDeclarationKind } from 'ts-morph'
 import { createPathKey } from '../lib/utils'
 
-/**
- * Generates the paths constants file for type-safe path access
- */
 export function generatePathsFile(
   project: Project,
   pathsMap: Map<string, PathInfo>,
@@ -18,17 +15,14 @@ export function generatePathsFile(
   )
   const uniqueKeys = new Map<string, string>()
 
-  // Add generation date
   sourceFile.addStatements(`// Generated on ${new Date().toISOString()}\n`)
 
-  // Imports
   sourceFile.addImportDeclaration({
     namedImports: ['BCDPath', 'BCDPathConstant'],
     moduleSpecifier: './bcd-types',
     isTypeOnly: true,
   })
 
-  // createPathKey function
   sourceFile.addFunction({
     name: 'createPathKey',
     parameters: [
@@ -42,15 +36,8 @@ export function generatePathsFile(
       'return path.replace(/\\./g, \'_\').replace(/-/g, \'_\').replace(/@@/g, \'at_at_\');',
     ],
     isExported: true,
-    docs: [
-      'Utility function to create a valid JavaScript key from a BCD path.',
-      'Replaces invalid characters with underscores and handles special prefixes.',
-      '@param path The BCD path string.',
-      '@returns A valid JavaScript key derived from the path.',
-    ],
   })
 
-  // PATHS constant
   const pathConstants: { key: string, path: string }[] = []
   for (const path of allPaths) {
     let safeKey = createPathKey(path)
@@ -81,13 +68,8 @@ export function generatePathsFile(
       },
     ],
     isExported: true,
-    docs: [
-      'Object containing constants for all valid BCD paths.',
-      'Use these constants instead of string literals for type-safe path access.',
-    ],
   })
 
-  // getPathByKey function
   sourceFile.addFunction({
     name: 'getPathByKey',
     parameters: [
@@ -99,14 +81,8 @@ export function generatePathsFile(
     returnType: 'BCDPath | undefined',
     statements: ['return PATHS[key];'],
     isExported: true,
-    docs: [
-      'Utility function to get a BCD path by its constant key from the PATHS object.',
-      '@param key The constant key (e.g., \'api_Element_querySelector\').',
-      '@returns The corresponding BCD path, or undefined if key is not found.',
-    ],
   })
 
-  // getKeyByPath function
   sourceFile.addFunction({
     name: 'getKeyByPath',
     parameters: [
@@ -123,12 +99,6 @@ export function generatePathsFile(
       'return undefined;',
     ],
     isExported: true,
-    docs: [
-      'Utility function to get a constant key by its BCD path from the PATHS object.',
-      'Provides reverse lookup functionality for path constants.',
-      '@param path The BCD path string.',
-      '@returns The corresponding constant key, or undefined if path is not found.',
-    ],
   })
 
   return sourceFile

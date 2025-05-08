@@ -19,7 +19,12 @@ export function generateUtilsFile(project: Project): SourceFile {
   });
 
   sourceFile.addImportDeclaration({
-    namedImports: ['BrowserName', 'CompatStatement'],
+    namedImports: [
+      'BrowserName',
+      'CompatStatement',
+      'SimpleSupportStatement',
+      'StatusBlock',
+    ],
     moduleSpecifier: '@mdn/browser-compat-data',
     isTypeOnly: true,
   });
@@ -33,44 +38,29 @@ export function generateUtilsFile(project: Project): SourceFile {
       },
     ],
     returnType: 'FeatureSupport[]',
+    isExported: true,
     statements: [
-      'const support = BCD.getSupportMap(path);',
-      'if (!support) return [];',
-      '',
+      'const supportMap = BCD.getSupportMap(path);',
+      'if (!supportMap) return [];',
       'const result: FeatureSupport[] = [];',
-      '',
-      'for (const browser of Object.keys(support)) {',
-      '  const browserSupport = support[browser as BrowserName];',
-      '  if (Array.isArray(browserSupport)) {',
-      '    for (const item of browserSupport) {',
-      '      result.push({',
-      '        browser,',
-      '        supported: !!item.version_added,',
-      '        version_added: item.version_added,',
-      '        version_removed: item.version_removed,',
-      '        partial_implementation: item.partial_implementation,',
-      '        notes: item.notes,',
-      '      });',
-      '    }',
-      '  } else if (browserSupport) {',
+      'for (const browser of Object.keys(supportMap)) {',
+      '  const browserSupportItems = supportMap[browser as BrowserName];',
+      '  const itemsArray: SimpleSupportStatement[] = Array.isArray(browserSupportItems) ? browserSupportItems : [browserSupportItems];',
+      '  for (const item of itemsArray) {',
       '    result.push({',
       '      browser,',
-      '      supported: !!browserSupport.version_added,',
-      '      version_added: browserSupport.version_added,',
-      '      version_removed: browserSupport.version_removed,',
-      '      partial_implementation: browserSupport.partial_implementation,',
-      '      notes: browserSupport.notes,',
+      '      supported: item.version_added !== false && item.version_added !== undefined,',
+      '      version_added: item.version_added === undefined ? undefined : item.version_added,',
+      '      version_removed: item.version_removed === undefined ? undefined : item.version_removed,',
+      '      prefix: item.prefix,',
+      '      alternative_name: item.alternative_name,',
+      '      partial_implementation: item.partial_implementation,',
+      '      notes: item.notes,',
+      '      flags: item.flags,',
       '    });',
       '  }',
       '}',
       'return result;',
-    ],
-    isExported: true,
-    docs: [
-      'Gets standardized support information for a given BCD path.',
-      'Normalizes the BCD support data into a consistent FeatureSupport array.',
-      '@param path The BCD path to the feature.',
-      '@returns An array of FeatureSupport objects, one for each browser with support data.',
     ],
   });
 
@@ -83,15 +73,9 @@ export function generateUtilsFile(project: Project): SourceFile {
       },
     ],
     returnType: 'string[]',
-    statements: [
-      'const support = getFeatureSupport(path);',
-      'return [...new Set(support.filter(s => s.supported).map(s => s.browser))];',
-    ],
     isExported: true,
-    docs: [
-      'Gets a list of browser names that support a given feature.',
-      '@param path The BCD path to the feature.',
-      '@returns An array of browser names that support the feature.',
+    statements: [
+      'return [...new Set(getFeatureSupport(path).filter(s => s.supported).map(s => s.browser))];',
     ],
   });
 
@@ -107,26 +91,26 @@ export function generateUtilsFile(project: Project): SourceFile {
         type: 'BrowserName | string',
       },
     ],
-    returnType: 'string | null',
-    statements: [
-      'const support = getFeatureSupport(path).filter(s => s.browser === browser && s.supported);',
-      'if (support.length === 0) return null;',
-      '',
-      'const versions = support',
-      "  .filter(s => typeof s.version_added === 'string')",
-      '  .map(s => s.version_added as string);',
-      '',
-      "if (versions.length === 0) return 'true';",
-      '',
-      'const sortedVersions = [...versions].sort((a, b) => Number.parseFloat(a) - Number.parseFloat(b));',
-      'return sortedVersions[0] || null;',
-    ],
+    returnType: 'string | undefined',
     isExported: true,
-    docs: [
-      'Gets the minimum browser version that supports a given feature for a specific browser.',
-      '@param path The BCD path to the feature.',
-      '@param browser The browser name.',
-      "@returns The minimum version string, 'true' if supported in all versions, or null if not supported.",
+    statements: [
+      'const supportEntries = getFeatureSupport(path).filter(s => s.browser === browser && s.supported);',
+      'if (supportEntries.length === 0) return undefined;',
+      'const versions = supportEntries',
+      '  .map(s => s.version_added)',
+      '  .filter(v => typeof v === "string") as string[];',
+      'if (versions.length === 0) {',
+      '  if (supportEntries.some(s => s.version_added === true || s.version_added === null)) return "true";',
+      '  return undefined;',
+      '}',
+      'return versions.sort((a, b) => {',
+      '  const numA = Number.parseFloat(a);',
+      '  const numB = Number.parseFloat(b);',
+      '  if (!isNaN(numA) && !isNaN(numB)) return numA - numB;',
+      '  if (!isNaN(numA)) return -1;',
+      '  if (!isNaN(numB)) return 1;',
+      '  return a.localeCompare(b);',
+      '})[0];',
     ],
   });
 
@@ -139,16 +123,11 @@ export function generateUtilsFile(project: Project): SourceFile {
       },
     ],
     returnType: 'boolean',
+    isExported: true,
     statements: [
       "const compatPath = path.endsWith('.__compat') ? path : (path + '.__compat') as BCDPath;",
       'const compat = BCD.get(compatPath) as CompatStatement | undefined;',
       'return compat?.status?.deprecated === true;',
-    ],
-    isExported: true,
-    docs: [
-      'Checks if a feature is marked as deprecated in the BCD data.',
-      '@param path The BCD path to the feature.',
-      '@returns True if the feature is deprecated, false otherwise.',
     ],
   });
 
@@ -161,16 +140,11 @@ export function generateUtilsFile(project: Project): SourceFile {
       },
     ],
     returnType: 'boolean',
+    isExported: true,
     statements: [
       "const compatPath = path.endsWith('.__compat') ? path : (path + '.__compat') as BCDPath;",
       'const compat = BCD.get(compatPath) as CompatStatement | undefined;',
       'return compat?.status?.experimental === true;',
-    ],
-    isExported: true,
-    docs: [
-      'Checks if a feature is marked as experimental in the BCD data.',
-      '@param path The BCD path to the feature.',
-      '@returns True if the feature is experimental, false otherwise.',
     ],
   });
 
@@ -182,17 +156,12 @@ export function generateUtilsFile(project: Project): SourceFile {
         type: 'BCDPath',
       },
     ],
-    returnType: 'string | null',
+    returnType: 'string | undefined',
+    isExported: true,
     statements: [
       "const compatPath = path.endsWith('.__compat') ? path : (path + '.__compat') as BCDPath;",
       'const compat = BCD.get(compatPath) as CompatStatement | undefined;',
-      'return compat?.description ?? null;',
-    ],
-    isExported: true,
-    docs: [
-      'Gets the description of a feature from the BCD data.',
-      '@param path The BCD path to the feature.',
-      '@returns The feature description string, or null if not found.',
+      'return compat?.description;',
     ],
   });
 
@@ -204,17 +173,12 @@ export function generateUtilsFile(project: Project): SourceFile {
         type: 'BCDPath',
       },
     ],
-    returnType: 'string | null',
+    returnType: 'string | undefined',
+    isExported: true,
     statements: [
       "const compatPath = path.endsWith('.__compat') ? path : (path + '.__compat') as BCDPath;",
       'const compat = BCD.get(compatPath) as CompatStatement | undefined;',
-      'return compat?.mdn_url ?? null;',
-    ],
-    isExported: true,
-    docs: [
-      'Gets the MDN documentation URL for a feature from the BCD data.',
-      '@param path The BCD path to the feature.',
-      '@returns The MDN URL string, or null if not found.',
+      'return compat?.mdn_url;',
     ],
   });
 
@@ -226,18 +190,12 @@ export function generateUtilsFile(project: Project): SourceFile {
         type: 'BCDPath',
       },
     ],
-    returnType: 'string | string[] | null',
+    returnType: 'string | string[] | undefined',
+    isExported: true,
     statements: [
       "const compatPath = path.endsWith('.__compat') ? path : (path + '.__compat') as BCDPath;",
       'const compat = BCD.get(compatPath) as CompatStatement | undefined;',
-      'return compat?.spec_url || null;',
-    ],
-    isExported: true,
-    docs: [
-      'Gets the specification URL(s) for a feature from the BCD data.',
-      'Can return a single URL string or an array of URL strings.',
-      '@param path The BCD path to the feature.',
-      '@returns The specification URL(s), or null if not found.',
+      'return compat?.spec_url;',
     ],
   });
 
@@ -249,26 +207,20 @@ export function generateUtilsFile(project: Project): SourceFile {
         type: 'BCDPath',
       },
     ],
-    returnType: 'Record<string, string | boolean | null>',
+    returnType: 'Record<string, string | undefined>',
+    isExported: true,
     statements: [
       'const browsers = BCD.getAllBrowsers();',
-      'const result: Record<string, string | boolean | null> = {};',
-      '',
+      'const result: Record<string, string | undefined> = {};',
       'for (const browser of browsers) {',
       '  result[browser] = getMinimumSupportedVersion(path, browser);',
       '}',
       'return result;',
     ],
-    isExported: true,
-    docs: [
-      'Generates a compatibility table for a feature, showing support for all browsers.',
-      '@param path The BCD path to the feature.',
-      '@returns A record where keys are browser names and values are their minimum supported versions or null.',
-    ],
   });
 
-  sourceFile.addFunction({
-    name: 'getAllPaths',
+  const getAllRawPathsRecursiveDefinition = {
+    name: 'getAllRawPathsRecursive',
     parameters: [
       {
         name: 'obj',
@@ -277,87 +229,34 @@ export function generateUtilsFile(project: Project): SourceFile {
       {
         name: 'prefix',
         type: 'string',
-        initializer: "''",
       },
     ],
     returnType: 'string[]',
-    statements: [
-      'const result: string[] = [];',
-      'if (prefix) {',
-      '  result.push(prefix);',
-      '}',
-      "if (obj && typeof obj === 'object') {",
-      "  if ('__compat' in obj) {",
-      "    result.push(prefix + '.__compat');",
-      '  }',
-      '  for (const key in obj) {',
-      "    if (key !== '__compat' && typeof obj[key] === 'object') {",
-      "      const newPrefix = prefix ? (prefix + '.' + key) : key;",
-      '      result.push(...getAllPaths(obj[key], newPrefix));',
-      '    }',
-      '  }',
-      '}',
-      'return result;',
-    ],
-    docs: [
-      'Helper function to recursively collect all paths within a BCD category object.',
-      'Used by findFeaturesByPattern to traverse and gather paths.',
-      '@param obj The BCD category object to traverse.',
-      '@param prefix Path prefix for recursion (initially category name).',
-      '@returns An array of BCD paths within the given object.',
-      '@private',
-    ],
-  });
-
-  sourceFile.addFunction({
-    name: 'findFeaturesByPattern',
-    parameters: [
-      {
-        name: 'pattern',
-        type: 'string | RegExp',
-      },
-    ],
-    returnType: 'BCDPath[]',
-    statements: [
-      "const regexp = typeof pattern === 'string' ? new RegExp(pattern) : pattern;",
-      'const allPaths: string[] = [];',
-      'for (const category of BCD.getCategories()) {',
-      '  const categoryData = BCD.raw[category as BCDCategory];',
-      '  allPaths.push(...getAllPaths(categoryData, category));',
-      '}',
-      'return allPaths.filter(path => regexp.test(path)) as BCDPath[];',
-    ],
-    isExported: true,
-    docs: [
-      'Finds BCD paths that match a given pattern (string or RegExp).',
-      'Searches through all collected BCD paths.',
-      '@param pattern String or RegExp pattern to match against paths.',
-      '@returns An array of BCD paths that match the pattern.',
-    ],
-  });
-
-  sourceFile.addFunction({
-    name: 'getPathsInCategory',
-    parameters: [
-      {
-        name: 'category',
-        type: 'BCDCategory',
-      },
-    ],
-    returnType: 'BCDPath[]',
-    statements: [
-      'const categoryData = BCD.raw[category];',
-      'if (!categoryData) return [];',
-      'return getAllPaths(categoryData, category) as BCDPath[];',
-    ],
-    isExported: true,
-    docs: [
-      'Gets all paths under a specific category.',
-      'Useful for exploring available features within a category.',
-      "@param category The BCD category (e.g., 'api', 'css').",
-      '@returns An array of BCD paths within the specified category.',
-    ],
-  });
+    statements: `
+const result = new Set<string>();
+function _traverse(currentObj: any, currentPrefix: string) {
+  if (currentPrefix && !currentPrefix.endsWith(".__compat")) {
+    result.add(currentPrefix);
+  }
+  if (currentObj && typeof currentObj === 'object') {
+    if ('__compat' in currentObj) {
+      const compatPath = currentPrefix ? \`\${currentPrefix}.__compat\` : '__compat';
+      result.add(compatPath);
+    }
+    for (const key in currentObj) {
+      if (key === '__compat') continue;
+      if (currentObj[key] && typeof currentObj[key] === 'object') {
+        const newPrefix = currentPrefix ? \`\${currentPrefix}.\${key}\` : key;
+        _traverse(currentObj[key], newPrefix);
+      }
+    }
+  }
+}
+_traverse(obj, prefix);
+return Array.from(result);
+    `.trim().split('\n'),
+  };
+  sourceFile.addFunction(getAllRawPathsRecursiveDefinition);
 
   sourceFile.addFunction({
     name: 'getFeatureStatus',
@@ -367,18 +266,12 @@ export function generateUtilsFile(project: Project): SourceFile {
         type: 'BCDPath',
       },
     ],
-    returnType:
-      '{ deprecated: boolean; experimental: boolean; standard_track: boolean } | null',
+    returnType: 'StatusBlock | undefined',
+    isExported: true,
     statements: [
       "const compatPath = path.endsWith('.__compat') ? path : (path + '.__compat') as BCDPath;",
       'const compat = BCD.get(compatPath) as CompatStatement | undefined;',
-      'return compat?.status || null;',
-    ],
-    isExported: true,
-    docs: [
-      'Gets feature status information.',
-      '@param path The BCD path to the feature.',
-      '@returns An object with status flags, or null if not found.',
+      'return compat?.status;',
     ],
   });
 

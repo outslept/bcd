@@ -1,6 +1,5 @@
 import type { Project, SourceFile } from 'ts-morph';
 
-// Generates the index file that exports all components
 export function generateIndexFile(project: Project): SourceFile {
   const sourceFile = project.createSourceFile('index.ts', '', {
     overwrite: true,
