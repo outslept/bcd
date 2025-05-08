@@ -6,17 +6,37 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "test": "vitest"
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepare": "simple-git-hooks",
+    "generate": "node --import @oxc-node/core/register ./generate-bcd-types.ts"
   },
   "packageManager": "pnpm@10.6.5",
   "devDependencies": {
+    "@mdn/browser-compat-data": "^6.0.12",
+    "@oxc-node/core": "^0.0.27",
     "@sxzz/eslint-config": "^7.0.0",
+    "@types/node": "^22.15.16",
+    "lint-staged": "^15.5.2",
     "prettier": "^3.5.3",
+    "simple-git-hooks": "^2.13.0",
     "tsdown": "^0.11.1",
     "typescript": "^5.8.3",
     "vitest": "^3.1.3"
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.10.1",
+    "ansis": "^3.17.0",
+    "cac": "^6.7.14",
+    "ts-morph": "^25.0.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm i --frozen-lockfile --ignore-scripts --offline && npx lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }
