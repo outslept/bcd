@@ -1,89 +1,126 @@
 import type { PathInfo } from './types';
 import bcd from '@mdn/browser-compat-data';
-import { CONFIG } from '../generate-bcd-types';
+import type { Config } from '../generate-bcd-types';
 import { getAllCategories, log } from './utils';
 
-// Traverses the entire BCD data structure to collect all valid paths
-// Builds a map with additional metadata for type generation
-export function collectPaths(): Map<string, PathInfo> {
+interface CollectionResult {
+  pathsMap: Map<string, PathInfo>;
+  categories: string[];
+}
+
+export function collectPaths(config: Config): CollectionResult {
   const pathsMap = new Map<string, PathInfo>();
-  const categories = getAllCategories();
+  const rootCategories = getAllCategories();
 
-  let maxDepthFound = 0; // Tracks deepest path for logging
+  log(`Identified root categories from @mdn/bcd: ${rootCategories.join(', ')}`);
 
-  // Adds a path to the map with its metadata
-  function addPath(path: string, info: PathInfo): void {
-    pathsMap.set(path, info);
+  let maxDepthFound = 0;
+  let nodesVisited = 0;
+  let pathsAdded = 0;
+
+  function addPath(pathKey: string, info: PathInfo): void {
+    pathsMap.set(pathKey, info);
+    pathsAdded++;
     maxDepthFound = Math.max(maxDepthFound, info.depth);
   }
 
-  // Recursively explores the BCD object structure
-  // Respects maxDepth and exlucdePaths from configuration
-  function traverseObject(obj: any, currentPath: string, depth: number): void {
-    // Skip if we've reached max depth or path is excluded
+  function traverse(obj: any, currentPath: string, depth: number): void {
+    nodesVisited++;
     if (
-      (CONFIG.maxDepth !== Infinity && depth > CONFIG.maxDepth) ||
-      CONFIG.excludePaths.includes(currentPath)
+      (config.maxDepth !== Infinity && depth > config.maxDepth) ||
+      config.excludePaths.includes(currentPath)
     ) {
       return;
     }
 
-    // Special handling for __compat properties which contain browser support data
     const hasCompat = obj && typeof obj === 'object' && '__compat' in obj;
-    const children: string[] = [];
+    const currentChildrenKeys: string[] = [];
+    let pathInfo = pathsMap.get(currentPath);
 
-    // Add current path and then recursively proces children
-    addPath(currentPath, {
-      path: currentPath,
-      fullPath: currentPath,
-      hasCompat,
-      children,
-      depth,
-    });
-
-    if (hasCompat) {
-      const compatPath = `${currentPath}.__compat`;
-      addPath(compatPath, {
-        path: compatPath,
-        fullPath: compatPath,
-        hasCompat: false,
-        children: [],
-        depth: depth + 1,
-      });
+    if (obj && typeof obj === 'object') {
+        if (!pathInfo) {
+            pathInfo = {
+                path: currentPath,
+                fullPath: currentPath,
+                hasCompat,
+                children: [],
+                depth,
+            };
+            addPath(currentPath, pathInfo);
+        } else {
+            if(hasCompat && !pathInfo.hasCompat) pathInfo.hasCompat = true;
+        }
+    } else if (hasCompat) {
+        if (!pathInfo) {
+             pathInfo = {
+                path: currentPath,
+                fullPath: currentPath,
+                hasCompat,
+                children: [],
+                depth,
+            };
+            addPath(currentPath, pathInfo);
+        } else {
+             if(hasCompat && !pathInfo.hasCompat) pathInfo.hasCompat = true;
+        }
+    } else {
+        return;
     }
 
     if (obj && typeof obj === 'object') {
       for (const key in obj) {
-        if (key === '__compat') continue;
+        const childPath = `${currentPath}${config.pathSeparator}${key}`;
+        if (key === '__compat') {
+          if (obj.__compat && typeof obj.__compat === 'object') {
+            const __compatChildren = Object.keys(obj.__compat).filter(k => obj.__compat[k] !== null && typeof obj.__compat[k] === 'object');
+            if(!pathsMap.has(childPath)) {
+                 addPath(childPath, {
+                    path: childPath,
+                    fullPath: childPath,
+                    hasCompat: false,
+                    children: __compatChildren,
+                    depth: depth + 1,
+                });
+            }
+            traverse(obj.__compat, childPath, depth + 1);
+          }
+          continue;
+        }
+
+        currentChildrenKeys.push(key);
 
         if (obj[key] && typeof obj[key] === 'object') {
-          const childPath = `${currentPath}${CONFIG.pathSeparator}${key}`;
-          children.push(key);
-          traverseObject(obj[key], childPath, depth + 1);
+          traverse(obj[key], childPath, depth + 1);
         }
       }
     }
 
-    if (children.length > 0) {
-      const pathInfo = pathsMap.get(currentPath);
-      if (pathInfo) {
-        pathInfo.children = children;
-        pathsMap.set(currentPath, pathInfo);
+    if (pathInfo && currentChildrenKeys.length > 0) {
+        pathInfo.children = [...new Set([...pathInfo.children, ...currentChildrenKeys])];
+    }
+  }
+
+  log('Collecting paths from @mdn/browser-compat-data...');
+  const collectionStartTime = Date.now();
+
+  for (const category of rootCategories) {
+    if (category in bcd) {
+      const categoryData = bcd[category as keyof typeof bcd];
+      if (categoryData && typeof categoryData === 'object') {
+        traverse(categoryData, category, 0);
       }
     }
   }
-
-  log('Collecting paths from BCD data...');
-
-  // Start tarversal from each top-level category
-  for (const category of categories) {
-    if (category in bcd) {
-      const categoryData = bcd[category as keyof typeof bcd];
-      traverseObject(categoryData, category, 0);
-    }
+  if (bcd.__meta && typeof bcd.__meta === 'object') {
+    traverse(bcd.__meta, '__meta', 0);
+  }
+  if (bcd.browsers && typeof bcd.browsers === 'object') {
+    traverse(bcd.browsers, 'browsers', 0);
   }
 
-  log(`Collected ${pathsMap.size} paths in total`);
-  log(`Maximum depth found: ${maxDepthFound}`);
-  return pathsMap;
+  log(`Path collection: Visited ${nodesVisited} nodes, added ${pathsAdded} paths to map.`);
+  log(`Collected ${pathsMap.size} unique paths in total. Max depth: ${maxDepthFound}.`);
+  log(`Internal path collection logic took ${Date.now() - collectionStartTime}ms`);
+
+  return { pathsMap, categories: rootCategories };
 }

@@ -13,20 +13,18 @@ export function generateIndexFile(project: Project): SourceFile {
       'BCDCategory',
       'BCDDataType',
       'TypedBCD',
+      'Root',
       'BCDGetter',
       'FeatureSupport',
       'BCDPathConstant',
     ],
     moduleSpecifier: './bcd-types',
     isTypeOnly: true,
-    leadingTrivia: (writer) => writer.writeLine('// Export types'),
   });
 
   sourceFile.addExportDeclaration({
     namedExports: ['BCD'],
     moduleSpecifier: './bcd-proxy',
-    leadingTrivia: (writer) =>
-      writer.writeLine('\n// Export main BCD proxy and constants'),
   });
 
   sourceFile.addExportDeclaration({
@@ -50,9 +48,8 @@ export function generateIndexFile(project: Project): SourceFile {
       'getFeatureStatus',
     ],
     moduleSpecifier: './bcd-utils',
-    leadingTrivia: (writer) =>
-      writer.writeLine('\n// Export utility functions'),
   });
 
+  sourceFile.formatText();
   return sourceFile;
 }
