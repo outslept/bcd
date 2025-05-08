@@ -1,6 +1,6 @@
 import bcdData from '@mdn/browser-compat-data';
 import type { BCDDataType, BCDPath, TypedBCD, BCDGetter, Root } from './bcd-types';
-import type { BrowserName, CompatStatement, SupportStatement, SimpleSupportStatement, VersionValue } from '@mdn/browser-compat-data/types';
+import type { BrowserName, CompatStatement, SupportStatement, SimpleSupportStatement, VersionValue } from '@mdn/browser-compat-data';
 
 // Generated on 2025-05-08T16:14:59.270Z
 export class BCDProxy implements BCDGetter {

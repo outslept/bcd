@@ -25,7 +25,7 @@ export function generateUtilsFile(project: Project): SourceFile {
       'BrowserName', 'CompatStatement', 'SimpleSupportStatement',
       'StatusBlock', 'SupportStatement', 'VersionValue', 'FlagStatement',
     ],
-    moduleSpecifier: '@mdn/browser-compat-data/types',
+    moduleSpecifier: '@mdn/browser-compat-data',
     isTypeOnly: true,
   });
 

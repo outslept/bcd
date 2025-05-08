@@ -30,7 +30,7 @@ export function generateTypesFile(
       'BrowserName', 'CompatStatement', 'SupportStatement',
       'SimpleSupportStatement', 'FlagStatement', 'StatusBlock', 'VersionValue',
     ],
-    moduleSpecifier: '@mdn/browser-compat-data/types',
+    moduleSpecifier: '@mdn/browser-compat-data',
     isTypeOnly: true,
   });
 

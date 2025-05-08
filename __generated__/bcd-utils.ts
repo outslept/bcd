@@ -1,6 +1,6 @@
 import type { BCDPath, BCDCategory, FeatureSupport, Root } from './bcd-types';
 import { BCD } from './bcd-proxy';
-import type { BrowserName, CompatStatement, SimpleSupportStatement, StatusBlock, SupportStatement, VersionValue, FlagStatement } from '@mdn/browser-compat-data/types';
+import type { BrowserName, CompatStatement, SimpleSupportStatement, StatusBlock, SupportStatement, VersionValue, FlagStatement } from '@mdn/browser-compat-data';
 
 // Generated on 2025-05-08T16:15:13.985Z
 export function getFeatureSupport(path: BCDPath): FeatureSupport[] {

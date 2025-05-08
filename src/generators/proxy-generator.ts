@@ -28,7 +28,7 @@ export function generateProxyFile(
 
   sourceFile.addImportDeclaration({
     namedImports: ['BrowserName', 'CompatStatement', 'SupportStatement', 'SimpleSupportStatement', 'VersionValue'],
-    moduleSpecifier: '@mdn/browser-compat-data/types',
+    moduleSpecifier: '@mdn/browser-compat-data',
     isTypeOnly: true,
   });
 
