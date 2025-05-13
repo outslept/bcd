@@ -1,134 +1,207 @@
-import type { Project, SourceFile } from 'ts-morph';
-import type { PathInfo } from '../types';
-import type { Config } from '../../generate-bcd-types';
-import { log } from '../utils';
+import path from "node:path";
+import { log } from "../utils";
+import type { Config } from "../../generate-bcd-types";
+import type { PathInfo } from "../types";
+import type { Project, SourceFile } from "ts-morph";
+
+function escapeStringForTypeScriptLiteral(str: string): string {
+  return str
+    .replaceAll(/[\\']/g, String.raw`\$&`)
+    .replaceAll("\n", String.raw`\n`)
+    .replaceAll("\r", String.raw`\r`)
+    .replaceAll("\t", String.raw`\t`);
+}
+
+function escapeForTemplateLiteral(str: string): string {
+  return str.replaceAll(/[${}`\\]/g, String.raw`\$&`);
+}
 
 export function generateTypesFile(
   project: Project,
   pathsMap: Map<string, PathInfo>,
   rootCategories: string[],
-  config: Config
+  config: Config,
 ): SourceFile {
-  log('Starting generation of bcd-types.ts...');
+  log("Starting generation of bcd-types.ts...");
 
-  const sourceFileName = 'bcd-types.ts';
-  let sourceFile = project.getSourceFile(sf => sf.getFilePath().endsWith(sourceFileName));
+  const sourceFileName = "bcd-types.ts";
+  const outputFilePath = path.join(config.outputDir, sourceFileName);
+
+  let sourceFile = project.getSourceFile(outputFilePath);
   if (sourceFile) {
     project.removeSourceFile(sourceFile);
   }
-  sourceFile = project.createSourceFile(sourceFileName, '', { overwrite: true });
-
-  const allPaths = Array.from(pathsMap.keys()).sort((a, b) => a.localeCompare(b));
+  sourceFile = project.createSourceFile(outputFilePath, "", {
+    overwrite: true,
+  });
 
   sourceFile.addStatements(`// Generated on ${new Date().toISOString()}\n`);
 
-  log('Adding base BCD type imports for bcd-types.ts...');
-  sourceFile.addImportDeclaration({
-    moduleSpecifier: config.typesPath,
-    namedImports: [
-      'RootBCDData',
-      'CompatStatement',
-      'SupportStatement',
-      'FlagStatement',
-      'VersionValue',
-      'BrowserName',
-    ],
-    isTypeOnly: true,
-  });
+  log("Adding base BCD type imports and re-exports for bcd-types.ts...");
   sourceFile.addExportDeclaration({
     moduleSpecifier: config.typesPath,
     isTypeOnly: true,
   });
 
-  log(`Generating BCDPath type alias with ${allPaths.length} paths using raw text insertion...`);
+  sourceFile.addImportDeclaration({
+    moduleSpecifier: config.typesPath,
+    namedImports: [
+      "RootBCDData",
+      "CompatStatement",
+      "SupportStatement",
+      "BrowserName",
+      "FlagStatement",
+      "VersionValue",
+    ],
+    isTypeOnly: true,
+  });
+
+  const allPaths = Array.from(pathsMap.keys()).sort((a, b) =>
+    a.localeCompare(b),
+  );
+
+  log(
+    `Generating BCDPath type alias with ${allPaths.length} paths using raw text insertion...`,
+  );
   const startTimeBCDPath = Date.now();
 
-  const bcdPathTypeStringContent = allPaths.length > 0
-    ? allPaths.map(p => `'${p.replace(/'/g, "\\'")}'`).join('\n  | ')
-    : 'never';
+  const bcdPathTypeStringContent =
+    allPaths.length > 0
+      ? allPaths
+          .map((p) => `'${escapeStringForTypeScriptLiteral(p)}'`)
+          .join("\n  | ")
+      : "never";
 
-  sourceFile.addStatements([`export type BCDPath = \n  ${bcdPathTypeStringContent};`]);
+  sourceFile.addStatements([
+    `export type BCDPath = \n  ${bcdPathTypeStringContent};`,
+  ]);
 
-  log(`BCDPath type alias (raw text) added. Generation took ${Date.now() - startTimeBCDPath}ms`);
+  log(
+    `BCDPath type alias (raw text) added. Generation took ${Date.now() - startTimeBCDPath}ms`,
+  );
 
-  log('Generating BCDCategory type alias...');
+  log("Generating BCDCategory type alias...");
   sourceFile.addTypeAlias({
-    name: 'BCDCategory',
-    type: rootCategories.length > 0 ? rootCategories.map(c => `'${c}'`).join(' | ') : 'never',
+    name: "BCDCategory",
+    type:
+      rootCategories.length > 0
+        ? rootCategories
+            .map((c) => `'${escapeStringForTypeScriptLiteral(c)}'`)
+            .join(" | ")
+        : "never",
     isExported: true,
   });
 
   sourceFile.addTypeAlias({
-    name: 'Root',
-    type: 'RootBCDData',
+    name: "Root",
+    type: "RootBCDData",
     isExported: true,
   });
 
   sourceFile.addTypeAlias({
-    name: 'TypedBCD',
-    type: 'RootBCDData',
+    name: "TypedBCD",
+    type: "RootBCDData",
     isExported: true,
   });
 
-  const escapedPathSeparatorForRegex = config.pathSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedPathSeparatorForTemplate = escapeForTemplateLiteral(
+    config.pathSeparator,
+  );
 
-  log('Generating BCDDataType type alias...');
+  log("Generating BCDDataType type alias...");
   const startTimeBCDDataType = Date.now();
+
+  const internalHelperName = `_BCDDataTypeRecursive`;
   sourceFile.addTypeAlias({
-    name: 'BCDDataType',
+    name: internalHelperName,
     typeParameters: [
-      { name: 'P', constraint: 'BCDPath' },
-      { name: 'T', constraint: 'any', default: 'RootBCDData' }
+      { name: "PathPart", constraint: "string" },
+      { name: "CurrentContext", constraint: "any" },
     ],
-    type: `P extends \`\${string}${config.pathSeparator}__compat\`
+    type: `PathPart extends keyof CurrentContext
+      ? CurrentContext[PathPart]
+      : PathPart extends \`\${infer K1}${escapedPathSeparatorForTemplate}\${infer Rest}\`
+        ? K1 extends keyof CurrentContext
+          ? ${internalHelperName}<Rest, NonNullable<CurrentContext[K1]>>
+          : never
+        : never`,
+  });
+
+  sourceFile.addTypeAlias({
+    name: "BCDDataType",
+    typeParameters: [
+      { name: "P", constraint: "BCDPath" },
+      { name: "T", constraint: "any", default: "RootBCDData" },
+    ],
+    type: `P extends \`\${string}${escapedPathSeparatorForTemplate}__compat\`
       ? CompatStatement
-      : P extends keyof T
-      ? T[P]
-      : P extends \`\${infer K1}${escapedPathSeparatorForRegex}\${infer Rest}\`
-      ? K1 extends keyof T
-        ? BCDDataType<Rest, NonNullable<T[K1]>>
-        : never
-      : never`,
-    isExported: true
+      : ${internalHelperName}<P, T>`,
+    isExported: true,
   });
   log(`BCDDataType generation took ${Date.now() - startTimeBCDDataType}ms`);
 
-  log('Adding BCDGetter, FeatureSupport, BCDPathConstant interfaces...');
+  log("Adding BCDGetter, FeatureSupport, BCDPathConstant interfaces...");
   sourceFile.addInterface({
-    name: 'BCDGetter',
+    name: "BCDGetter",
     isExported: true,
     properties: [
-      { name: 'get', type: '<P extends BCDPath>(path: P) => BCDDataType<P>' },
-      { name: 'isSupported', type: '(path: BCDPath, browser: BrowserName, version: string) => boolean' },
-      { name: 'getSupportMap', type: '(path: BCDPath) => Readonly<Record<BrowserName, SupportStatement>> | undefined' },
-      { name: 'getAllBrowsers', type: '() => BrowserName[]' },
-      { name: 'getCategories', type: '() => BCDCategory[]' },
+      { name: "get", type: "<P extends BCDPath>(path: P) => BCDDataType<P>" },
+      {
+        name: "isSupported",
+        type: "(path: BCDPath, browser: BrowserName, version: string) => boolean",
+      },
+      {
+        name: "getSupportMap",
+        type: "(path: BCDPath) => Readonly<Record<BrowserName, SupportStatement>> | undefined",
+      },
+      { name: "getAllBrowsers", type: "() => BrowserName[]" },
+      { name: "getCategories", type: "() => BCDCategory[]" },
     ],
-    methods: [{ name: 'raw', returnType: 'Readonly<RootBCDData>' }],
+    methods: [{ name: "raw", returnType: "Readonly<RootBCDData>" }],
   });
 
   sourceFile.addInterface({
-    name: 'FeatureSupport',
+    name: "FeatureSupport",
     isExported: true,
     properties: [
-      { name: 'browser', type: 'BrowserName' },
-      { name: 'supported', type: 'boolean' },
-      { name: 'version_added', type: 'VersionValue | undefined', hasQuestionToken: true },
-      { name: 'version_removed', type: 'string | true | undefined', hasQuestionToken: true },
-      { name: 'prefix', type: 'string', hasQuestionToken: true },
-      { name: 'alternative_name', type: 'string', hasQuestionToken: true },
-      { name: 'partial_implementation', type: 'boolean', hasQuestionToken: true },
-      { name: 'notes', type: 'string | readonly string[] | undefined', hasQuestionToken: true },
-      { name: 'flags', type: 'ReadonlyArray<FlagStatement> | undefined', hasQuestionToken: true },
+      { name: "browser", type: "BrowserName" },
+      { name: "supported", type: "boolean" },
+      {
+        name: "version_added",
+        type: "VersionValue | undefined",
+        hasQuestionToken: true,
+      },
+      {
+        name: "version_removed",
+        type: "string | true | undefined",
+        hasQuestionToken: true,
+      },
+      { name: "prefix", type: "string", hasQuestionToken: true },
+      { name: "alternative_name", type: "string", hasQuestionToken: true },
+      {
+        name: "partial_implementation",
+        type: "boolean",
+        hasQuestionToken: true,
+      },
+      {
+        name: "notes",
+        type: "string | readonly string[] | undefined",
+        hasQuestionToken: true,
+      },
+      {
+        name: "flags",
+        type: "ReadonlyArray<FlagStatement> | undefined",
+        hasQuestionToken: true,
+      },
     ],
   });
 
   sourceFile.addInterface({
-    name: 'BCDPathConstant',
+    name: "BCDPathConstant",
     isExported: true,
-    properties: [{ name: '[key: string]', type: 'BCDPath' }],
+    properties: [{ name: "[key: string]", type: "BCDPath" }],
   });
 
-  log('Finished generation of bcd-types.ts.');
+  log("Finished generation of bcd-types.ts.");
   return sourceFile;
 }

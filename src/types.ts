@@ -56,22 +56,28 @@ export interface SimpleSupportStatementBase {
 export type SimpleSupportStatement = SimpleSupportStatementBase & {
   version_removed?: string | true;
 } & (
-  {
-    partial_implementation: true;
-    notes: string | readonly [string, string, ...string[]];
-  } |
-  {
-    partial_implementation?: never;
-    notes?: string | readonly [string, string, ...string[]];
-  }
-);
+    | {
+        partial_implementation: true;
+        notes: string | readonly [string, string, ...string[]];
+      }
+    | {
+        partial_implementation?: never;
+        notes?: string | readonly [string, string, ...string[]];
+      }
+  );
 
 export type SupportStatement =
   | SimpleSupportStatement
-  | readonly [SimpleSupportStatement, SimpleSupportStatement, ...SimpleSupportStatement[]]
+  | readonly [
+      SimpleSupportStatement,
+      SimpleSupportStatement,
+      ...SimpleSupportStatement[],
+    ]
   | "mirror";
 
-export type SupportBlock = Partial<Readonly<Record<BrowserName, SupportStatement>>>;
+export type SupportBlock = Partial<
+  Readonly<Record<BrowserName, SupportStatement>>
+>;
 
 export interface StatusBlock {
   experimental: boolean;
@@ -91,7 +97,7 @@ export interface CompatStatement {
 
 export interface BcdFeatureData {
   __compat?: CompatStatement;
-  [identifier: string]: BcdFeatureData | CompatStatement |  undefined;
+  [identifier: string]: BcdFeatureData | CompatStatement | undefined;
 }
 
 export type ReleaseStatement = {
@@ -99,8 +105,8 @@ export type ReleaseStatement = {
   release_notes?: string;
   status: BrowserStatus;
 } & (
-  { engine: BrowserEngine; engine_version: string; } |
-  { engine?: never; engine_version?: never; }
+  | { engine: BrowserEngine; engine_version: string }
+  | { engine?: never; engine_version?: never }
 );
 
 export interface BrowserStatement {

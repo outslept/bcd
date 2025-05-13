@@ -1,6 +1,7 @@
 {
   "name": "mdn",
   "version": "0.0.1",
+  "packageManager": "pnpm@10.6.5",
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
@@ -12,7 +13,11 @@
     "prepare": "simple-git-hooks",
     "generate": "node --import @oxc-node/core/register ./generate-bcd-types.ts"
   },
-  "packageManager": "pnpm@10.6.5",
+  "dependencies": {
+    "compare-versions": "^6.1.1",
+    "pathe": "^2.0.3",
+    "ts-morph": "^25.0.1"
+  },
   "devDependencies": {
     "@mdn/browser-compat-data": "^6.0.12",
     "@oxc-node/core": "^0.0.27",
@@ -27,10 +32,6 @@
   },
   "engines": {
     "node": ">=20.0.0"
-  },
-  "dependencies": {
-    "pathe": "^2.0.3",
-    "ts-morph": "^25.0.1"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm i --frozen-lockfile --ignore-scripts --offline && npx lint-staged"

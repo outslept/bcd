@@ -1,3 +1,5 @@
-import { sxzz } from '@sxzz/eslint-config'
+import { sxzz } from "@sxzz/eslint-config";
 
-export default sxzz()
+export default sxzz({
+  ignores: ["__generated__"],
+});

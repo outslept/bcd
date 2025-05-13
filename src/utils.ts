@@ -1,12 +1,13 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
 
 export interface OutputConfig {
   outputDir: string;
 }
 
 export function log(message: string): void {
-  console.log(`[BCD-Generator] ${message}`);
+  process.stdout.write(String(message) + "\n");
 }
 
 export function ensureDir(dirPath: string): void {
@@ -21,6 +22,6 @@ export function getOutputPath(fileName: string, config: OutputConfig): string {
 
 export function getFeatureCategories(allTopLevelKeys: string[]): string[] {
   return allTopLevelKeys.filter(
-    key => key !== '__meta' && key !== 'browsers'
+    (key) => key !== "__meta" && key !== "browsers",
   );
 }
