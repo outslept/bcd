@@ -1,6 +1,7 @@
 {
   "name": "mdn",
   "version": "0.0.1",
+  "type": "module",
   "packageManager": "pnpm@10.6.5",
   "scripts": {
     "build": "tsdown",
@@ -11,7 +12,7 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "prepare": "simple-git-hooks",
-    "generate": "node --import @oxc-node/core/register ./generate-bcd-types.ts"
+    "generate": "tsx ./generate-bcd-types.ts"
   },
   "dependencies": {
     "compare-versions": "^6.1.1",
@@ -20,13 +21,13 @@
   },
   "devDependencies": {
     "@mdn/browser-compat-data": "^6.0.12",
-    "@oxc-node/core": "^0.0.27",
     "@sxzz/eslint-config": "^7.0.0",
     "@types/node": "^22.15.16",
     "lint-staged": "^15.5.2",
     "prettier": "^3.5.3",
     "simple-git-hooks": "^2.13.0",
     "tsdown": "^0.11.1",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vitest": "^3.1.3"
   },
