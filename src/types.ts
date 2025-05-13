@@ -1,8 +1,8 @@
-type VersionValue = string | boolean | null;
+export type VersionValue = string | boolean | null;
 
-type BrowserType = "desktop" | "mobile" | "xr" | "server";
+export type BrowserType = "desktop" | "mobile" | "xr" | "server";
 
-type BrowserEngine =
+export type BrowserEngine =
   | "Blink"
   | "EdgeHTML"
   | "Gecko"
@@ -11,7 +11,7 @@ type BrowserEngine =
   | "WebKit"
   | "V8";
 
-type BrowserStatus =
+export type BrowserStatus =
   | "retired"
   | "current"
   | "exclusive"
@@ -38,27 +38,38 @@ export type BrowserName =
   | "webview_android"
   | "webview_ios";
 
-interface FlagStatement {
+export interface FlagStatement {
   type: "preference" | "runtime_flag";
   name: string;
   value_to_set?: string;
 }
 
-export interface SimpleSupportStatement {
+export interface SimpleSupportStatementBase {
   version_added: VersionValue;
-  version_removed?: VersionValue;
   version_last?: string;
   prefix?: string;
   alternative_name?: string;
   flags?: readonly [FlagStatement, ...FlagStatement[]];
   impl_url?: string | readonly [string, string, ...string[]];
-  partial_implementation?: true;
-  notes?: string | readonly [string, string, ...string[]];
 }
 
-type SupportStatement =
+export type SimpleSupportStatement = SimpleSupportStatementBase & {
+  version_removed?: string | true;
+} & (
+  {
+    partial_implementation: true;
+    notes: string | readonly [string, string, ...string[]];
+  } |
+  {
+    partial_implementation?: never;
+    notes?: string | readonly [string, string, ...string[]];
+  }
+);
+
+export type SupportStatement =
   | SimpleSupportStatement
-  | readonly [SimpleSupportStatement, SimpleSupportStatement, ...SimpleSupportStatement[]];
+  | readonly [SimpleSupportStatement, SimpleSupportStatement, ...SimpleSupportStatement[]]
+  | "mirror";
 
 export type SupportBlock = Partial<Readonly<Record<BrowserName, SupportStatement>>>;
 
@@ -80,18 +91,19 @@ export interface CompatStatement {
 
 export interface BcdFeatureData {
   __compat?: CompatStatement;
-  [identifier: string]: BcdFeatureData | CompatStatement | undefined;
+  [identifier: string]: BcdFeatureData | CompatStatement |  undefined;
 }
 
-interface ReleaseStatement {
+export type ReleaseStatement = {
   release_date?: string;
   release_notes?: string;
   status: BrowserStatus;
-  engine?: BrowserEngine;
-  engine_version?: string;
-}
+} & (
+  { engine: BrowserEngine; engine_version: string; } |
+  { engine?: never; engine_version?: never; }
+);
 
-interface BrowserStatement {
+export interface BrowserStatement {
   name: string;
   type: BrowserType;
   upstream?: BrowserName;
@@ -102,9 +114,9 @@ interface BrowserStatement {
   releases: Readonly<Record<string, ReleaseStatement>>;
 }
 
-type BrowsersData = Readonly<Record<BrowserName, BrowserStatement>>;
+export type BrowsersData = Readonly<Record<BrowserName, BrowserStatement>>;
 
-interface MetaData {
+export interface MetaData {
   version: string;
   timestamp: string;
 }

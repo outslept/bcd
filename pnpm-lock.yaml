@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      pathe:
+        specifier: ^2.0.3
+        version: 2.0.3
       ts-morph:
         specifier: ^25.0.1
         version: 25.0.1

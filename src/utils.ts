@@ -1,9 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { CONFIG } from '../generate-bcd-types';
+
+export interface OutputConfig {
+  outputDir: string;
+}
 
 export function log(message: string): void {
-  console.log(`[BCD] ${message}`);
+  console.log(`[BCD-Generator] ${message}`);
 }
 
 export function ensureDir(dirPath: string): void {
@@ -12,8 +15,8 @@ export function ensureDir(dirPath: string): void {
   }
 }
 
-export function getOutputPath(fileName: string): string {
-  return path.resolve(CONFIG.outputDir, fileName);
+export function getOutputPath(fileName: string, config: OutputConfig): string {
+  return path.resolve(config.outputDir, fileName);
 }
 
 export function getFeatureCategories(allTopLevelKeys: string[]): string[] {

@@ -1,76 +1,114 @@
 import type {
   BcdFeatureData,
-  CompatStatement,
   SupportBlock,
-  StatusBlock,
   SimpleSupportStatement,
   BrowserName,
-  SupportStatement
+  SupportStatement,
+  BrowsersData,
+  CompatStatement
 } from './types';
 
-export interface TransformedFeature {
-  description?: string;
-  mdn_url?: string;
-  spec_url?: string | readonly string[];
-  status?: StatusBlock;
-  support?: SupportBlock;
-  [identifier: string]: TransformedFeature | any;
-}
-
 function cleanSimpleSupportStatement(statement: SimpleSupportStatement): SimpleSupportStatement {
-  const { version_added, version_removed, prefix, alternative_name, flags, partial_implementation, notes } = statement;
-  const cleaned: SimpleSupportStatement = { version_added };
+  const { version_added, version_removed, prefix, alternative_name, flags, partial_implementation, notes, version_last } = statement;
+  const cleaned: any = { version_added };
   if (version_removed !== undefined) cleaned.version_removed = version_removed;
+  if (version_last !== undefined) cleaned.version_last = version_last;
   if (prefix !== undefined) cleaned.prefix = prefix;
   if (alternative_name !== undefined) cleaned.alternative_name = alternative_name;
   if (flags !== undefined) cleaned.flags = flags;
   if (partial_implementation !== undefined) cleaned.partial_implementation = partial_implementation;
   if (notes !== undefined) cleaned.notes = notes;
-  return cleaned;
+  return cleaned as SimpleSupportStatement;
 }
 
-function cleanSupportBlock(support: SupportBlock): SupportBlock {
-  const newSupport: SupportBlock = {};
-  for (const browserKey in support) {
-    const browserName = browserKey as BrowserName;
-    const statementOrArray = support[browserName];
-
-    if (statementOrArray) {
-      if (Array.isArray(statementOrArray)) {
-        const cleanedArray = statementOrArray.map(cleanSimpleSupportStatement);
-        newSupport[browserName as any] = cleanedArray;
-      } else {
-        newSupport[browserName as any] = cleanSimpleSupportStatement(statementOrArray as SimpleSupportStatement);
-      }
+function resolveMirror(
+    browserName: BrowserName,
+    browsersData: BrowsersData,
+    featureSupport: SupportBlock,
+    visited: Set<BrowserName> = new Set()
+): SupportStatement | undefined {
+    if (visited.has(browserName)) {
+        return undefined;
     }
-  }
-  return newSupport;
+    visited.add(browserName);
+
+    const browserInfo = browsersData[browserName];
+    const upstreamBrowserName = browserInfo?.upstream;
+
+    if (!upstreamBrowserName) {
+        return undefined;
+    }
+
+    const upstreamSupportStatement = featureSupport[upstreamBrowserName];
+
+    if (!upstreamSupportStatement) {
+        return undefined;
+    }
+
+    if (upstreamSupportStatement === "mirror") {
+        return resolveMirror(upstreamBrowserName, browsersData, featureSupport, visited);
+    }
+    return upstreamSupportStatement;
 }
 
-function extractRelevantCompatData(compat: CompatStatement): Partial<TransformedFeature> {
-  const output: Partial<TransformedFeature> = {};
-  if (compat.description !== undefined) output.description = compat.description;
-  if (compat.mdn_url !== undefined) output.mdn_url = compat.mdn_url;
-  if (compat.spec_url !== undefined) output.spec_url = compat.spec_url;
-  if (compat.status !== undefined) output.status = { ...compat.status };
-  if (compat.support !== undefined) output.support = cleanSupportBlock({ ...compat.support });
-  return output;
+function resolveAndCleanSupportBlock(
+    support: SupportBlock,
+    browsersData: BrowsersData | undefined,
+    featureSupportContext: SupportBlock
+): SupportBlock {
+    const newSupportWorking: Partial<Record<BrowserName, SupportStatement>> = {};
+
+    for (const browserKey in support) {
+        const browserName = browserKey as BrowserName;
+        let statementOrArray = support[browserName];
+
+        if (statementOrArray === "mirror" && browsersData) {
+            statementOrArray = resolveMirror(browserName, browsersData, featureSupportContext);
+        }
+
+        if (statementOrArray) {
+            if (statementOrArray === "mirror") {
+                 newSupportWorking[browserName] = "mirror";
+            } else if (Array.isArray(statementOrArray)) {
+                const mappedArray = statementOrArray.map(s => s ? cleanSimpleSupportStatement(s) : null).filter(Boolean) as SimpleSupportStatement[];
+                if (mappedArray.length === 1) {
+                    newSupportWorking[browserName] = mappedArray[0];
+                } else if (mappedArray.length > 1) {
+                    newSupportWorking[browserName] = mappedArray as unknown as readonly [SimpleSupportStatement, SimpleSupportStatement, ...SimpleSupportStatement[]];
+                }
+            } else {
+                newSupportWorking[browserName] = cleanSimpleSupportStatement(statementOrArray as SimpleSupportStatement);
+            }
+        }
+    }
+    return newSupportWorking as SupportBlock;
 }
 
-export function transformBcdData(node: BcdFeatureData): TransformedFeature | null {
+
+export function transformBcdData(
+  node: BcdFeatureData,
+  browsersData?: BrowsersData
+): BcdFeatureData | null {
   if (!node || typeof node !== 'object') {
     return null;
   }
 
-  const transformedNode: TransformedFeature = {};
+  const transformedNode: BcdFeatureData = {};
   let hasProperties = false;
 
   if (node.__compat) {
-    const compatData = extractRelevantCompatData(node.__compat);
-    Object.assign(transformedNode, compatData);
-    if (Object.keys(compatData).length > 0) {
-      hasProperties = true;
+    const originalCompat = node.__compat;
+    const originalSupport = originalCompat.support;
+    const newSupportBlock = resolveAndCleanSupportBlock(originalSupport, browsersData, originalSupport);
+
+    transformedNode.__compat = {
+      ...originalCompat,
+      support: newSupportBlock,
+    };
+    if (originalCompat.status) {
+        transformedNode.__compat.status = { ...originalCompat.status };
     }
+    hasProperties = true;
   }
 
   for (const key in node) {
@@ -78,12 +116,17 @@ export function transformBcdData(node: BcdFeatureData): TransformedFeature | nul
       continue;
     }
 
-    const childData = node[key] as BcdFeatureData;
-    const transformedChild = transformBcdData(childData);
+    const childNodeValue = node[key];
 
-    if (transformedChild !== null) {
-      transformedNode[key] = transformedChild;
-      hasProperties = true;
+    if (childNodeValue && typeof childNodeValue === 'object' && !(childNodeValue as CompatStatement).support && !(childNodeValue as CompatStatement).status) {
+        const childData = childNodeValue as BcdFeatureData;
+        const transformedChild = transformBcdData(childData, browsersData);
+        if (transformedChild !== null) {
+          transformedNode[key] = transformedChild;
+          hasProperties = true;
+        }
+    } else if (childNodeValue && typeof childNodeValue === 'object' && (childNodeValue as CompatStatement).support && (childNodeValue as CompatStatement).status) {
+        // console.warn(`[data-transformer] Encountered CompatStatement-like object for key '${key}' which is not '__compat'.`);
     }
   }
 

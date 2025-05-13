@@ -1,13 +1,18 @@
 import type { Project, SourceFile, CodeBlockWriter } from 'ts-morph';
 import { VariableDeclarationKind } from 'ts-morph';
 import { log, getOutputPath, ensureDir } from '../utils';
-import type { BcdFeatureData } from '../types';
+import type { BcdFeatureData, BrowsersData, RootBCDData } from '../types';
 import { transformBcdData } from '../data-transformer';
 import path from 'node:path';
+import type { Config } from '../../generate-bcd-types';
 
 function writeValue(writer: CodeBlockWriter, value: any, indentLevel: number): void {
   if (typeof value === 'string') {
-    writer.quote(value.replace(/'/g, "\\'").replace(/\r\n|\r|\n/g, '\\n'));
+    if (value === 'mirror'){
+        writer.quote(value);
+    } else {
+        writer.quote(value.replace(/'/g, "\\'").replace(/\r\n|\r|\n/g, '\\n'));
+    }
   } else if (typeof value === 'number' || typeof value === 'boolean' || value === null) {
     writer.write(String(value));
   } else if (Array.isArray(value)) {
@@ -67,22 +72,28 @@ function objectToWriterFunction(obj: any): (writer: CodeBlockWriter) => void {
 export function generateBcdCategoryDataFile(
   project: Project,
   categoryName: string,
-  categoryData: BcdFeatureData
+  categoryData: BcdFeatureData,
+  browsersData: BrowsersData,
+  config: Config
 ): SourceFile | undefined {
   log(`Starting generation of data file for category: ${categoryName}...`);
 
-  const transformedData = transformBcdData(categoryData);
+  const transformedData = transformBcdData(categoryData, browsersData);
   if (!transformedData) {
     log(`No data to generate for category: ${categoryName}. Skipping.`);
     return undefined;
   }
 
-  const dataSubDir = path.join(getOutputPath(''), 'bcd');
+  const dataSubDir = path.join(getOutputPath('', { outputDir: config.outputDir }), 'data-parts');
   ensureDir(dataSubDir);
 
-  const fileName = `${categoryName.toLowerCase()}-bcd.ts`;
+  const fileName = `${categoryName.toLowerCase()}-data.ts`;
   const filePath = path.join(dataSubDir, fileName);
 
+  const existingSourceFile = project.getSourceFile(filePath);
+  if (existingSourceFile) {
+    project.removeSourceFile(existingSourceFile);
+  }
   const sourceFile = project.createSourceFile(filePath, '', { overwrite: true });
 
   const constName = `${categoryName.toUpperCase()}_DATA`;
@@ -104,13 +115,47 @@ export function generateBcdCategoryDataFile(
 
 export function generateAggregatedDataFile(
     project: Project,
-    featureCategories: string[]
+    featureCategories: string[],
+    allData: RootBCDData,
+    config: Config
 ): SourceFile {
     log('Starting generation of aggregated bcd-data.ts file...');
-    const filePath = getOutputPath('bcd-data.ts');
+    const filePath = getOutputPath('bcd-data.ts', { outputDir: config.outputDir });
+
+    const existingSourceFile = project.getSourceFile(filePath);
+    if (existingSourceFile) {
+        project.removeSourceFile(existingSourceFile);
+    }
     const sourceFile = project.createSourceFile(filePath, '', { overwrite: true });
 
     const properties: string[] = [];
+
+    sourceFile.addImportDeclaration({
+        moduleSpecifier: config.typesPath,
+        namedImports: ['BrowsersData', 'MetaData'],
+        isTypeOnly: true,
+    });
+
+    sourceFile.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        isExported: true,
+        declarations: [{
+            name: 'BROWSERS_DATA',
+            type: 'BrowsersData',
+            initializer: objectToWriterFunction(allData.browsers)
+        }]
+    });
+
+    sourceFile.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        isExported: true,
+        declarations: [{
+            name: 'META_DATA',
+            type: 'MetaData',
+            initializer: objectToWriterFunction(allData.__meta)
+        }]
+    });
+
 
     for (const categoryName of featureCategories) {
         const modulePath = `./data-parts/${categoryName.toLowerCase()}-data`;
@@ -127,7 +172,7 @@ export function generateAggregatedDataFile(
     sourceFile.addVariableStatement({
         declarationKind: VariableDeclarationKind.Const,
         declarations: [{
-            name: 'BCD_DATA',
+            name: 'FEATURES_DATA',
             initializer: writer => {
                 writer.writeLine('{');
                 properties.forEach(prop => {
@@ -141,7 +186,22 @@ export function generateAggregatedDataFile(
         isExported: true,
     });
 
-    sourceFile.addStatements('export type BCDDataType = typeof BCD_DATA;');
+     sourceFile.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        isExported: true,
+        declarations: [{
+            name: 'BCD_DATA',
+            initializer: writer => {
+                writer.writeLine('{');
+                writer.withIndentationLevel(1, () => {
+                    writer.writeLine('__meta: META_DATA,');
+                    writer.writeLine('browsers: BROWSERS_DATA,');
+                    writer.writeLine('...FEATURES_DATA,');
+                });
+                writer.write('}');
+            }
+        }]
+    });
 
     log('Finished generation of aggregated bcd-data.ts.');
     return sourceFile;

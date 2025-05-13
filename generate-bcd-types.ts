@@ -12,11 +12,13 @@ import type { RootBCDData, PathInfo } from './src/types';
 export interface Config {
   outputDir: string;
   pathSeparator: string;
+  typesPath: string;
 }
 
 export const CONFIG: Config = {
   outputDir: '__generated__',
   pathSeparator: '.',
+  typesPath: './types',
 };
 
 interface ExtendedGeneratedFiles {
@@ -24,7 +26,7 @@ interface ExtendedGeneratedFiles {
   dataFile: string;
   utilsFile: string;
   indexFile: string;
-  baseTypesFile: string;
+  baseTypesFileCopied: string;
 }
 
 export function generateAllFiles(
@@ -41,7 +43,7 @@ export function generateAllFiles(
     },
     compilerOptions: {
         target: ScriptTarget.ESNext,
-        module: ModuleKind.CommonJS,
+        module: ModuleKind.Preserve,
         declaration: true,
         sourceMap: false,
         skipLibCheck: true,
@@ -54,86 +56,103 @@ export function generateAllFiles(
     const categoryData = bcdDataSource[categoryName as keyof Omit<RootBCDData, '__meta' | 'browsers'>];
     if (categoryData) {
       try {
-        generateBcdCategoryDataFile(project, categoryName, categoryData);
+        generateBcdCategoryDataFile(project, categoryName, categoryData, bcdDataSource.browsers, CONFIG);
       } catch (e: any) {
         log(`Error generating data file for category ${categoryName}: ${e.message}\n${e.stack}`);
       }
     }
   }
   try {
-    project.saveSync();
-    log('All data part files saved.');
+    // project.saveSync();
+    log('All data part files prepared in memory.');
   } catch (e: any) {
-    log(`Error saving data part files: ${e.message}`);
+    log(`Error during data part file preparation: ${e.message}`);
   }
 
-  let aggregatedDataSource: import('ts-morph').SourceFile | undefined;
+  let aggregatedDataSourceFile: import('ts-morph').SourceFile | undefined;
   try {
-    aggregatedDataSource = generateAggregatedDataFile(project, featureCategories);
+    aggregatedDataSourceFile = generateAggregatedDataFile(project, featureCategories, bcdDataSource, CONFIG);
   } catch (e: any) { log(`Error generating aggregated data file: ${e.message}\n${e.stack}`); }
 
   const pathsMapForTypes = new Map<string, PathInfo>();
-  function simplePathCollector(data: any, prefix = '', depth = 0) {
+  function simplePathCollector(data: any, currentPathParts: string[], depth = 0) {
     if (!data || typeof data !== 'object') return;
     for (const key in data) {
       if (!Object.hasOwn(data, key)) continue;
-      const currentPath = prefix ? `${prefix}${CONFIG.pathSeparator}${key}` : key;
-      pathsMapForTypes.set(currentPath, { path: currentPath, fullPath: currentPath, hasCompat: !!(data[key])?.__compat, childrenKeys: new Set(Object.keys(data[key] || {})), depth });
-      simplePathCollector(data[key], currentPath, depth + 1);
+      const newPathParts = [...currentPathParts, key];
+      const currentPath = newPathParts.join(CONFIG.pathSeparator);
+      pathsMapForTypes.set(currentPath, {
+        path: key,
+        fullPath: currentPath,
+        hasCompat: !!(data[key])?.__compat,
+        childrenKeys: new Set(Object.keys(data[key] || {})),
+        depth
+      });
+      if (key !== '__compat') {
+        simplePathCollector(data[key], newPathParts, depth + 1);
+      }
     }
   }
-  simplePathCollector(bcdDataSource);
+
+  for (const category of featureCategories) {
+    const categoryData = bcdDataSource[category as keyof typeof bcdDataSource];
+    if (categoryData) {
+        simplePathCollector(categoryData, [category], 0);
+    }
+  }
 
 
-  let typesSource, utilsSource, indexSource;
+  let typesSourceFile, utilsSourceFile, indexSourceFile;
   try {
-    typesSource = generateTypesFile(project, pathsMapForTypes, featureCategories, CONFIG);
+    typesSourceFile = generateTypesFile(project, pathsMapForTypes, featureCategories, CONFIG);
   } catch (e: any) { log(`Error generating types file: ${e.message}\n${e.stack}`); }
   try {
-    utilsSource = generateUtilsFile(project, CONFIG);
+    utilsSourceFile = generateUtilsFile(project, CONFIG);
   } catch (e: any) { log(`Error generating utils file: ${e.message}\n${e.stack}`); }
   try {
-    indexSource = generateIndexFile(project);
+    indexSourceFile = generateIndexFile(project);
   } catch (e: any) { log(`Error generating index file: ${e.message}\n${e.stack}`); }
 
+
+  const baseTypesFileCopiedPath = getOutputPath('types.ts', CONFIG);
+  const baseTypesSourcePath = path.resolve(__dirname, './src/types.ts');
+  log(`Copying ${baseTypesSourcePath} to ${baseTypesFileCopiedPath}...`);
+  try {
+    let baseTypesContent = fs.readFileSync(baseTypesSourcePath, 'utf-8');
+    baseTypesContent = baseTypesContent.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+    baseTypesContent = baseTypesContent.replace(/^\s*[\r\n]/gm, '');
+    fs.writeFileSync(baseTypesFileCopiedPath, baseTypesContent);
+  } catch (e: any) {
+    log(`Error copying/processing types.ts: ${e.message}`);
+  }
+
+
   const filesToSave = [
-    { filePath: getOutputPath('bcd-types.ts'), sourceFile: typesSource },
-    { filePath: getOutputPath('bcd-data.ts'), sourceFile: aggregatedDataSource },
-    { filePath: getOutputPath('bcd-utils.ts'), sourceFile: utilsSource },
-    { filePath: getOutputPath('index.ts'), sourceFile: indexSource },
+    { filePath: getOutputPath('bcd-types.ts', CONFIG), sourceFile: typesSourceFile },
+    { filePath: getOutputPath('bcd-data.ts', CONFIG), sourceFile: aggregatedDataSourceFile },
+    { filePath: getOutputPath('bcd-utils.ts', CONFIG), sourceFile: utilsSourceFile },
+    { filePath: getOutputPath('index.ts', CONFIG), sourceFile: indexSourceFile },
   ];
 
   for (const { filePath, sourceFile } of filesToSave) {
     if (sourceFile) {
       log(`Writing ${filePath}...`);
-      sourceFile.formatText({ ensureNewLineAtEndOfFile: true });
-      let text = sourceFile.getFullText();
-      text = text.replace(/^\s*[\r\n]/gm, '');
-      fs.writeFileSync(filePath, text);
+      // sourceFile.formatText({ ensureNewLineAtEndOfFile: true });
+      // fs.writeFileSync(filePath, sourceFile.getFullText());
     } else {
       log(`Skipping write for ${filePath} as source file was not generated or generation failed.`);
     }
   }
   project.saveSync();
+  log('All generated files saved.');
 
-  const baseTypesFile = getOutputPath('bcd-base-types.ts');
-  const baseTypesSourcePath = path.resolve(__dirname, './src/bcd-base-types.ts');
-  log(`Copying ${baseTypesSourcePath} to ${baseTypesFile}...`);
-  try {
-    let baseTypesContent = fs.readFileSync(baseTypesSourcePath, 'utf-8');
-    baseTypesContent = baseTypesContent.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
-    baseTypesContent = baseTypesContent.replace(/^\s*[\r\n]/gm, '');
-    fs.writeFileSync(baseTypesFile, baseTypesContent);
-  } catch (e: any) {
-    log(`Error copying/processing bcd-base-types.ts: ${e.message}`);
-  }
 
   return {
     typesFile: filesToSave.find(f => f.filePath.endsWith('bcd-types.ts') && f.sourceFile)?.filePath ?? '',
     dataFile: filesToSave.find(f => f.filePath.endsWith('bcd-data.ts') && f.sourceFile)?.filePath ?? '',
     utilsFile: filesToSave.find(f => f.filePath.endsWith('bcd-utils.ts') && f.sourceFile)?.filePath ?? '',
     indexFile: filesToSave.find(f => f.filePath.endsWith('index.ts') && f.sourceFile)?.filePath ?? '',
-    baseTypesFile,
+    baseTypesFileCopied: baseTypesFileCopiedPath,
   };
 }
 
@@ -157,8 +176,8 @@ function main(): void {
     files.dataFile,
     files.utilsFile,
     files.indexFile,
-    files.baseTypesFile,
-  ].filter(Boolean).map(f => `  - ${f}`).join('\n');
+    files.baseTypesFileCopied,
+  ].filter(Boolean).map(f => `  - ${path.relative(process.cwd(), f)}`).join('\n');
   log(`Generated files:\n${generatedFileList}\n`);
   log(`Total time: ${Date.now() - overallStartTime}ms`);
 }

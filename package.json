@@ -29,6 +29,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "pathe": "^2.0.3",
     "ts-morph": "^25.0.1"
   },
   "simple-git-hooks": {

@@ -17,31 +17,19 @@ export function generateIndexFile(project: Project): SourceFile {
       'BCDGetter',
       'FeatureSupport',
       'BCDPathConstant',
-      'CompatStatement',
-      'SupportStatement',
-      'SimpleSupportStatement',
-      'FlagStatement',
-      'StatusBlock',
-      'VersionValue',
-      'BrowserName',
-      'MetaData',
-      'BrowsersData',
-      'BrowserStatement',
-      'ReleaseStatement',
-      'BcdFeatureData'
     ],
     moduleSpecifier: './bcd-types',
     isTypeOnly: true,
   });
 
   sourceFile.addExportDeclaration({
-    namedExports: ['BCD'],
-    moduleSpecifier: './bcd-proxy',
-  });
-
-  sourceFile.addExportDeclaration({
-    namedExports: ['PATHS', 'getPathByKey', 'getKeyByPath'],
-    moduleSpecifier: './bcd-paths',
+    namedExports: [
+      'BCD_DATA',
+      'FEATURES_DATA',
+      'BROWSERS_DATA',
+      'META_DATA',
+    ],
+    moduleSpecifier: './bcd-data'
   });
 
   sourceFile.addExportDeclaration({
@@ -62,12 +50,5 @@ export function generateIndexFile(project: Project): SourceFile {
     moduleSpecifier: './bcd-utils',
   });
 
-  sourceFile.addExportDeclaration({
-    moduleSpecifier: './bcd-base-types',
-    isTypeOnly: true
-  });
-
-
-  sourceFile.formatText();
   return sourceFile;
 }

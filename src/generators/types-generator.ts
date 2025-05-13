@@ -10,42 +10,46 @@ export function generateTypesFile(
   config: Config
 ): SourceFile {
   log('Starting generation of bcd-types.ts...');
-  const sourceFile = project.createSourceFile('bcd-types.ts', '', {
-    overwrite: true,
-  });
+
+  const sourceFileName = 'bcd-types.ts';
+  let sourceFile = project.getSourceFile(sf => sf.getFilePath().endsWith(sourceFileName));
+  if (sourceFile) {
+    project.removeSourceFile(sourceFile);
+  }
+  sourceFile = project.createSourceFile(sourceFileName, '', { overwrite: true });
+
   const allPaths = Array.from(pathsMap.keys()).sort((a, b) => a.localeCompare(b));
 
   sourceFile.addStatements(`// Generated on ${new Date().toISOString()}\n`);
 
   log('Adding base BCD type imports for bcd-types.ts...');
   sourceFile.addImportDeclaration({
-    moduleSpecifier: './bcd-base-types',
+    moduleSpecifier: config.typesPath,
     namedImports: [
       'RootBCDData',
       'CompatStatement',
       'SupportStatement',
-      'SimpleSupportStatement',
       'FlagStatement',
-      'StatusBlock',
       'VersionValue',
       'BrowserName',
-      'MetaData',
-      'BrowsersData',
-      'BrowserStatement',
-      'ReleaseStatement',
-      'BcdFeatureData'
     ],
     isTypeOnly: true,
   });
-
-  log(`Generating BCDPath type alias with ${allPaths.length} paths...`);
-  const startTimeBCDPath = Date.now();
-  sourceFile.addTypeAlias({
-    name: 'BCDPath',
-    type: allPaths.length > 0 ? allPaths.map(p => `'${p.replace(/'/g, "\\'")}'`).join('\n  | ') : 'never',
-    isExported: true,
+  sourceFile.addExportDeclaration({
+    moduleSpecifier: config.typesPath,
+    isTypeOnly: true,
   });
-  log(`BCDPath generation took ${Date.now() - startTimeBCDPath}ms`);
+
+  log(`Generating BCDPath type alias with ${allPaths.length} paths using raw text insertion...`);
+  const startTimeBCDPath = Date.now();
+
+  const bcdPathTypeStringContent = allPaths.length > 0
+    ? allPaths.map(p => `'${p.replace(/'/g, "\\'")}'`).join('\n  | ')
+    : 'never';
+
+  sourceFile.addStatements([`export type BCDPath = \n  ${bcdPathTypeStringContent};`]);
+
+  log(`BCDPath type alias (raw text) added. Generation took ${Date.now() - startTimeBCDPath}ms`);
 
   log('Generating BCDCategory type alias...');
   sourceFile.addTypeAlias({
@@ -110,7 +114,7 @@ export function generateTypesFile(
       { name: 'browser', type: 'BrowserName' },
       { name: 'supported', type: 'boolean' },
       { name: 'version_added', type: 'VersionValue | undefined', hasQuestionToken: true },
-      { name: 'version_removed', type: 'VersionValue | undefined', hasQuestionToken: true },
+      { name: 'version_removed', type: 'string | true | undefined', hasQuestionToken: true },
       { name: 'prefix', type: 'string', hasQuestionToken: true },
       { name: 'alternative_name', type: 'string', hasQuestionToken: true },
       { name: 'partial_implementation', type: 'boolean', hasQuestionToken: true },
@@ -125,8 +129,6 @@ export function generateTypesFile(
     properties: [{ name: '[key: string]', type: 'BCDPath' }],
   });
 
-  log('Formatting bcd-types.ts...');
-  sourceFile.formatText();
   log('Finished generation of bcd-types.ts.');
   return sourceFile;
 }
