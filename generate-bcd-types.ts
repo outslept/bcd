@@ -18,11 +18,7 @@ import {
 import { generateIndexFile } from "./src/generators/index-generator";
 import { generateTypesFile } from "./src/generators/types-generator";
 import { generateUtilsFile } from "./src/generators/utils-generator";
-import {
-  ensureDir,
-  getFeatureCategories,
-  log,
-} from "./src/utils";
+import { ensureDir, getFeatureCategories, log } from "./src/utils";
 import type { PathInfo, RootBCDData } from "./src/types";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -139,12 +135,7 @@ export function generateAllFiles(
   }
 
   try {
-    generateTypesFile(
-      project,
-      pathsMapForTypes,
-      featureCategories,
-      CONFIG,
-    );
+    generateTypesFile(project, pathsMapForTypes, featureCategories, CONFIG);
   } catch (error: any) {
     log(`Error generating types file: ${error.message}\n${error.stack}`);
   }

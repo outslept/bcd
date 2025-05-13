@@ -7,7 +7,7 @@ export interface OutputConfig {
 }
 
 export function log(message: string): void {
-  process.stdout.write(String(message) + "\n");
+  process.stdout.write(`${String(message)}\n`);
 }
 
 export function ensureDir(dirPath: string): void {
