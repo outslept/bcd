@@ -1,6 +1,6 @@
 # MDN BCD
 
-This repository provides TypeScript types and utility functions for working with MDN's Browser Compatibility Data (@mdn/compat-data).
+This repository provides TypeScript types and utility functions for working with MDN's Browser Compatibility Data (`@mdn/compat-data`).
 
 ## Features
 
