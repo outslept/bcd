@@ -1,0 +1,18 @@
+{
+  "name": "bcd-auto-complete",
+  "packageManager": "pnpm@10.6.5",
+  "dependencies": {
+    "@mdn/browser-compat-data": "^6.0.12",
+    "ajv": "^8.17.1",
+    "ajv-errors": "^3.0.0",
+    "ajv-formats": "^3.0.1",
+    "compare-versions": "^6.1.1",
+    "fast-copy": "^3.0.2",
+    "ts-morph": "^25.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.16",
+    "tsdown": "^0.11.1",
+    "tsx": "^4.19.4"
+  }
+}
