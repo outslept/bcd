@@ -2,8 +2,12 @@
   "name": "bcd-auto-complete",
   "packageManager": "pnpm@10.6.5",
   "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "generate": "tsc generate-bcd-types.ts",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@mdn/browser-compat-data": "^6.0.12",
