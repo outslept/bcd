@@ -32,9 +32,7 @@ function writeValue(
   value: unknown,
   indentLevel: number,
 ): void {
-  if (value === undefined) {
-    throw new Error(`Unsupported value type: undefined`);
-  }
+  if (value === undefined) throw new Error("Unsupported value type: undefined");
 
   if (typeof value === "string") {
     writer.quote(
@@ -56,14 +54,10 @@ function writeValue(
         writer.withIndentationLevel(indentLevel + 1, () => {
           writeValue(writer, item, indentLevel + 1);
         });
-        if (index < value.length - 1) {
-          writer.write(",");
-        }
+        if (index < value.length - 1) writer.write(",");
         writer.newLine();
       });
-      writer.withIndentationLevel(indentLevel, () => {
-        writer.write("]");
-      });
+      writer.withIndentationLevel(indentLevel, () => writer.write("]"));
     } else {
       writer.write("]");
     }
@@ -92,14 +86,10 @@ function writeObject(
         writer.write(`${safeKey}: `);
         writeValue(writer, val, indentLevel + 1);
       });
-      if (index < entries.length - 1) {
-        writer.write(",");
-      }
+      if (index < entries.length - 1) writer.write(",");
       writer.newLine();
     });
-    writer.withIndentationLevel(indentLevel, () => {
-      writer.write("}");
-    });
+    writer.withIndentationLevel(indentLevel, () => writer.write("}"));
   } else {
     writer.write("}");
   }
@@ -138,14 +128,11 @@ export function generateBcdCategoryDataFile(
   const filePath = path.join(dataSubDir, fileName);
 
   const existingSourceFile = project.getSourceFile(filePath);
-  if (existingSourceFile) {
-    project.removeSourceFile(existingSourceFile);
-  }
+  if (existingSourceFile) project.removeSourceFile(existingSourceFile);
 
   const sourceFile = project.createSourceFile(filePath, "", {
     overwrite: true,
   });
-
   const constName = `${categoryName.toUpperCase()}_DATA`;
 
   try {
@@ -182,9 +169,7 @@ export function generateAggregatedDataFile(
   });
 
   const existingSourceFile = project.getSourceFile(filePath);
-  if (existingSourceFile) {
-    project.removeSourceFile(existingSourceFile);
-  }
+  if (existingSourceFile) project.removeSourceFile(existingSourceFile);
 
   const sourceFile = project.createSourceFile(filePath, "", {
     overwrite: true,
@@ -235,9 +220,9 @@ export function generateAggregatedDataFile(
           initializer: (writer) => {
             writer.writeLine("{");
             properties.forEach((prop) => {
-              writer.withIndentationLevel(1, () => {
-                writer.writeLine(`${prop},`);
-              });
+              writer.withIndentationLevel(1, () =>
+                writer.writeLine(`${prop},`),
+              );
             });
             writer.write("}");
           },

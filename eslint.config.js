@@ -10,7 +10,7 @@ export const GLOB_SRC = "**/*.?([cm])[jt]s?(x)";
 
 export default sxzz(
   {
-    ignores: ["__generated__"],
+    ignores: ["**/generated/**"],
   },
 
   {

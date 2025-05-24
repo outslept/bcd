@@ -33,22 +33,16 @@ export interface PathInfo {
   path: string;
   fullPath: string;
   hasCompat: boolean;
-  childrenKeys: Set<string>;
   depth: number;
 }
 
-export type ValidatableData =
-  | {
-      [key: string]: unknown;
-    }
-  | BrowsersData;
+export type ValidatableData = Record<string, unknown> | BrowsersData;
 
 export interface ValidationError {
   path: string;
   message: string;
   value?: unknown;
   code?: string;
-  suggestion?: unknown;
 }
 
 export interface ValidationResult {
@@ -57,45 +51,15 @@ export interface ValidationResult {
   fixedData?: ValidatableData;
 }
 
-export type DataFixer = (data: ValidatableData) => Promise<ValidatableData>;
-
-export interface TransformedIdentifier extends Omit<Identifier, "__compat"> {
-  __compat?: TransformedCompatStatement | any; // fix typing
-}
-
 export interface TransformedCompatStatement
   extends Omit<CompatStatement, "support"> {
-  support: TransformedSupportBlock;
-}
-
-export type TransformedSupportBlock = {
-  [K in BrowserName]?: TransformedSupportStatement;
-};
-
-export type TransformedSupportStatement =
-  | TransformedSimpleSupportStatement
-  | readonly [
-      TransformedSimpleSupportStatement,
-      ...TransformedSimpleSupportStatement[],
-    ]
-  | "mirror";
-
-export interface TransformedSimpleSupportStatement
-  extends SimpleSupportStatement {
-  _original?: SimpleSupportStatement;
-  _autoFixed?: boolean;
-}
-
-export interface GeneratorOptions {
-  strict: boolean;
-  autoFix: boolean;
-  preserveOriginalData?: boolean;
-  validateOnly?: boolean;
+  support: Record<
+    BrowserName,
+    SimpleSupportStatement | SimpleSupportStatement[]
+  >;
 }
 
 export interface ProcessingContext {
   currentPath: string[];
-  options: GeneratorOptions;
   errors: ValidationError[];
-  fixes: Map<string, unknown>;
 }

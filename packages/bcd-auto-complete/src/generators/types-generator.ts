@@ -28,22 +28,33 @@ export function generateTypesFile(
   const outputFilePath = path.join(config.outputDir, sourceFileName);
 
   const existingSourceFile = project.getSourceFile(outputFilePath);
-  if (existingSourceFile) {
-    project.removeSourceFile(existingSourceFile);
-  }
+  if (existingSourceFile) project.removeSourceFile(existingSourceFile);
 
   const sourceFile = project.createSourceFile(outputFilePath, "", {
     overwrite: true,
   });
 
+  sourceFile.addImportDeclaration({
+    moduleSpecifier: "@mdn/browser-compat-data",
+    namedImports: [
+      "BrowserName",
+      "CompatStatement",
+      "FlagStatement",
+      "SupportStatement",
+      "VersionValue",
+    ],
+    isTypeOnly: true,
+  });
+
+  sourceFile.addImportDeclaration({
+    moduleSpecifier: "./types",
+    namedImports: ["RootBCDData"],
+    isTypeOnly: true,
+  });
+
   log("Adding base BCD type imports and re-exports");
 
-  // TODO
-  // I can't figure out how to do the proper importing
-  
-  const allPaths = Array.from(pathsMap.keys()).sort((a, b) =>
-    a.localeCompare(b),
-  );
+  const allPaths = Array.from(pathsMap.keys()).sort();
 
   log(`Generating BCDPath type alias with ${allPaths.length} paths`);
   const startTimeBCDPath = Date.now();
@@ -121,10 +132,7 @@ export function generateTypesFile(
     name: "BCDGetter",
     isExported: true,
     properties: [
-      {
-        name: "get",
-        type: "<P extends BCDPath>(path: P) => BCDDataType<P>",
-      },
+      { name: "get", type: "<P extends BCDPath>(path: P) => BCDDataType<P>" },
       {
         name: "isSupported",
         type: "(path: BCDPath, browser: BrowserName, version: string) => boolean",
@@ -133,21 +141,10 @@ export function generateTypesFile(
         name: "getSupportMap",
         type: "(path: BCDPath) => Readonly<Record<BrowserName, SupportStatement>> | undefined",
       },
-      {
-        name: "getAllBrowsers",
-        type: "() => readonly BrowserName[]",
-      },
-      {
-        name: "getCategories",
-        type: "() => readonly BCDCategory[]",
-      },
+      { name: "getAllBrowsers", type: "() => readonly BrowserName[]" },
+      { name: "getCategories", type: "() => readonly BCDCategory[]" },
     ],
-    methods: [
-      {
-        name: "raw",
-        returnType: "Readonly<RootBCDData>",
-      },
-    ],
+    methods: [{ name: "raw", returnType: "Readonly<RootBCDData>" }],
   });
 
   log("Adding FeatureSupport interface");
@@ -168,11 +165,7 @@ export function generateTypesFile(
         hasQuestionToken: true,
       },
       { name: "prefix", type: "string", hasQuestionToken: true },
-      {
-        name: "alternative_name",
-        type: "string",
-        hasQuestionToken: true,
-      },
+      { name: "alternative_name", type: "string", hasQuestionToken: true },
       {
         name: "partial_implementation",
         type: "boolean",

@@ -81,7 +81,10 @@ async function validateAndFixData(
 
     if (!validation.valid) {
       if (CONFIG.autoFix && validation.fixedData) {
-        data[category as keyof typeof data] = validation.fixedData[category];
+        if (category in validation.fixedData) {
+          const fixedCategoryData = validation.fixedData[category as keyof typeof validation.fixedData];
+          (data as any)[category] = fixedCategoryData;
+        }
         log(`Applied auto-fixed ${category} data`);
       } else {
         validation.errors.forEach((err) => log(validator.formatError(err)));
@@ -106,7 +109,7 @@ function setupProject(): Project {
       sourceMap: true,
       skipLibCheck: true,
       strict: true,
-      removeComments: false,
+      removeComments: true,
       esModuleInterop: true,
     },
   });
@@ -132,9 +135,6 @@ function collectPaths(
       fullPath: currentPath,
       hasCompat:
         valueObj && typeof valueObj === "object" && "__compat" in valueObj,
-      childrenKeys: new Set(
-        valueObj && typeof valueObj === "object" ? Object.keys(valueObj) : [],
-      ),
       depth,
     });
 
@@ -255,7 +255,7 @@ export async function generateAllFiles(
 
     const baseTypesFileCopiedPath = join(CONFIG.outputDir, "types.ts");
     const baseTypesSourcePath = resolve(currentDirname, CONFIG.typesPath);
-    log(`Copying base types file...`);
+    log("Copying base types file...");
 
     try {
       let baseTypesContent = readFileSync(baseTypesSourcePath, "utf-8");

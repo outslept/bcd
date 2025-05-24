@@ -10,9 +10,7 @@ export function generateIndexFile(
   const outputFilePath = path.join(config.outputDir, "index.ts");
 
   const existingSourceFile = project.getSourceFile(outputFilePath);
-  if (existingSourceFile) {
-    project.removeSourceFile(existingSourceFile);
-  }
+  if (existingSourceFile) project.removeSourceFile(existingSourceFile);
 
   const sourceFile = project.createSourceFile(outputFilePath, "", {
     overwrite: true,
@@ -31,6 +29,5 @@ export function generateIndexFile(
   });
 
   log("Index file generation completed");
-
   return sourceFile;
 }

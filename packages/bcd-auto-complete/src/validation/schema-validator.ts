@@ -1,6 +1,5 @@
 import Ajv, { type ErrorObject } from "ajv";
 import addFormats from "ajv-formats";
-import structuredClone from "fast-copy";
 import { createValidationError } from "../utils";
 import type {
   BrowsersData,
@@ -31,9 +30,7 @@ export class SchemaValidator {
 
   public validateBrowserData(data: ValidatableData): ValidationResult {
     const validate = this.ajv.getSchema("browser");
-    if (!validate) {
-      throw new Error("Browser schema not found");
-    }
+    if (!validate) throw new Error("Browser schema not found");
 
     try {
       const valid = validate(data);
@@ -43,17 +40,10 @@ export class SchemaValidator {
         const fixedData = this.fixBrowserData(
           data as { browsers: BrowsersData },
         );
-        return {
-          valid: false,
-          errors,
-          fixedData,
-        };
+        return { valid: false, errors, fixedData };
       }
 
-      return {
-        valid: true,
-        errors: [],
-      };
+      return { valid: true, errors: [] };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return {
@@ -66,9 +56,7 @@ export class SchemaValidator {
 
   public validateCompatData(data: ValidatableData): ValidationResult {
     const validate = this.ajv.getSchema("compat");
-    if (!validate) {
-      throw new Error("Compat schema not found");
-    }
+    if (!validate) throw new Error("Compat schema not found");
 
     try {
       const valid = validate(data);
@@ -76,17 +64,10 @@ export class SchemaValidator {
 
       if (!valid) {
         const fixedData = this.fixCompatData(data);
-        return {
-          valid: false,
-          errors,
-          fixedData,
-        };
+        return { valid: false, errors, fixedData };
       }
 
-      return {
-        valid: true,
-        errors: [],
-      };
+      return { valid: true, errors: [] };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return {
@@ -112,23 +93,20 @@ export class SchemaValidator {
     const fixedData = structuredClone(data);
     const browsers = fixedData.browsers;
 
-    Object.entries(browsers).forEach(([browserName, browserData]) => {
+    for (const [browserName, browserData] of Object.entries(browsers)) {
       if (browserData.releases) {
-        Object.entries(browserData.releases).forEach(([, releaseData]) => {
+        for (const releaseData of Object.values(browserData.releases)) {
           this.fixReleaseData(releaseData);
-        });
+        }
       }
-
       this.fixBrowserProperties(browserData, browserName);
-    });
+    }
 
     return fixedData;
   }
 
   private fixReleaseData(releaseData: any): void {
-    if (!releaseData.status) {
-      releaseData.status = "retired";
-    }
+    if (!releaseData.status) releaseData.status = "retired";
 
     if (
       ![
@@ -160,40 +138,31 @@ export class SchemaValidator {
   }
 
   private fixBrowserProperties(browserData: any, browserName: string): void {
-    if (!browserData.name) {
-      browserData.name = browserName;
-    }
-    if (browserData.type === undefined) {
-      browserData.type = "desktop";
-    }
-    if (browserData.accepts_flags === undefined) {
+    if (!browserData.name) browserData.name = browserName;
+    if (browserData.type === undefined) browserData.type = "desktop";
+    if (browserData.accepts_flags === undefined)
       browserData.accepts_flags = false;
-    }
-    if (browserData.accepts_webextensions === undefined) {
+    if (browserData.accepts_webextensions === undefined)
       browserData.accepts_webextensions = false;
-    }
   }
 
   private fixCompatData(data: ValidatableData): ValidatableData {
     const fixedData = structuredClone(data);
 
-    Object.entries(fixedData).forEach(([, value]) => {
+    for (const value of Object.values(fixedData)) {
       if (value && typeof value === "object" && !Array.isArray(value)) {
         processCompatNode(value as Record<string, unknown>);
       }
-    });
+    }
 
     return fixedData;
   }
 
   public formatError(error: ValidationError): string {
     let message = `${error.path}: ${error.message}`;
-    if (error.value !== undefined) {
+    if (error.value !== undefined)
       message += `\n  Value: ${JSON.stringify(error.value)}`;
-    }
-    if (error.code) {
-      message += `\n  Code: ${error.code}`;
-    }
+    if (error.code) message += `\n  Code: ${error.code}`;
     return message;
   }
 }
