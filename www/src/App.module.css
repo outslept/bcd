@@ -1,0 +1,236 @@
+/* App.module.css */
+.app {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #1f2937;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0 0 16px 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.header p {
+  margin: 0;
+  font-size: 1.125rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.controls {
+  margin-bottom: 48px;
+}
+
+.querySelector {
+  margin-bottom: 32px;
+}
+
+.querySelector h2 {
+  margin: 0 0 24px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.exampleQueries {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.queryButton {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.queryButton:hover {
+  border-color: #6366f1;
+  background-color: #f8fafc;
+}
+
+.queryButton.active {
+  border-color: #6366f1;
+  background-color: #6366f1;
+  color: white;
+}
+
+.customQuery {
+  padding-top: 32px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.customQuery h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.queryForm {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.queryInput {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  transition: border-color 0.2s ease;
+}
+
+.queryInput:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.submitButton {
+  padding: 12px 24px;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submitButton:hover {
+  background-color: #5856eb;
+}
+
+.queryHelp {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.queryHelp code {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  font-size: 12px;
+}
+
+.results {
+  margin-top: 48px;
+}
+
+.queryInfo {
+  margin-bottom: 32px;
+}
+
+.queryInfo h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.queryInfo h2 code {
+  background-color: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  font-size: 1.25rem;
+  color: #6366f1;
+}
+
+.description {
+  margin: 0 0 16px 0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.mdnLink {
+  margin: 0;
+}
+
+.externalLink {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.externalLink:hover {
+  text-decoration: underline;
+}
+
+.compatTable {
+  margin-top: 24px;
+}
+
+.noData {
+  text-align: center;
+  padding: 48px 24px;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.noData h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.noData p {
+  margin: 0 0 24px 0;
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+.noData code {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  color: #6366f1;
+}
+
+.helpDetails {
+  text-align: left;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.helpDetails summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: #6366f1;
+  margin-bottom: 16px;
+}
