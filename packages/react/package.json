@@ -1,5 +1,5 @@
 {
-  "name": "bcd-react-table",
+  "name": "@bcd/react-compat-table",
   "version": "1.0.0",
   "packageManager": "pnpm@10.6.5",
   "description": "",
