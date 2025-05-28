@@ -1,7 +1,8 @@
 {
-  "name": "bcd-auto-complete",
+  "name": "@bcd/typegen",
   "version": "0.0.0",
   "packageManager": "pnpm@10.6.5",
+  "type": "module",
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
@@ -12,14 +13,11 @@
   },
   "dependencies": {
     "@mdn/browser-compat-data": "^6.0.12",
-    "ajv": "^8.17.1",
-    "ajv-errors": "^3.0.0",
-    "ajv-formats": "^3.0.1",
     "ts-morph": "^25.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.15.16",
-    "tsdown": "^0.11.1",
+    "tsdown": "^0.12.4",
     "tsx": "^4.19.4"
   }
 }

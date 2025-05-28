@@ -5,7 +5,6 @@ import type {
   Identifier,
   SimpleSupportStatement,
   SupportBlock,
-  SupportStatement,
 } from "@mdn/browser-compat-data";
 
 function cleanSimpleSupportStatement(
@@ -37,11 +36,10 @@ function cleanSimpleSupportStatement(
 function cleanSupportBlock(support: SupportBlock): SupportBlock {
   const cleaned: SupportBlock = {};
 
-  for (const [browserName, statement] of Object.entries(support) as [
-    BrowserName,
-    SupportStatement | undefined,
-  ][]) {
-    // if (!statement || statement === "mirror") continue;
+  Object.entries(support).forEach(([browserName, statement]) => {
+    if (!statement) return;
+
+    const typedBrowserName = browserName as BrowserName;
 
     if (Array.isArray(statement)) {
       const cleanedStatements = statement
@@ -51,29 +49,38 @@ function cleanSupportBlock(support: SupportBlock): SupportBlock {
         .map(cleanSimpleSupportStatement);
 
       if (cleanedStatements.length === 1) {
-        cleaned[browserName] = cleanedStatements[0];
-      } else if (cleanedStatements.length > 1) {
-        cleaned[browserName] = cleanedStatements as [
+        cleaned[typedBrowserName] = cleanedStatements[0];
+      } else if (cleanedStatements.length >= 2) {
+        cleaned[typedBrowserName] = cleanedStatements as [
           SimpleSupportStatement,
           SimpleSupportStatement,
           ...SimpleSupportStatement[],
         ];
       }
-    } else if (typeof statement === "object") {
-      cleaned[browserName] = cleanSimpleSupportStatement(statement);
+    } else {
+      cleaned[typedBrowserName] = cleanSimpleSupportStatement(statement);
     }
-  }
+  });
 
   return cleaned;
+}
+
+function isIdentifier(value: unknown): value is Identifier {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    !("support" in value) &&
+    !("status" in value)
+  );
 }
 
 export function transformBcdData(
   node: Identifier,
   browsersData?: BrowsersData,
-): Identifier | null {
+): Record<string, unknown> | null {
   if (!node || typeof node !== "object") return null;
 
-  const transformed: Identifier = {};
+  const transformed: Record<string, unknown> = {};
   let hasProperties = false;
 
   if (node.__compat) {
@@ -91,26 +98,17 @@ export function transformBcdData(
     hasProperties = true;
   }
 
-  for (const [key, value] of Object.entries(node)) {
-    if (
-      key === "__compat" ||
-      !value ||
-      typeof value !== "object" ||
-      "support" in value ||
-      "status" in value
-    ) {
-      continue;
+  Object.entries(node).forEach(([key, value]) => {
+    if (key === "__compat" || !value || !isIdentifier(value)) {
+      return;
     }
 
-    const transformedChild = transformBcdData(
-      value as Identifier,
-      browsersData,
-    );
+    const transformedChild = transformBcdData(value, browsersData);
     if (transformedChild !== null) {
       transformed[key] = transformedChild;
       hasProperties = true;
     }
-  }
+  });
 
   return hasProperties ? transformed : null;
 }

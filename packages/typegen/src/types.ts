@@ -8,7 +8,7 @@ import type {
 
 export type BrowsersData = Readonly<Record<BrowserName, BrowserStatement>>;
 
-export interface MetaData {
+export interface MetaData extends Record<string, unknown> {
   version: string;
   timestamp: string;
 }
@@ -36,8 +36,6 @@ export interface PathInfo {
   depth: number;
 }
 
-export type ValidatableData = Record<string, unknown> | BrowsersData;
-
 export interface ValidationError {
   path: string;
   message: string;
@@ -48,7 +46,7 @@ export interface ValidationError {
 export interface ValidationResult {
   valid: boolean;
   errors: ValidationError[];
-  fixedData?: ValidatableData;
+  fixedData?: Record<string, unknown> | BrowsersData;
 }
 
 export interface TransformedCompatStatement

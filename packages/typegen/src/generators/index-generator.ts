@@ -1,6 +1,6 @@
 import path from "node:path";
 import { log } from "../utils";
-import type { Config } from "../../generate-bcd-types";
+import type { Config } from "..";
 import type { Project, SourceFile } from "ts-morph";
 
 export function generateIndexFile(
@@ -21,11 +21,6 @@ export function generateIndexFile(
   sourceFile.addExportDeclaration({
     namedExports: ["BCD_DATA", "FEATURES_DATA", "BROWSERS_DATA", "META_DATA"],
     moduleSpecifier: "./bcd-data",
-  });
-
-  sourceFile.addExportDeclaration({
-    namedExports: ["transformBcdData"],
-    moduleSpecifier: "../src/data-transformer",
   });
 
   log("Index file generation completed");
