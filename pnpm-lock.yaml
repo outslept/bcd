@@ -78,6 +78,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.8
         version: 4.1.8
+      tw-animate-css:
+        specifier: ^1.3.2
+        version: 1.3.2
 
   packages/typegen:
     dependencies:
@@ -2553,6 +2556,9 @@ packages:
     resolution: {integrity: sha512-gK5GVzDkJK1SI1zwHf32Mqxf2tSJkNx+eYcNly5+nHvWqXUJYUkWBQtKauoESz3ymezAI++ZwT855x5p5eop+Q==}
     engines: {node: '>=18.0.0'}
     hasBin: true
+
+  tw-animate-css@1.3.2:
+    resolution: {integrity: sha512-khGYcg4sHWFWcjpiWvy0KN0Bd6yVy6Ecc4r9ZP2u7FV+n4/Fp8MQscCWJkM0KMIRvrpGyKpIQnIbEd1hrewdeg==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -5310,6 +5316,8 @@ snapshots:
       get-tsconfig: 4.10.1
     optionalDependencies:
       fsevents: 2.3.3
+
+  tw-animate-css@1.3.2: {}
 
   type-check@0.4.0:
     dependencies:
