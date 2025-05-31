@@ -747,6 +747,7 @@ const Notes: React.FC<{
                 <Icon name={iconName} />
                 <span>
                   {typeof label === "string" ? (
+                    // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
                     <span dangerouslySetInnerHTML={{ __html: label }} />
                   ) : (
                     label
@@ -819,6 +820,7 @@ const FeatureRow: React.FC<{
   const { name, compat, depth } = feature;
 
   const title = compat.description ? (
+    // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
     <span dangerouslySetInnerHTML={{ __html: compat.description }} />
   ) : (
     <code>{name}</code>
@@ -1165,5 +1167,3 @@ export const CompatTable: React.FC<CompatTableProps> = ({
     </div>
   );
 };
-
-export default CompatTable;

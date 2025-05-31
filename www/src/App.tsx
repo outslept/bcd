@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import CompatTable from "../../packages/bcd-react-table/src/CompatTable";
+import { CompatTable } from "../../packages/react/src/CompatTable";
 import styles from "./App.module.css";
 import type { Browsers, Identifier } from "@mdn/browser-compat-data";
 
@@ -98,7 +98,9 @@ function App() {
         <div className={styles.error}>
           <h2>Error Loading Data</h2>
           <p>{error}</p>
-          <button onClick={() => window.location.reload()}>Retry</button>
+          <button type="button" onClick={() => window.location.reload()}>
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -124,6 +126,7 @@ function App() {
             <div className={styles.exampleQueries}>
               {EXAMPLE_QUERIES.map(({ query, label }) => (
                 <button
+                  type="button"
                   key={query}
                   className={`${styles.queryButton} ${
                     selectedQuery === query ? styles.active : ""
@@ -169,6 +172,7 @@ function App() {
             {queryData?.__compat?.description && (
               <p
                 className={styles.description}
+                // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
                 dangerouslySetInnerHTML={{
                   __html: queryData.__compat.description,
                 }}
@@ -255,4 +259,5 @@ function App() {
   );
 }
 
+// eslint-disable-next-line import/no-default-export
 export default App;

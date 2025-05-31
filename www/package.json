@@ -1,12 +1,7 @@
 {
   "name": "www",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "packageManager": "pnpm@10.6.5",
-  "description": "",
-  "keywords": [],
-  "license": "ISC",
-  "author": "",
-  "main": "index.js",
   "scripts": {
     "build": "tsc -b && vite build",
     "dev": "vite",
@@ -16,36 +11,19 @@
     "format": "prettier --write .",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "prepare": "simple-git-hooks",
-    "generate": "tsx ./generate-bcd-types.ts"
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
-    "@iconify-json/carbon": "^1.2.8",
-    "@iconify-json/catppuccin": "^1.2.11",
-    "@iconify-json/logos": "^1.2.4",
-    "@iconify-json/ph": "^1.2.2",
-    "@radix-ui/react-avatar": "^1.1.9",
-    "@radix-ui/react-hover-card": "^1.1.13",
-    "@radix-ui/react-tabs": "^1.1.11",
-    "@radix-ui/react-toast": "^1.2.13",
-    "@radix-ui/react-tooltip": "^1.2.6",
-    "@unocss/preset-icons": "^66.1.1",
-    "@unocss/preset-web-fonts": "^66.1.1",
-    "@unocss/reset": "^66.1.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "shiki": "^3.4.0"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@iconify/react": "^6.0.0",
-    "@iconify/types": "^2.0.0",
+    "@bcd/react-compat-table": "workspace:*",
     "@mdn/browser-compat-data": "^6.0.12",
     "@types/node": "^22.15.16",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react-swc": "^3.9.0",
-    "bcd-react-table": "workspace:*",
-    "unocss": "^66.1.1",
     "vite": "^6.3.5"
   }
 }
