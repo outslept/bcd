@@ -25,7 +25,7 @@ export interface Config {
   pathSeparator: string;
 }
 
-export const CONFIG: Config = {
+const CONFIG: Config = {
   outputDir: "generated",
   pathSeparator: ".",
 } as const;
