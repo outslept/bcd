@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "generate": "tsc generate-bcd-types.ts",
+    "generate": "tsx src/index.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit"
