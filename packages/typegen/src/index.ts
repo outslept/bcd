@@ -16,9 +16,8 @@ import {
   generateBcdCategoryDataFile,
 } from "./generators/data-generator";
 import { generateIndexFile } from "./generators/index-generator";
-import { generateTypesFile } from "./generators/types-generator";
-import { ensureDir, getFeatureCategories, log } from "./utils";
-import type { PathInfo, RootBCDData } from "./types";
+import { ensureDir, getFeatureCategories } from "./utils";
+import type { RootBCDData } from "./types";
 
 export interface Config {
   outputDir: string;
@@ -55,36 +54,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function hasCompatProperty(value: unknown): boolean {
-  return isRecord(value) && "__compat" in value;
-}
-
-function collectPaths(
-  data: Record<string, unknown>,
-  currentPathParts: string[],
-  depth: number,
-  pathsMap: Map<string, PathInfo>,
-  pathSeparator: string,
-): void {
-  if (!isRecord(data)) return;
-
-  Object.entries(data).forEach(([key, value]) => {
-    const newPathParts = [...currentPathParts, key];
-    const currentPath = newPathParts.join(pathSeparator);
-
-    pathsMap.set(currentPath, {
-      path: key,
-      fullPath: currentPath,
-      hasCompat: hasCompatProperty(value),
-      depth,
-    });
-
-    if (key !== "__compat" && isRecord(value) && !("support" in value)) {
-      collectPaths(value, newPathParts, depth + 1, pathsMap, pathSeparator);
-    }
-  });
-}
-
 function isIdentifier(value: unknown): value is Identifier {
   if (!isRecord(value)) return false;
 
@@ -102,7 +71,6 @@ export async function generateAllFiles(
   bcdDataSource: RootBCDData,
 ): Promise<void> {
   const project = setupProject();
-  const pathsMapForTypes = new Map<string, PathInfo>();
 
   featureCategories.forEach((categoryName) => {
     const categoryData = bcdDataSource[categoryName as keyof RootBCDData];
@@ -118,25 +86,6 @@ export async function generateAllFiles(
   });
 
   generateAggregatedDataFile(project, featureCategories, bcdDataSource, CONFIG);
-
-  featureCategories.forEach((category) => {
-    const categoryData = bcdDataSource[category as keyof RootBCDData];
-    if (
-      isIdentifier(categoryData) &&
-      !("browsers" in categoryData) &&
-      !("__meta" in categoryData)
-    ) {
-      collectPaths(
-        categoryData,
-        [category],
-        0,
-        pathsMapForTypes,
-        CONFIG.pathSeparator,
-      );
-    }
-  });
-
-  generateTypesFile(project, pathsMapForTypes, featureCategories, CONFIG);
   generateIndexFile(project, CONFIG);
 
   await project.save();
@@ -144,14 +93,10 @@ export async function generateAllFiles(
 
 function main(): void {
   ensureDir(CONFIG.outputDir);
-  const featureCategories = getFeatureCategories(Object.keys(bcdRaw));
-
-  generateAllFiles(featureCategories, bcdRaw as RootBCDData)
-    .then(() => log("Generation completed successfully!"))
-    .catch((error) => {
-      log(`Generation failed: ${error.message}`);
-      process.exit(1);
-    });
+  generateAllFiles(
+    getFeatureCategories(Object.keys(bcdRaw)),
+    bcdRaw as RootBCDData,
+  );
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
