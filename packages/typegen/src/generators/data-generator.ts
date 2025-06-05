@@ -1,4 +1,3 @@
-import path from "node:path";
 import {
   VariableDeclarationKind,
   type CodeBlockWriter,
@@ -6,7 +5,7 @@ import {
   type SourceFile,
 } from "ts-morph";
 import { transformBcdData } from "../data-transformer";
-import { ensureDir, getOutputPath } from "../utils";
+import { getOutputPath } from "../utils";
 import type { Config } from "..";
 import type { BrowsersData, RootBCDData } from "../types";
 import type { Identifier } from "@mdn/browser-compat-data";
@@ -48,6 +47,14 @@ function writeValue(
   }
 }
 
+function needsQuotes(key: string): boolean {
+  if (key.length === 0) return true;
+  if (/^\d/.test(key)) return true;
+  if (!/^[a-z_$][\w$]*$/i.test(key)) return true;
+
+  return false;
+}
+
 function writeObject(
   writer: CodeBlockWriter,
   obj: Record<string, unknown>,
@@ -58,10 +65,10 @@ function writeObject(
   if (entries.length > 0) {
     writer.newLine();
     entries.forEach(([key, val], index) => {
-      const safeKey =
-        /^[a-z_$][\w$]*$/i.test(key) && !Number.isInteger(Number(key))
-          ? key
-          : `'${key.replaceAll("'", String.raw`\'`)}'`;
+      const safeKey = needsQuotes(key)
+        ? `'${key.replaceAll("'", String.raw`\'`)}'`
+        : key;
+
       writer.withIndentationLevel(indentLevel + 1, () => {
         writer.write(`${safeKey}: `);
         writeValue(writer, val, indentLevel + 1);
@@ -87,12 +94,9 @@ export function generateBcdCategoryDataFile(
     throw new Error(`Failed to transform data for category: ${categoryName}`);
   }
 
-  const dataSubDir = path.join(getOutputPath("", config), "data-parts");
-  ensureDir(dataSubDir);
-
-  const filePath = path.join(
-    dataSubDir,
+  const filePath = getOutputPath(
     `${categoryName.toLowerCase()}-data.ts`,
+    config,
   );
   const existingSourceFile = project.getSourceFile(filePath);
   if (existingSourceFile) project.removeSourceFile(existingSourceFile);
@@ -155,7 +159,7 @@ export function generateAggregatedDataFile(
   for (const categoryName of featureCategories) {
     sourceFile.addImportDeclaration({
       namedImports: [`${categoryName.toUpperCase()}_DATA`],
-      moduleSpecifier: `./data-parts/${categoryName.toLowerCase()}-data`,
+      moduleSpecifier: `./${categoryName.toLowerCase()}-data`,
     });
     properties.push(`${categoryName}: ${categoryName.toUpperCase()}_DATA`);
   }
@@ -167,8 +171,12 @@ export function generateAggregatedDataFile(
         name: "FEATURES_DATA",
         initializer: (writer) => {
           writer.writeLine("{");
-          properties.forEach((prop) =>
-            writer.withIndentationLevel(1, () => writer.writeLine(`${prop},`)),
+          properties.forEach((prop, index) =>
+            writer.withIndentationLevel(1, () => {
+              writer.write(prop);
+              if (index < properties.length - 1) writer.write(",");
+              writer.newLine();
+            }),
           );
           writer.write("}");
         },
@@ -188,8 +196,9 @@ export function generateAggregatedDataFile(
           writer.withIndentationLevel(1, () => {
             writer.writeLine("__meta: META_DATA,");
             writer.writeLine("browsers: BROWSERS_DATA,");
-            writer.writeLine("...FEATURES_DATA,");
+            writer.write("...FEATURES_DATA");
           });
+          writer.newLine();
           writer.write("}");
         },
       },

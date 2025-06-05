@@ -26,10 +26,3 @@ export interface RootBCDData {
   webdriver?: Identifier;
   webextensions?: Identifier;
 }
-
-export interface PathInfo {
-  path: string;
-  fullPath: string;
-  hasCompat: boolean;
-  depth: number;
-}
