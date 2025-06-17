@@ -1,10 +1,28 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useRef, useState, type ReactNode } from "react";
+import androidIcon from "../assets/android.svg";
+import checkIcon from "../assets/check.svg";
+import chromeIcon from "../assets/chrome.svg";
+import denoIcon from "../assets/deno.svg";
+import desktopIcon from "../assets/desktop.svg";
+import edgeIcon from "../assets/edge.svg";
+import ellipsisIcon from "../assets/ellipsis.svg";
+import firefoxIcon from "../assets/firefox.svg";
+import flagIcon from "../assets/flag.svg";
+import infoIcon from "../assets/info.svg";
+import nodeIcon from "../assets/node.svg";
+import operaIcon from "../assets/opera.svg";
+import previewIcon from "../assets/preview.svg";
+import safariIcon from "../assets/safari.svg";
+import samsungInternetIcon from "../assets/samsung-internet.svg";
+import serverIcon from "../assets/server.svg";
+import smartphoneIcon from "../assets/smartphone.svg";
+import tagIcon from "../assets/tag.svg";
+import testTubeIcon from "../assets/test-tube-diagonal.svg";
+import trashIcon from "../assets/trash.svg";
+import triangleAlertIcon from "../assets/triangle-alert.svg";
+import wrenchIcon from "../assets/wrench.svg";
+import xIcon from "../assets/x.svg";
+import zapIcon from "../assets/zap.svg";
 import styles from "./CompatTable.module.css";
 import type {
   BrowserName,
@@ -32,21 +50,6 @@ type SupportClassName =
   | "removed-partial"
   | "unknown";
 
-type LegendKey =
-  | "yes"
-  | "partial"
-  | "preview"
-  | "no"
-  | "unknown"
-  | "experimental"
-  | "nonstandard"
-  | "deprecated"
-  | "footnote"
-  | "disabled"
-  | "altname"
-  | "prefix"
-  | "more";
-
 interface StatusIcon {
   title: string;
   text: string;
@@ -57,29 +60,49 @@ interface CompatTableProps {
   query: string;
   data: Identifier;
   browserInfo: Browsers;
-  locale?: string;
   className?: string;
 }
 
 const HIDDEN_BROWSERS: BrowserName[] = ["ie"];
 
-const LEGEND_LABELS: Record<LegendKey, string> = {
-  yes: "Full support",
-  partial: "Partial support",
-  preview: "In development. Supported in a pre-release version.",
-  no: "No support",
-  unknown: "Compatibility unknown",
-  experimental: "Experimental. Expect behavior to change in the future.",
-  nonstandard: "Non-standard. Check cross-browser support before using.",
-  deprecated: "Deprecated. Not for use in new websites.",
-  footnote: "See implementation notes.",
-  disabled: "User must explicitly enable this feature.",
-  altname: "Uses a non-standard name.",
-  prefix: "Requires a vendor prefix or different name for use.",
-  more: "Has more compatibility info.",
+const iconMap: Record<string, string> = {
+  chrome: chromeIcon,
+  chrome_android: chromeIcon,
+  firefox: firefoxIcon,
+  firefox_android: firefoxIcon,
+  safari: safariIcon,
+  safari_ios: safariIcon,
+  edge: edgeIcon,
+  opera: operaIcon,
+  opera_android: operaIcon,
+  webview_android: androidIcon,
+  webview_ios: safariIcon,
+  samsunginternet_android: samsungInternetIcon,
+  nodejs: nodeIcon,
+  deno: denoIcon,
+  ie: edgeIcon,
+  oculus: androidIcon,
+  "simple-firefox": firefoxIcon,
+  webview: androidIcon,
+  samsung: samsungInternetIcon,
+  android: androidIcon,
+  desktop: desktopIcon,
+  mobile: smartphoneIcon,
+  server: serverIcon,
+  yes: checkIcon,
+  partial: triangleAlertIcon,
+  no: xIcon,
+  unknown: infoIcon,
+  preview: previewIcon,
+  experimental: testTubeIcon,
+  deprecated: trashIcon,
+  nonstandard: zapIcon,
+  footnote: infoIcon,
+  disabled: wrenchIcon,
+  altname: tagIcon,
+  prefix: flagIcon,
+  more: ellipsisIcon,
 };
-
-const DEFAULT_LOCALE = "en-US";
 
 function getFirst<T>(a: T | T[]): T | undefined {
   return Array.isArray(a) ? a[0] : a;
@@ -255,16 +278,31 @@ function versionLabelFromSupport(
 
 function getSupportBrowserReleaseDate(
   support: SupportStatement | undefined,
+  browser: BrowserStatement,
 ): string | undefined {
   if (!support) return undefined;
-  return getCurrentSupport(support)?.release_date;
+
+  const currentSupport = getCurrentSupport(support);
+  if (
+    !currentSupport?.version_added ||
+    typeof currentSupport.version_added !== "string"
+  ) {
+    return undefined;
+  }
+
+  const version = currentSupport.version_added;
+  return browser.releases[version]?.release_date;
 }
 
 function browserToIconName(browser: BrowserName): string {
-  if (browser.startsWith("firefox")) return "simple-firefox";
-  if (browser === "webview_android") return "webview";
-  if (browser === "webview_ios") return "safari";
-  return browser.split("_")[0] ?? "";
+  if (iconMap[browser]) {
+    return browser;
+  }
+
+  const baseName = browser.split("_")[0];
+  if (iconMap[baseName]) {
+    return baseName;
+  }
 }
 
 function findFirstCompatDepth(identifier: Identifier): number {
@@ -378,80 +416,36 @@ function gatherPlatformsAndBrowsers(
   return [platforms, browsers];
 }
 
-function getActiveLegendItems(
-  compat: Identifier,
-  name: string,
-  browserInfo: Browsers,
-  browsers: BrowserName[],
-): Array<[LegendKey, string]> {
-  const legendItems = new Set<LegendKey>();
-
-  for (const feature of listFeatures(compat, "", name)) {
-    const { status } = feature.compat;
-
-    if (status) {
-      if (status.experimental) legendItems.add("experimental");
-      if (status.deprecated) legendItems.add("deprecated");
-      if (!status.standard_track) legendItems.add("nonstandard");
-    }
-
-    for (const browser of browsers) {
-      const browserSupport = feature.compat.support[browser] ?? {
-        version_added: null,
-      };
-
-      if (HIDDEN_BROWSERS.includes(browser)) continue;
-
-      const firstSupportItem = getFirst(browserSupport);
-      if (firstSupportItem && hasNoteworthyNotes(firstSupportItem)) {
-        legendItems.add("footnote");
-      }
-
-      for (const versionSupport of asList(browserSupport)) {
-        if (versionSupport.version_added) {
-          if (versionSupport.flags && versionSupport.flags.length) {
-            legendItems.add("no");
-          } else if (
-            versionIsPreview(versionSupport.version_added, browserInfo[browser])
-          ) {
-            legendItems.add("preview");
-          } else {
-            legendItems.add("yes");
-          }
-        } else if (versionSupport.version_added == null) {
-          legendItems.add("unknown");
-        } else {
-          legendItems.add("no");
-        }
-
-        if (versionSupport.partial_implementation) legendItems.add("partial");
-        if (versionSupport.prefix) legendItems.add("prefix");
-        if (versionSupport.alternative_name) legendItems.add("altname");
-        if (versionSupport.flags) legendItems.add("disabled");
-      }
-
-      if (hasMore(browserSupport)) legendItems.add("more");
-    }
-  }
-
-  const keys = Object.keys(LEGEND_LABELS) as LegendKey[];
-  return keys
-    .filter((key) => legendItems.has(key))
-    .map((key) => [key, LEGEND_LABELS[key]]);
-}
-
-const Icon: React.FC<{ name: string; title?: string; className?: string }> = ({
+function Icon({
   name,
   title,
   className = "",
-}) => (
-  <abbr className={`${styles.onlyIcon} ${className}`} title={title}>
-    <span>{name}</span>
-    <i className={`${styles.icon} ${styles[`icon-${name}`]}`}></i>
-  </abbr>
-);
+}: {
+  name: string;
+  title?: string;
+  className?: string;
+}) {
+  const iconSrc = iconMap[name];
 
-const StatusIcons: React.FC<{ status: StatusBlock }> = ({ status }) => {
+  if (!iconSrc) {
+    console.warn(`Icon "${name}" not found`);
+    return null;
+  }
+
+  return (
+    <abbr className={`${styles.onlyIcon} ${className}`} title={title}>
+      <span>{name}</span>
+      <img
+        src={iconSrc}
+        alt=""
+        className={`${styles.icon} ${styles[`icon-${name}`]}`}
+        aria-hidden="true"
+      />
+    </abbr>
+  );
+}
+
+function StatusIcons({ status }: { status: StatusBlock }) {
   const icons: StatusIcon[] = [];
 
   if (status.experimental) {
@@ -482,43 +476,58 @@ const StatusIcons: React.FC<{ status: StatusBlock }> = ({ status }) => {
 
   return (
     <div className={styles.bcIcons}>
-      {icons.map((icon, index) => (
+      {icons.map((icon) => (
         <abbr
-          key={index}
+          key={icon.iconClassName}
           className={`${styles.onlyIcon} ${styles.icon} ${styles[icon.iconClassName]}`}
           title={icon.title}
         >
           <span>{icon.text}</span>
+          <img
+            src={iconMap[icon.iconClassName.replace("icon-", "")]}
+            alt=""
+            aria-hidden="true"
+          />
         </abbr>
       ))}
     </div>
   );
-};
+}
 
-const CellIcons: React.FC<{ support: SupportStatement }> = ({ support }) => {
+function CellIcons({ support }: { support: SupportStatement }) {
   const supportItem = getCurrentSupport(support);
   if (!supportItem) return null;
 
   const icons = [
-    supportItem.prefix && <Icon key="prefix" name="prefix" />,
-    hasNoteworthyNotes(supportItem) && <Icon key="footnote" name="footnote" />,
-    supportItem.alternative_name && <Icon key="altname" name="altname" />,
-    supportItem.flags && <Icon key="disabled" name="disabled" />,
-    hasMore(support) && <Icon key="more" name="more" />,
-  ].filter(Boolean);
+    supportItem.prefix && { key: "prefix", name: "prefix" },
+    hasNoteworthyNotes(supportItem) && { key: "footnote", name: "footnote" },
+    supportItem.alternative_name && { key: "altname", name: "altname" },
+    supportItem.flags && { key: "disabled", name: "disabled" },
+    hasMore(support) && { key: "more", name: "more" },
+  ].filter(Boolean) as Array<{ key: string; name: string }>;
 
-  return icons.length ? <div className={styles.bcIcons}>{icons}</div> : null;
-};
+  return icons.length ? (
+    <div className={styles.bcIcons}>
+      {icons.map(({ key, name }) => (
+        <Icon key={key} name={name} />
+      ))}
+    </div>
+  ) : null;
+}
 
-const CellText: React.FC<{
+function CellText({
+  support,
+  browser,
+  timeline = false,
+}: {
   support: SupportStatement | undefined;
   browser: BrowserStatement;
   timeline?: boolean;
-}> = ({ support, browser, timeline = false }) => {
+}) {
   const currentSupport = getCurrentSupport(support);
   const added = currentSupport?.version_added ?? null;
   const lastVersion = currentSupport?.version_last ?? null;
-  const browserReleaseDate = getSupportBrowserReleaseDate(support);
+  const browserReleaseDate = getSupportBrowserReleaseDate(support, browser);
   const supportClassName = getSupportClassName(support, browser);
 
   let status: { isSupported: string; label?: string };
@@ -596,6 +605,7 @@ const CellText: React.FC<{
             title={title}
           >
             <span className={styles.bcSupportLevel}>{title}</span>
+            <img src={iconMap[supportClassName]} alt="" aria-hidden="true" />
           </abbr>
         </span>
       </div>
@@ -618,12 +628,15 @@ const CellText: React.FC<{
       {support && <CellIcons support={support} />}
     </div>
   );
-};
+}
 
-const Notes: React.FC<{
+function Notes({
+  browser,
+  support,
+}: {
   browser: BrowserStatement;
   support: SupportStatement;
-}> = ({ browser, support }) => {
+}) {
   const notes = asList(support)
     .slice()
     .reverse()
@@ -660,7 +673,6 @@ const Notes: React.FC<{
                 const hasAddedVersion = typeof item.version_added === "string";
                 const hasRemovedVersion =
                   typeof item.version_removed === "string";
-                const flags = item.flags || [];
 
                 const parts = [
                   hasAddedVersion && `From version ${item.version_added}`,
@@ -668,7 +680,7 @@ const Notes: React.FC<{
                     `${hasAddedVersion ? " until" : "Until"} ${item.version_removed} (exclusive)`,
                   hasAddedVersion || hasRemovedVersion ? ": this" : "This",
                   " feature is behind the",
-                  ...flags.map((flag, i) => {
+                  ...item.flags.map((flag, flagIndex) => {
                     const valueToSet = flag.value_to_set
                       ? ` (needs to be set to ${flag.value_to_set})`
                       : "";
@@ -678,11 +690,11 @@ const Notes: React.FC<{
                         : flag.type === "runtime_flag"
                           ? ` runtime flag${valueToSet}`
                           : "";
-                    return `${flag.name}${flagType}${i < flags.length - 1 ? " and the " : ""}`;
+                    return `${flag.name}${flagType}${flagIndex < item.flags.length - 1 ? " and the " : ""}`;
                   }),
                   ".",
                   browser.pref_url &&
-                    flags.some((flag) => flag.type === "preference") &&
+                    item.flags.some((flag) => flag.type === "preference") &&
                     ` To change preferences in ${browser.name}, visit ${browser.pref_url}.`,
                 ]
                   .filter(Boolean)
@@ -694,9 +706,10 @@ const Notes: React.FC<{
           : null,
         item.notes
           ? (Array.isArray(item.notes) ? item.notes : [item.notes]).map(
-              (note) => ({
+              (note, noteIndex) => ({
                 iconName: "footnote",
                 label: note,
+                key: `note-${noteIndex}`,
               }),
             )
           : null,
@@ -704,13 +717,14 @@ const Notes: React.FC<{
           ? (Array.isArray(item.impl_url)
               ? item.impl_url
               : [item.impl_url]
-            ).map((impl_url) => ({
+            ).map((impl_url, urlIndex) => ({
               iconName: "footnote",
               label: (
                 <>
                   See <a href={impl_url}>{bugURLToString(impl_url)}</a>.
                 </>
               ),
+              key: `impl-${urlIndex}`,
             }))
           : null,
         versionIsPreview(item.version_added, browser)
@@ -726,7 +740,8 @@ const Notes: React.FC<{
         .flat()
         .filter(Boolean) as Array<{
         iconName: string;
-        label: string | React.ReactNode;
+        label: string | ReactNode;
+        key?: string;
       }>;
 
       if (supportNotes.length === 0) {
@@ -734,28 +749,34 @@ const Notes: React.FC<{
       }
 
       const hasNotes = supportNotes.length > 0;
+      const itemKey = `item-${i}-${item.version_added}-${item.version_removed}`;
+
       return (
         (i === 0 || hasNotes) && (
-          <div key={i} className={styles.bcNotesWrapper}>
-            <dt
-              className={`${styles[`bcSupports-${getSupportClassName(item, browser)}`]} ${styles.bcSupports}`}
+          <div key={itemKey} className={styles.bcNotesWrapper}>
+            <div
+              className={`${styles[`bcSupports-${getSupportClassName(item, browser)}`]} ${styles.bcSupports} ${styles.bcNotesHeader}`}
             >
               <CellText support={item} browser={browser} timeline={true} />
-            </dt>
-            {supportNotes.map(({ iconName, label }, noteIndex) => (
-              <dd key={noteIndex} className={styles.bcSupportsDD}>
-                <Icon name={iconName} />
-                <span>
-                  {typeof label === "string" ? (
-                    // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
-                    <span dangerouslySetInnerHTML={{ __html: label }} />
-                  ) : (
-                    label
-                  )}
-                </span>
-              </dd>
-            ))}
-            {!hasNotes && <dd></dd>}
+            </div>
+            <div className={styles.bcNotesContent}>
+              {supportNotes.map(({ iconName, label, key }, noteIndex) => (
+                <div
+                  key={key || `${itemKey}-note-${noteIndex}`}
+                  className={styles.bcNotesItem}
+                >
+                  <Icon name={iconName} />
+                  <span className={styles.bcNotesText}>
+                    {typeof label === "string" ? (
+                      // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+                      <span dangerouslySetInnerHTML={{ __html: label }} />
+                    ) : (
+                      label
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         )
       );
@@ -763,20 +784,21 @@ const Notes: React.FC<{
     .filter(Boolean);
 
   return notes.length > 0 ? <>{notes}</> : null;
-};
+}
 
-const CompatCell: React.FC<{
+function CompatCell({
+  browserName,
+  browser,
+  compat,
+}: {
   browserName: BrowserName;
   browser: BrowserStatement;
   compat: CompatStatement;
-}> = ({ browserName, browser, compat }) => {
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const support = compat.support[browserName] ?? { version_added: null };
   const supportClassName = getSupportClassName(support, browser);
-  const notes = useMemo(
-    () => <Notes browser={browser} support={support} />,
-    [browser, support],
-  );
+  const notes = <Notes browser={browser} support={support} />;
   const hasNotes = !!notes;
 
   const handleClick = useCallback(() => {
@@ -804,19 +826,22 @@ const CompatCell: React.FC<{
       </button>
       {hasNotes && isExpanded && (
         <div className={styles.timeline} tabIndex={0}>
-          <dl className={styles.bcNotesList}>{notes}</dl>
+          <div className={styles.bcNotesList}>{notes}</div>
         </div>
       )}
     </td>
   );
-};
+}
 
-const FeatureRow: React.FC<{
+function FeatureRow({
+  feature,
+  browsers,
+  browserInfo,
+}: {
   feature: Feature;
   browsers: BrowserName[];
   browserInfo: Browsers;
-  locale: string;
-}> = ({ feature, browsers, browserInfo, locale }) => {
+}) {
   const { name, compat, depth } = feature;
 
   const title = compat.description ? (
@@ -833,14 +858,10 @@ const FeatureRow: React.FC<{
     </>
   );
 
-  let titleNode: React.ReactNode;
+  let titleNode: ReactNode;
   if (compat.mdn_url && depth > 0) {
-    const href = compat.mdn_url.replace(
-      `/${DEFAULT_LOCALE}/docs`,
-      `/${locale}/docs`,
-    );
     titleNode = (
-      <a href={href} className={styles.bcTableRowHeader}>
+      <a href={compat.mdn_url} className={styles.bcTableRowHeader}>
         {titleContent}
       </a>
     );
@@ -866,229 +887,69 @@ const FeatureRow: React.FC<{
       ))}
     </tr>
   );
-};
+}
 
-const TableLegend: React.FC<{
-  data: Identifier;
-  name: string;
-  browserInfo: Browsers;
-  browsers: BrowserName[];
-}> = ({ data, name, browserInfo, browsers }) => {
-  const activeLegendItems = useMemo(
-    () => getActiveLegendItems(data, name, browserInfo, browsers),
-    [data, name, browserInfo, browsers],
-  );
-
-  return (
-    <section className={styles.bcLegend}>
-      <h3 className={styles.visuallyHidden} id="Legend">
-        Legend
-      </h3>
-      <p className={styles.bcLegendTip}>
-        Tip: you can click/tap on a cell for more information.
-      </p>
-      <dl className={styles.bcLegendItemsContainer}>
-        {activeLegendItems.map(([key, label]) =>
-          ["yes", "partial", "no", "unknown", "preview"].includes(key) ? (
-            <div key={key} className={styles.bcLegendItem}>
-              <dt className={styles.bcLegendItemDt}>
-                <span
-                  className={`${styles[`bcSupports-${key}`]} ${styles.bcSupports}`}
-                >
-                  <abbr
-                    className={`${styles.bcLevel} ${styles[`bcLevel-${key}`]} ${styles.icon} ${styles[`icon-${key}`]}`}
-                    title={label}
-                  >
-                    <span className={styles.visuallyHidden}>{label}</span>
-                  </abbr>
-                </span>
-              </dt>
-              <dd className={styles.bcLegendItemDD}>{label}</dd>
-            </div>
-          ) : (
-            <div key={key} className={styles.bcLegendItem}>
-              <dt className={styles.bcLegendItemDt}>
-                <abbr
-                  className={`${styles.legendIcons} ${styles.icon} ${styles[`icon-${key}`]}`}
-                  title={label}
-                ></abbr>
-              </dt>
-              <dd className={styles.bcLegendItemDD}>{label}</dd>
-            </div>
-          ),
-        )}
-      </dl>
-    </section>
-  );
-};
-
-const IssueLink: React.FC<{
-  query: string;
-  pathname: string;
-  sourceFile?: string;
-}> = ({ query, pathname, sourceFile }) => {
-  const issueUrl = useMemo(() => {
-    const url = "https://github.com/mdn/browser-compat-data/issues/new";
-    const sp = new URLSearchParams();
-    const metadata = `
-<!-- Do not make changes below this line -->
-<details>
-<summary>MDN page report details</summary>
-
-* Query: \`${query}\`
-* Report started: ${new Date().toISOString()}
-
-</details>
-    `.trim();
-
-    sp.set("mdn-url", `https://developer.mozilla.org${pathname}`);
-    sp.set("metadata", metadata);
-    sp.set("title", `${query} - <SUMMARIZE THE PROBLEM>`);
-    sp.set("template", "data-problem.yml");
-
-    return `${url}?${sp.toString()}`;
-  }, [query, pathname]);
-
-  const handleClick = useCallback(
-    (event: React.MouseEvent) => {
-      event.preventDefault();
-      window.open(issueUrl, "_blank", "noopener,noreferrer");
-    },
-    [issueUrl],
-  );
-
-  return (
-    <div className={styles.bcOnGithub}>
-      <a
-        className={`${styles.bcGithubLink} ${styles.external} ${styles.externalIcon}`}
-        href="#"
-        onClick={handleClick}
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Report an issue with this compatibility data"
-      >
-        Report problems with this compatibility data
-      </a>
-      {sourceFile && (
-        <>
-          {" • "}
-          <a
-            className={`${styles.bcGithubLink} ${styles.external} ${styles.externalIcon}`}
-            href={`https://github.com/mdn/browser-compat-data/tree/main/${sourceFile}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={`File: ${sourceFile}`}
-          >
-            View data on GitHub
-          </a>
-        </>
-      )}
-    </div>
-  );
-};
-
-export const CompatTable: React.FC<CompatTableProps> = ({
+export function CompatTable({
   query,
   data,
   browserInfo,
-  locale = DEFAULT_LOCALE,
   className = "",
-}) => {
+}: CompatTableProps) {
   const tableRef = useRef<HTMLTableElement>(null);
-  const [pathname] = useState(() => window.location.pathname);
 
-  const breadcrumbs = useMemo(() => query.split("."), [query]);
+  const breadcrumbs = query.split(".");
   const category = breadcrumbs[0] ?? "";
   const name = breadcrumbs.at(-1) ?? "";
 
-  const [platforms, browsers] = useMemo(
-    () => gatherPlatformsAndBrowsers(category, data, browserInfo),
-    [category, data, browserInfo],
+  const [platforms, browsers] = gatherPlatformsAndBrowsers(
+    category,
+    data,
+    browserInfo,
   );
 
-  const features = useMemo(() => {
-    let featureList = listFeatures(data, "", name);
-    const MAX_FEATURES = 100;
+  let features = listFeatures(data, "", name);
+  const MAX_FEATURES = 100;
 
-    if (featureList.length > MAX_FEATURES) {
-      featureList = featureList.filter(({ depth }) => depth < 2);
-    }
+  if (features.length > MAX_FEATURES) {
+    features = features.filter(({ depth }) => depth < 2);
+  }
 
-    if (featureList.length > MAX_FEATURES) {
-      featureList = featureList.filter(
-        ({ compat: { status } }) => status?.standard_track,
-      );
-    }
-
-    if (featureList.length > MAX_FEATURES) {
-      featureList = featureList.filter(
-        ({ compat: { status } }) => !status?.deprecated,
-      );
-    }
-
-    if (featureList.length > MAX_FEATURES) {
-      featureList = featureList.filter(
-        ({ compat: { status } }) => !status?.experimental,
-      );
-    }
-
-    if (featureList.length > MAX_FEATURES) {
-      featureList = featureList.slice(0, MAX_FEATURES);
-    }
-
-    return featureList;
-  }, [data, name]);
-
-  const platformsWithBrowsers = useMemo(
-    () =>
-      platforms.map((platform) => ({
-        platform,
-        browsers: browsers.filter(
-          (browser) => browserInfo[browser].type === platform,
-        ),
-      })),
-    [platforms, browsers, browserInfo],
-  );
-
-  const grid = useMemo(
-    () => platformsWithBrowsers.map(({ browsers }) => browsers.length),
-    [platformsWithBrowsers],
-  );
-
-  useEffect(() => {
-    const element = tableRef.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            console.log(`Table viewed: ${query}`);
-          }
-        });
-      },
-      { threshold: 0.5 },
+  if (features.length > MAX_FEATURES) {
+    features = features.filter(
+      ({ compat: { status } }) => status?.standard_track,
     );
+  }
 
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [query]);
+  if (features.length > MAX_FEATURES) {
+    features = features.filter(({ compat: { status } }) => !status?.deprecated);
+  }
+
+  if (features.length > MAX_FEATURES) {
+    features = features.filter(
+      ({ compat: { status } }) => !status?.experimental,
+    );
+  }
+
+  if (features.length > MAX_FEATURES) {
+    features = features.slice(0, MAX_FEATURES);
+  }
+
+  const platformsWithBrowsers = platforms.map((platform) => ({
+    platform,
+    browsers: browsers.filter(
+      (browser) => browserInfo[browser].type === platform,
+    ),
+  }));
+
+  const grid = platformsWithBrowsers.map(({ browsers }) => browsers.length);
 
   return (
     <div className={`${styles.compatTable} ${className}`}>
       <figure className={styles.tableContainer}>
         <figure className={styles.tableContainerInner}>
-          <IssueLink
-            query={query}
-            pathname={pathname}
-            sourceFile={data.__compat?.source_file}
-          />
           <table
             ref={tableRef}
             className={`${styles.bcTable} ${styles.bcTableWeb}`}
-            style={
-              { "--browser-count": browsers.length } as React.CSSProperties
-            }
           >
             <thead>
               {/* Platform Headers */}
@@ -1098,7 +959,6 @@ export const CompatTable: React.FC<CompatTableProps> = ({
                   ({ platform, browsers: platformBrowsers }, index) => {
                     const browserCount = platformBrowsers.length;
                     const cellClass = `${styles.bcPlatform} ${styles[`bcPlatform-${platform}`]}`;
-                    const iconClass = `${styles.icon} ${styles[`icon-${platform}`]}`;
 
                     const columnStart =
                       2 + grid.slice(0, index).reduce((acc, x) => acc + x, 0);
@@ -1112,7 +972,12 @@ export const CompatTable: React.FC<CompatTableProps> = ({
                         title={platform}
                         style={{ gridColumn: `${columnStart} / ${columnEnd}` }}
                       >
-                        <span className={iconClass}></span>
+                        <img
+                          src={iconMap[platform]}
+                          alt=""
+                          aria-hidden="true"
+                          className={styles.icon}
+                        />
                         <span className={styles.visuallyHidden}>
                           {platform}
                         </span>
@@ -1135,35 +1000,31 @@ export const CompatTable: React.FC<CompatTableProps> = ({
                     >
                       {browserInfo[browser]?.name}
                     </div>
-                    <div
-                      className={`${styles.bcHeadIconSymbol} ${styles.icon} ${styles[`icon-${browserToIconName(browser)}`]}`}
-                    ></div>
+                    <div className={styles.bcHeadIconSymbol}>
+                      <img
+                        src={iconMap[browserToIconName(browser)]}
+                        alt=""
+                        aria-hidden="true"
+                      />
+                    </div>
                   </th>
                 ))}
               </tr>
             </thead>
 
             <tbody>
-              {features.map((feature, index) => (
+              {features.map((feature) => (
                 <FeatureRow
-                  key={`${feature.name}-${index}`}
+                  key={`${feature.name}-${feature.depth}`}
                   feature={feature}
                   browsers={browsers}
                   browserInfo={browserInfo}
-                  locale={locale}
                 />
               ))}
             </tbody>
           </table>
         </figure>
       </figure>
-
-      <TableLegend
-        data={data}
-        name={name}
-        browserInfo={browserInfo}
-        browsers={browsers}
-      />
     </div>
   );
-};
+}
