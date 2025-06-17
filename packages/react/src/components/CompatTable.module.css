@@ -1,0 +1,781 @@
+
+.compatTable {
+  --compat-yes: #10b981;
+  --compat-yes-bg: #ecfdf5;
+  --compat-yes-border: #d1fae5;
+  --compat-partial: #f59e0b;
+  --compat-partial-bg: #fffbeb;
+  --compat-partial-border: #fed7aa;
+
+  --compat-no: #ef4444;
+  --compat-no-bg: #fef2f2;
+  --compat-no-border: #fecaca;
+  --compat-unknown: #6b7280;
+  --compat-unknown-bg: #f9fafb;
+  --compat-unknown-border: #e5e7eb;
+
+  --compat-preview: #8b5cf6;
+  --compat-preview-bg: #f5f3ff;
+  --compat-preview-border: #ddd6fe;
+
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-200: #e5e5e5;
+  --gray-300: #d4d4d4;
+  --gray-400: #a3a3a3;
+  --gray-500: #737373;
+  --gray-600: #525252;
+  --gray-700: #404040;
+  --gray-800: #262626;
+  --gray-900: #171717;
+}
+
+.dark .compatTable {
+  --compat-yes: #22c55e;
+  --compat-yes-bg: #052e16;
+  --compat-yes-border: #166534;
+  --compat-partial: #eab308;
+  --compat-partial-bg: #1e1500;
+  --compat-partial-border: #713f12;
+
+  --compat-no: #f87171;
+  --compat-no-bg: #1f1415;
+  --compat-no-border: #7f1d1d;
+  --compat-unknown: #9ca3af;
+  --compat-unknown-bg: #111827;
+  --compat-unknown-border: #374151;
+
+  --compat-preview: #a78bfa;
+  --compat-preview-bg: #1e1b4b;
+  --compat-preview-border: #5b21b6;
+
+  --gray-50: #0a0a0a;
+  --gray-100: #171717;
+  --gray-200: #262626;
+  --gray-300: #404040;
+  --gray-400: #525252;
+  --gray-500: #737373;
+  --gray-600: #a3a3a3;
+  --gray-700: #d4d4d4;
+  --gray-800: #e5e5e5;
+  --gray-900: #fafafa;
+}
+
+.compatTable {
+  width: 100%;
+  margin: 2rem 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  color: var(--gray-900);
+  font-feature-settings: 'tnum' 1;
+}
+
+.tableContainer {
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  background: white;
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+}
+
+.dark .tableContainer {
+  background: var(--gray-50);
+  border-color: var(--gray-200);
+  box-shadow:
+    0 1px 3px 0 rgb(255 255 255 / 0.05),
+    0 1px 2px -1px rgb(255 255 255 / 0.05);
+}
+
+.tableContainerInner {
+  margin: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) transparent;
+}
+
+.tableContainerInner::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tableContainerInner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tableContainerInner::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 3px;
+}
+
+.bcTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+.bcPlatforms td,
+.bcPlatforms th {
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--gray-50);
+  color: var(--gray-600);
+  border-bottom: 1px solid var(--gray-200);
+  border-right: 0.5px solid var(--gray-200);
+}
+
+.bcPlatforms td:last-child,
+.bcPlatforms th:last-child {
+  border-right: none;
+}
+
+.bcPlatform {
+  position: relative;
+}
+
+.bcBrowsers td,
+.bcBrowsers th {
+  padding: 16px 8px;
+  text-align: center;
+  font-weight: 500;
+  background: white;
+  color: var(--gray-800);
+  border-bottom: 1px solid var(--gray-200);
+  border-right: 0.5px solid var(--gray-200);
+  height: 100px;
+  vertical-align: middle;
+}
+
+.dark .bcBrowsers td,
+.dark .bcBrowsers th {
+  background: var(--gray-50);
+  color: var(--gray-800);
+}
+
+.bcBrowsers td:last-child,
+.bcBrowsers th:last-child {
+  border-right: none;
+}
+
+.bcBrowser {
+  min-width: 64px;
+  position: relative;
+}
+
+.bcHeadTxtLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-700);
+  white-space: nowrap;
+  margin-bottom: 8px;
+  display: block;
+  line-height: 1.2;
+}
+
+.bcHeadIconSymbol {
+  width: 20px;
+  height: 20px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.bcHeadIconSymbol img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(0.2);
+}
+
+.bcFeature {
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 500;
+  background: white;
+  border-bottom: 0.5px solid var(--gray-200);
+  border-right: 0.5px solid var(--gray-200);
+  vertical-align: top;
+  min-width: 200px;
+  color: var(--gray-800);
+}
+
+.dark .bcFeature {
+  background: var(--gray-50);
+  color: var(--gray-800);
+}
+
+.bcFeatureDepth-0 {
+  font-weight: 600;
+  background: var(--gray-50);
+  color: var(--gray-900);
+  font-size: 14px;
+}
+
+.dark .bcFeatureDepth-0 {
+  background: var(--gray-100);
+  color: var(--gray-900);
+}
+
+.bcFeatureDepth-1 {
+  padding-left: 32px;
+  font-size: 13px;
+}
+
+.bcFeatureDepth-2 {
+  padding-left: 44px;
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+.bcTableRowHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.bcTableRowHeader:hover {
+  color: var(--gray-700);
+}
+
+.bcTableRowHeader code {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  font-size: 11px;
+  background: var(--gray-100);
+  color: var(--gray-700);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.bcSupport {
+  padding: 0;
+  text-align: center;
+  border-bottom: 0.5px solid var(--gray-200);
+  border-right: 0.5px solid var(--gray-200);
+  vertical-align: top;
+  position: relative;
+  background: white;
+}
+
+.dark .bcSupport {
+  background: var(--gray-50);
+}
+
+.bcSupport:last-child {
+  border-right: none;
+}
+
+.compatCellButton {
+  width: 100%;
+  padding: 16px 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--gray-800);
+  font-weight: 500;
+  text-align: center;
+  transition: all 0.15s ease;
+  border-radius: 0;
+}
+
+.dark .compatCellButton {
+  color: var(--gray-800);
+}
+
+.compatCellButton:hover {
+  background: var(--gray-50);
+  transform: translateY(-1px);
+}
+
+.dark .compatCellButton:hover {
+  background: var(--gray-100);
+}
+
+.compatCellButton:focus {
+  outline: 2px solid var(--compat-yes);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.bcSupports-yes,
+.bcSupports-partial,
+.bcSupports-no,
+.bcSupports-removed-partial,
+.bcSupports-unknown,
+.bcSupports-preview {
+  background: inherit;
+  color: inherit;
+  border-left: none;
+}
+
+.bcLevel {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.bcLevel-yes { background: var(--compat-yes); }
+.bcLevel-partial { background: var(--compat-partial); }
+.bcLevel-no { background: var(--compat-no); }
+.bcLevel-unknown { background: var(--compat-unknown); }
+.bcLevel-preview { background: var(--compat-preview); }
+
+.bcdCellTextWrapper,
+.bcdTimelineCellTextWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+}
+
+.bcdTimelineCellTextWrapper {
+  justify-content: flex-start;
+  padding: 12px;
+}
+
+.bcdCellIcons {
+  display: flex;
+  align-items: center;
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+}
+
+.bcdCellTextCopy {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.bcdTimelineCellTextWrapper .bcdCellTextCopy {
+  align-items: flex-start;
+}
+
+.bcBrowserName {
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--gray-600);
+}
+
+.bcVersionLabel {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.bcSupports-yes .bcVersionLabel {
+  color: var(--compat-yes);
+  font-weight: 600;
+}
+
+.bcSupports-partial .bcVersionLabel {
+  color: var(--compat-partial);
+  font-weight: 600;
+}
+
+.bcSupports-no .bcVersionLabel {
+  color: var(--compat-no);
+  font-weight: 600;
+}
+
+.bcSupports-unknown .bcVersionLabel {
+  color: var(--compat-unknown);
+  font-weight: 600;
+}
+
+.bcSupports-preview .bcVersionLabel {
+  color: var(--compat-preview);
+  font-weight: 600;
+}
+
+.bcIcons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+}
+
+.icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+.icon:hover {
+  opacity: 1;
+}
+
+.icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(0.3);
+}
+
+.onlyIcon {
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.onlyIcon span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.timeline {
+  position: absolute;
+  top: 100%;
+  left: -1px;
+  right: -1px;
+  z-index: 50;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  max-height: none;
+  width: max-content;
+  min-width: 100%;
+  overflow: visible;
+  animation: slideDown 0.2s ease-out;
+}
+
+.dark .timeline {
+  background: var(--gray-100);
+  border-color: var(--gray-300);
+  box-shadow:
+    0 10px 15px -3px rgb(255 255 255 / 0.1),
+    0 4px 6px -4px rgb(255 255 255 / 0.1);
+}
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .bcNotesList {
+    margin: 0;
+    padding: 16px;
+  }
+
+  .bcNotesWrapper {
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--gray-200);
+    padding-bottom: 12px;
+  }
+
+  .bcNotesWrapper:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .bcNotesHeader {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: var(--gray-50);
+  }
+
+  .dark .bcNotesHeader {
+    background: var(--gray-200);
+  }
+
+  .bcNotesContent {
+    margin-left: 12px;
+  }
+
+  .bcNotesItem {
+    margin-bottom: 6px;
+    padding: 4px 0;
+    font-size: 11px;
+    color: var(--gray-600);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.4;
+  }
+
+  .bcNotesItem:last-child {
+    margin-bottom: 0;
+  }
+
+  .bcNotesText {
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .bcNotesText a {
+    color: var(--compat-yes);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .bcNotesText a:hover {
+    text-decoration: underline;
+  }
+
+  .bcSupports {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--gray-100);
+    color: var(--gray-700);
+  }
+
+  .bcSupportLevel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .visuallyHidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .bcTableRowHeader:hover code {
+    background: var(--gray-200);
+    color: var(--gray-800);
+  }
+
+  .bcSupports-yes .compatCellButton:hover,
+  .bcSupports-partial .compatCellButton:hover,
+  .bcSupports-no .compatCellButton:hover,
+  .bcSupports-unknown .compatCellButton:hover,
+  .bcSupports-preview .compatCellButton:hover {
+    background: var(--gray-50);
+  }
+
+  .dark .bcSupports-yes .compatCellButton:hover,
+  .dark .bcSupports-partial .compatCellButton:hover,
+  .dark .bcSupports-no .compatCellButton:hover,
+  .dark .bcSupports-unknown .compatCellButton:hover,
+  .dark .bcSupports-preview .compatCellButton:hover {
+    background: var(--gray-100);
+  }
+
+  .bcTableRowHeader:focus {
+    outline: 2px solid var(--compat-yes);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  .bcSupport:has(.timeline) {
+    position: relative;
+  }
+
+  .compatCellButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  .bcHasHistory .compatCellButton {
+    cursor: pointer;
+  }
+
+  .bcHasHistory .compatCellButton:hover {
+    background: var(--gray-50);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
+
+  .dark .bcHasHistory .compatCellButton:hover {
+    background: var(--gray-100);
+  }
+
+  .bcFeature {
+    line-height: 1.4;
+    font-feature-settings: 'kern' 1;
+  }
+
+  .bcTableRowHeader {
+    line-height: 1.3;
+  }
+
+  .bcVersionLabel {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  @media (max-width: 768px) {
+    .bcTable {
+      font-size: 12px;
+    }
+
+    .bcFeature {
+      padding: 12px 16px;
+      min-width: 140px;
+    }
+
+    .compatCellButton {
+      padding: 12px 6px;
+    }
+
+    .bcBrowser {
+      min-width: 48px;
+    }
+
+    .bcBrowsers td,
+    .bcBrowsers th {
+      height: 80px;
+      padding: 12px 6px;
+    }
+
+    .bcHeadTxtLabel {
+      font-size: 10px;
+      margin-bottom: 6px;
+    }
+
+    .bcHeadIconSymbol {
+      width: 16px;
+      height: 16px;
+    }
+
+    .timeline {
+      left: -20px;
+      right: -20px;
+      max-height: 240px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .compatTable {
+      font-size: 11px;
+    }
+
+    .bcFeature {
+      padding: 10px 12px;
+      min-width: 120px;
+    }
+
+    .bcBrowser {
+      min-width: 40px;
+    }
+
+    .bcBrowsers td,
+    .bcBrowsers th {
+      height: 60px;
+      padding: 8px 4px;
+    }
+
+    .bcHeadTxtLabel {
+      font-size: 9px;
+      margin-bottom: 4px;
+    }
+
+    .bcHeadIconSymbol {
+      width: 14px;
+      height: 14px;
+    }
+
+    .timeline {
+      left: -40px;
+      right: -40px;
+      max-height: 200px;
+    }
+
+    .bcNotesItem {
+      font-size: 10px;
+    }
+
+    .bcNotesList {
+      padding: 12px;
+    }
+  }
+
+  .bcSupport {
+    transition: all 0.15s ease;
+  }
+
+  .bcSupport:hover {
+    background: var(--gray-25, #fcfcfc);
+  }
+
+  .dark .bcSupport:hover {
+    background: var(--gray-75, #0f0f0f);
+  }
+
+  .compatCellButton {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .compatCellButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .compatCellButton:hover::before {
+    left: 100%;
+  }
+
+  .compatCellButton:focus-visible {
+    outline: 2px solid var(--compat-yes);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .timeline:focus-visible {
+    outline: 2px solid var(--compat-yes);
+    outline-offset: 2px;
+  }
