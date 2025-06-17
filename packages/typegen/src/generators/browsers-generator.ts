@@ -1,4 +1,12 @@
-import type { CodeBlockWriter } from "ts-morph";
+import {
+  VariableDeclarationKind,
+  type CodeBlockWriter,
+  type Project,
+  type SourceFile,
+} from "ts-morph";
+import { getOutputPath } from "../utils";
+import type { Config } from "..";
+import type { RootBCDData } from "../types";
 
 function writeValue(
   writer: CodeBlockWriter,
@@ -46,9 +54,14 @@ function needsQuotes(key: string): boolean {
 
 function writeObject(
   writer: CodeBlockWriter,
-  obj: Record<string, unknown>,
+  obj: unknown,
   indentLevel: number,
 ): void {
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) {
+    writer.write("{}");
+    return;
+  }
+
   writer.write("{");
   const entries = Object.entries(obj);
   if (entries.length > 0) {
@@ -69,4 +82,45 @@ function writeObject(
   } else {
     writer.write("}");
   }
+}
+
+export function generateBrowserFiles(
+  project: Project,
+  allData: RootBCDData,
+  config: Config,
+): SourceFile[] {
+  const generatedFiles: SourceFile[] = [];
+
+  Object.entries(allData.browsers).forEach(([browserName, browserData]) => {
+    const fileName = `${browserName}.ts`;
+    const constName = browserName.replaceAll("-", "_");
+
+    const filePath = getOutputPath(fileName, config, "browsers");
+    const existingSourceFile = project.getSourceFile(filePath);
+    if (existingSourceFile) project.removeSourceFile(existingSourceFile);
+
+    const sourceFile = project.createSourceFile(filePath, "", {
+      overwrite: true,
+    });
+
+    sourceFile.addVariableStatement({
+      declarationKind: VariableDeclarationKind.Const,
+      isExported: true,
+      declarations: [
+        {
+          name: constName,
+          initializer: (writer) =>
+            writeObject(
+              writer,
+              browserData as unknown as Record<string, unknown>,
+              0,
+            ),
+        },
+      ],
+    });
+
+    generatedFiles.push(sourceFile);
+  });
+
+  return generatedFiles;
 }
