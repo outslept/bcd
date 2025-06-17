@@ -1,22 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { CompatTable } from "../../packages/react/src/CompatTable";
+import bcd, { type Identifier } from "@mdn/browser-compat-data";
+import { useState, type FormEvent } from "react";
+import { CompatTable } from "../../packages/react/src/components/CompatTable";
 import styles from "./App.module.css";
-import type { Browsers, Identifier } from "@mdn/browser-compat-data";
-
-interface BCDData {
-  browsers: Browsers;
-  api?: Identifier;
-  css?: Identifier;
-  html?: Identifier;
-  http?: Identifier;
-  javascript?: Identifier;
-  manifests?: Identifier;
-  mathml?: Identifier;
-  svg?: Identifier;
-  webassembly?: Identifier;
-  webdriver?: Identifier;
-  webextensions?: Identifier;
-}
 
 const EXAMPLE_QUERIES = [
   { query: "api.fetch", label: "Fetch API" },
@@ -30,35 +15,12 @@ const EXAMPLE_QUERIES = [
 ];
 
 function App() {
-  const [bcdData, setBcdData] = useState<BCDData | null>(null);
   const [selectedQuery, setSelectedQuery] = useState(EXAMPLE_QUERIES[0].query);
   const [customQuery, setCustomQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadBCDData = async () => {
-      try {
-        setLoading(true);
-        const bcd = await import("@mdn/browser-compat-data");
-        setBcdData(bcd.default as BCDData);
-      } catch (error_) {
-        setError(
-          error_ instanceof Error ? error_.message : "Failed to load BCD data",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadBCDData();
-  }, []);
 
   const getDataForQuery = (query: string): Identifier | null => {
-    if (!bcdData) return null;
-
     const parts = query.split(".");
-    let current: any = bcdData;
+    let current: any = bcd;
 
     for (const part of parts) {
       if (current && typeof current === "object" && part in current) {
@@ -71,7 +33,7 @@ function App() {
     return current && typeof current === "object" ? current : null;
   };
 
-  const handleQuerySubmit = (e: React.FormEvent) => {
+  const handleQuerySubmit = (e: FormEvent) => {
     e.preventDefault();
     if (customQuery.trim()) {
       setSelectedQuery(customQuery.trim());
@@ -80,42 +42,6 @@ function App() {
 
   const currentQuery = customQuery.trim() || selectedQuery;
   const queryData = getDataForQuery(currentQuery);
-
-  if (loading) {
-    return (
-      <div className={styles.app}>
-        <div className={styles.loading}>
-          <div className={styles.spinner}></div>
-          <p>Loading Browser Compatibility Data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.app}>
-        <div className={styles.error}>
-          <h2>Error Loading Data</h2>
-          <p>{error}</p>
-          <button type="button" onClick={() => window.location.reload()}>
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!bcdData) {
-    return (
-      <div className={styles.app}>
-        <div className={styles.error}>
-          <h2>No Data Available</h2>
-          <p>Browser compatibility data could not be loaded.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.app}>
@@ -196,8 +122,7 @@ function App() {
             <CompatTable
               query={currentQuery}
               data={queryData}
-              browserInfo={bcdData.browsers}
-              locale="en-US"
+              browserInfo={bcd.browsers}
               className={styles.compatTable}
             />
           ) : (
