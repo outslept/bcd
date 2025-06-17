@@ -12,10 +12,10 @@ import {
   ScriptTarget,
 } from "ts-morph";
 import {
-  generateAggregatedDataFile,
-  generateBcdCategoryDataFile,
+  generateBcdCategoryFile,
+  generateBrowsersFile,
 } from "./generators/data-generator";
-import { generateIndexFile } from "./generators/index-generator";
+import { generateIndexFile, isRecord } from "./generators/index-generator";
 import { ensureDir, getFeatureCategories } from "./utils";
 import type { RootBCDData } from "./types";
 
@@ -50,19 +50,11 @@ function setupProject(): Project {
   });
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
 function isIdentifier(value: unknown): value is Identifier {
   if (!isRecord(value)) return false;
-
   if ("support" in value) return false;
-
   if ("name" in value && "releases" in value) return false;
-
   if ("version" in value && "timestamp" in value) return false;
-
   return true;
 }
 
@@ -72,10 +64,12 @@ export async function generateAllFiles(
 ): Promise<void> {
   const project = setupProject();
 
+  generateBrowsersFile(project, bcdDataSource.browsers, CONFIG);
+
   featureCategories.forEach((categoryName) => {
-    const categoryData = bcdDataSource[categoryName as keyof RootBCDData];
+    const categoryData = bcdDataSource[categoryName];
     if (isIdentifier(categoryData)) {
-      generateBcdCategoryDataFile(
+      generateBcdCategoryFile(
         project,
         categoryName,
         categoryData,
@@ -85,8 +79,7 @@ export async function generateAllFiles(
     }
   });
 
-  generateAggregatedDataFile(project, featureCategories, bcdDataSource, CONFIG);
-  generateIndexFile(project, CONFIG);
+  generateIndexFile(project, featureCategories, bcdDataSource, CONFIG);
 
   await project.save();
 }

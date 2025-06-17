@@ -7,7 +7,8 @@ import {
 import { transformBcdData } from "../data-transformer";
 import { getOutputPath } from "../utils";
 import type { Config } from "..";
-import type { BrowsersData, RootBCDData } from "../types";
+import type { BrowsersData } from "../types";
+import { isRecord } from "./index-generator";
 import type { Identifier } from "@mdn/browser-compat-data";
 
 function writeValue(
@@ -42,8 +43,8 @@ function writeValue(
     } else {
       writer.write("]");
     }
-  } else if (value && typeof value === "object") {
-    writeObject(writer, value as Record<string, unknown>, indentLevel);
+  } else if (isRecord(value)) {
+    writeObject(writer, value, indentLevel);
   }
 }
 
@@ -82,7 +83,7 @@ function writeObject(
   }
 }
 
-export function generateBcdCategoryDataFile(
+export function generateBcdCategoryFile(
   project: Project,
   categoryName: string,
   categoryData: Identifier,
@@ -94,10 +95,7 @@ export function generateBcdCategoryDataFile(
     throw new Error(`Failed to transform data for category: ${categoryName}`);
   }
 
-  const filePath = getOutputPath(
-    `${categoryName.toLowerCase()}-data.ts`,
-    config,
-  );
+  const filePath = getOutputPath(`${categoryName.toLowerCase()}.ts`, config);
   const existingSourceFile = project.getSourceFile(filePath);
   if (existingSourceFile) project.removeSourceFile(existingSourceFile);
 
@@ -109,7 +107,7 @@ export function generateBcdCategoryDataFile(
     declarationKind: VariableDeclarationKind.Const,
     declarations: [
       {
-        name: `${categoryName.toUpperCase()}_DATA`,
+        name: categoryName.toUpperCase(),
         initializer: (writer) => writeObject(writer, transformedData, 0),
       },
     ],
@@ -119,13 +117,12 @@ export function generateBcdCategoryDataFile(
   return sourceFile;
 }
 
-export function generateAggregatedDataFile(
+export function generateBrowsersFile(
   project: Project,
-  featureCategories: string[],
-  allData: RootBCDData,
+  browsersData: BrowsersData,
   config: Config,
 ): SourceFile {
-  const filePath = getOutputPath("bcd-data.ts", config);
+  const filePath = getOutputPath("browsers.ts", config);
   const existingSourceFile = project.getSourceFile(filePath);
   if (existingSourceFile) project.removeSourceFile(existingSourceFile);
 
@@ -138,69 +135,8 @@ export function generateAggregatedDataFile(
     isExported: true,
     declarations: [
       {
-        name: "BROWSERS_DATA",
-        initializer: (writer) => writeObject(writer, allData.browsers, 0),
-      },
-    ],
-  });
-
-  sourceFile.addVariableStatement({
-    declarationKind: VariableDeclarationKind.Const,
-    isExported: true,
-    declarations: [
-      {
-        name: "META_DATA",
-        initializer: (writer) => writeObject(writer, allData.__meta, 0),
-      },
-    ],
-  });
-
-  const properties: string[] = [];
-  for (const categoryName of featureCategories) {
-    sourceFile.addImportDeclaration({
-      namedImports: [`${categoryName.toUpperCase()}_DATA`],
-      moduleSpecifier: `./${categoryName.toLowerCase()}-data`,
-    });
-    properties.push(`${categoryName}: ${categoryName.toUpperCase()}_DATA`);
-  }
-
-  sourceFile.addVariableStatement({
-    declarationKind: VariableDeclarationKind.Const,
-    declarations: [
-      {
-        name: "FEATURES_DATA",
-        initializer: (writer) => {
-          writer.writeLine("{");
-          properties.forEach((prop, index) =>
-            writer.withIndentationLevel(1, () => {
-              writer.write(prop);
-              if (index < properties.length - 1) writer.write(",");
-              writer.newLine();
-            }),
-          );
-          writer.write("}");
-        },
-      },
-    ],
-    isExported: true,
-  });
-
-  sourceFile.addVariableStatement({
-    declarationKind: VariableDeclarationKind.Const,
-    isExported: true,
-    declarations: [
-      {
-        name: "BCD_DATA",
-        initializer: (writer) => {
-          writer.writeLine("{");
-          writer.withIndentationLevel(1, () => {
-            writer.writeLine("__meta: META_DATA,");
-            writer.writeLine("browsers: BROWSERS_DATA,");
-            writer.write("...FEATURES_DATA");
-          });
-          writer.newLine();
-          writer.write("}");
-        },
+        name: "BROWSERS",
+        initializer: (writer) => writeObject(writer, browsersData, 0),
       },
     ],
   });
