@@ -1,3 +1,4 @@
+import { isRecord } from "./index-generator";
 import type { CodeBlockWriter } from "ts-morph";
 
 function writeValue(
@@ -32,8 +33,8 @@ function writeValue(
     } else {
       writer.write("]");
     }
-  } else if (value && typeof value === "object") {
-    writeObject(writer, value as Record<string, unknown>, indentLevel);
+  } else if (isRecord(value)) {
+    writeObject(writer, value, indentLevel);
   }
 }
 
