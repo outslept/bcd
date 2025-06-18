@@ -10,8 +10,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
-    "prepare": "simple-git-hooks"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "react": "^19.1.0",
