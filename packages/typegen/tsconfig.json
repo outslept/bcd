@@ -5,9 +5,11 @@
     "module": "Preserve",
     "strict": true,
     "strictNullChecks": true,
-    "noEmit": true,
+    "outDir": "lib",
     "verbatimModuleSyntax": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
-  }
+  },
+  "include": ["src/**/*.js", "src/**/*.ts"],
+  "exclude": ["tests/**"]
 }
