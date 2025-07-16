@@ -1,90 +1,14 @@
 import {
   VariableDeclarationKind,
-  type CodeBlockWriter,
   type Project,
   type SourceFile,
 } from "ts-morph";
-import { transformBcdData } from "../data-transformer";
-import {
-  analyzeFeatureStructure,
-  extractDataByPath,
-  getOutputPath,
-  groupByLevel,
-} from "../utils";
-import type { Config } from "..";
-import type { GenerationOptions } from "../types";
+import { transformBcdData } from "./data-transformer";
+import { writeObject } from "./internal";
+import { getOutputPath, isIdentifier } from "./utils";
+import type { FeatureLevel, GenerationOptions } from "./types";
+import type { Config } from "./index";
 import type { Identifier } from "@mdn/browser-compat-data";
-
-function writeValue(
-  writer: CodeBlockWriter,
-  value: unknown,
-  indentLevel: number,
-): void {
-  if (typeof value === "string") {
-    writer.quote(
-      value
-        .replaceAll("'", String.raw`\'`)
-        .replaceAll(/\r?\n/g, String.raw`\n`),
-    );
-  } else if (
-    typeof value === "number" ||
-    typeof value === "boolean" ||
-    value === null
-  ) {
-    writer.write(String(value));
-  } else if (Array.isArray(value)) {
-    writer.write("[");
-    if (value.length > 0) {
-      writer.newLine();
-      value.forEach((item, index) => {
-        writer.withIndentationLevel(indentLevel + 1, () =>
-          writeValue(writer, item, indentLevel + 1),
-        );
-        if (index < value.length - 1) writer.write(",");
-        writer.newLine();
-      });
-      writer.withIndentationLevel(indentLevel, () => writer.write("]"));
-    } else {
-      writer.write("]");
-    }
-  } else if (value && typeof value === "object") {
-    writeObject(writer, value as Record<string, unknown>, indentLevel);
-  }
-}
-
-function needsQuotes(key: string): boolean {
-  if (key.length === 0) return true;
-  if (/^\d/.test(key)) return true;
-  if (!/^[a-z_$][\w$]*$/i.test(key)) return true;
-  return false;
-}
-
-function writeObject(
-  writer: CodeBlockWriter,
-  obj: Record<string, unknown>,
-  indentLevel: number,
-): void {
-  writer.write("{");
-  const entries = Object.entries(obj);
-  if (entries.length > 0) {
-    writer.newLine();
-    entries.forEach(([key, val], index) => {
-      const safeKey = needsQuotes(key)
-        ? `'${key.replaceAll("'", String.raw`\'`)}'`
-        : key;
-
-      writer.withIndentationLevel(indentLevel + 1, () => {
-        writer.write(`${safeKey}: `);
-        writeValue(writer, val, indentLevel + 1);
-      });
-      if (index < entries.length - 1) writer.write(",");
-      writer.newLine();
-    });
-    writer.withIndentationLevel(indentLevel, () => writer.write("}"));
-  } else {
-    writer.write("}");
-  }
-}
 
 function generateDataFile(
   project: Project,
@@ -124,11 +48,91 @@ export function generateFilesByLevel(
   config: Config,
 ): SourceFile[] {
   const generatedFiles: SourceFile[] = [];
+
+  const analyzeFeatureStructure = (
+    data: Identifier,
+    category: string,
+    path: string[] = [],
+  ): FeatureLevel[] => {
+    const levels: FeatureLevel[] = [];
+    const hasCompat = "__compat" in data;
+
+    if (hasCompat || path.length > 0) {
+      const currentLevel: FeatureLevel = {
+        category,
+        subcategory: path[0],
+        feature: path[1] || path[0] || "",
+        subfeature: path[2],
+        path: [...path],
+        hasCompat,
+      };
+      levels.push(currentLevel);
+    }
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (key !== "__compat" && isIdentifier(value)) {
+        const childLevels = analyzeFeatureStructure(
+          value as Identifier,
+          category,
+          [...path, key],
+        );
+        levels.push(...childLevels);
+      }
+    });
+
+    return levels;
+  };
+
   const structure = analyzeFeatureStructure(categoryData, categoryName);
-  const grouped = groupByLevel(structure);
+
+  const subcategories: Record<string, any> = {};
+  const features: Record<string, any> = {};
+  const subfeatures: Record<string, any> = {};
+
+  structure.forEach((level) => {
+    if (level.subcategory && level.path.length === 1) {
+      if (!subcategories[level.subcategory]) {
+        subcategories[level.subcategory] = [];
+      }
+      subcategories[level.subcategory].push(level);
+    }
+
+    if (level.path.length === 2) {
+      const featurePath = level.path.join("/");
+      if (!features[featurePath]) {
+        features[featurePath] = [];
+      }
+      features[featurePath].push(level);
+    }
+
+    if (level.path.length === 3) {
+      const subfeaturePath = level.path.join("/");
+      if (!subfeatures[subfeaturePath]) {
+        subfeatures[subfeaturePath] = [];
+      }
+      subfeatures[subfeaturePath].push(level);
+    }
+  });
+
+  const extractDataByPath = (
+    data: Identifier,
+    path: string[],
+  ): Identifier | null => {
+    let current = data;
+
+    for (const segment of path) {
+      if (current && typeof current === "object" && segment in current) {
+        current = current[segment];
+      } else {
+        return null;
+      }
+    }
+
+    return isIdentifier(current) ? current : null;
+  };
 
   if (options.bySubcategory) {
-    Object.keys(grouped.subcategories).forEach((subcategory) => {
+    Object.keys(subcategories).forEach((subcategory) => {
       const fileName = `${subcategory}.ts`;
       const constName = subcategory.replaceAll("-", "_");
 
@@ -151,7 +155,7 @@ export function generateFilesByLevel(
   }
 
   if (options.byFeature) {
-    Object.keys(grouped.features).forEach((featurePath) => {
+    Object.keys(features).forEach((featurePath) => {
       const pathParts = featurePath.split("/");
       const fileName = `${pathParts.join("-")}.ts`;
       const constName = pathParts.join("_").replaceAll("-", "_");
@@ -175,7 +179,7 @@ export function generateFilesByLevel(
   }
 
   if (options.bySubfeature) {
-    Object.keys(grouped.subfeatures).forEach((subfeaturePath) => {
+    Object.keys(subfeatures).forEach((subfeaturePath) => {
       const pathParts = subfeaturePath.split("/");
       const fileName = `${pathParts.join("-")}.ts`;
       const constName = pathParts.join("_").replaceAll("-", "_");

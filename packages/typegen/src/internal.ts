@@ -1,14 +1,6 @@
-import {
-  VariableDeclarationKind,
-  type CodeBlockWriter,
-  type Project,
-  type SourceFile,
-} from "ts-morph";
-import { getOutputPath } from "../utils";
-import type { Config } from "..";
-import type { RootBCDData } from "../types";
+import type { CodeBlockWriter } from "ts-morph";
 
-function writeValue(
+export function writeValue(
   writer: CodeBlockWriter,
   value: unknown,
   indentLevel: number,
@@ -40,28 +32,27 @@ function writeValue(
     } else {
       writer.write("]");
     }
-  } else if (value && typeof value === "object") {
-    writeObject(writer, value as Record<string, unknown>, indentLevel);
+  } else if (isRecord(value)) {
+    writeObject(writer, value, indentLevel);
   }
 }
 
-function needsQuotes(key: string): boolean {
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+export function needsQuotes(key: string): boolean {
   if (key.length === 0) return true;
   if (/^\d/.test(key)) return true;
   if (!/^[a-z_$][\w$]*$/i.test(key)) return true;
   return false;
 }
 
-function writeObject(
+export function writeObject(
   writer: CodeBlockWriter,
-  obj: unknown,
+  obj: Record<string, unknown>,
   indentLevel: number,
 ): void {
-  if (!obj || typeof obj !== "object" || Array.isArray(obj)) {
-    writer.write("{}");
-    return;
-  }
-
   writer.write("{");
   const entries = Object.entries(obj);
   if (entries.length > 0) {
@@ -82,45 +73,4 @@ function writeObject(
   } else {
     writer.write("}");
   }
-}
-
-export function generateBrowserFiles(
-  project: Project,
-  allData: RootBCDData,
-  config: Config,
-): SourceFile[] {
-  const generatedFiles: SourceFile[] = [];
-
-  Object.entries(allData.browsers).forEach(([browserName, browserData]) => {
-    const fileName = `${browserName}.ts`;
-    const constName = browserName.replaceAll("-", "_");
-
-    const filePath = getOutputPath(fileName, config, "browsers");
-    const existingSourceFile = project.getSourceFile(filePath);
-    if (existingSourceFile) project.removeSourceFile(existingSourceFile);
-
-    const sourceFile = project.createSourceFile(filePath, "", {
-      overwrite: true,
-    });
-
-    sourceFile.addVariableStatement({
-      declarationKind: VariableDeclarationKind.Const,
-      isExported: true,
-      declarations: [
-        {
-          name: constName,
-          initializer: (writer) =>
-            writeObject(
-              writer,
-              browserData as unknown as Record<string, unknown>,
-              0,
-            ),
-        },
-      ],
-    });
-
-    generatedFiles.push(sourceFile);
-  });
-
-  return generatedFiles;
 }

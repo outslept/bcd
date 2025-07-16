@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync } from "node:fs";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import bcdRaw from "@mdn/browser-compat-data/forLegacyNode";
@@ -9,9 +10,9 @@ import {
   QuoteKind,
   ScriptTarget,
 } from "ts-morph";
-import { generateBrowserFiles } from "./generators/browsers-generator";
-import { generateFilesByLevel } from "./generators/level-generator";
-import { ensureDir, getFeatureCategories, isIdentifier } from "./utils";
+import { generateBrowserFiles } from "./browsers-generator";
+import { generateFilesByLevel } from "./level-generator";
+import { isIdentifier } from "./utils";
 import type { GenerationOptions, RootBCDData } from "./types";
 
 export interface Config {
@@ -83,7 +84,9 @@ export async function generateAllFiles(
 }
 
 function main(): void {
-  ensureDir(CONFIG.outputDir);
+  if (!existsSync(CONFIG.outputDir)) {
+    mkdirSync(CONFIG.outputDir, { recursive: true });
+  }
 
   const options: GenerationOptions = {
     byCategory: false,
@@ -92,11 +95,11 @@ function main(): void {
     bySubfeature: false,
   };
 
-  generateAllFiles(
-    getFeatureCategories(Object.keys(bcdRaw)),
-    bcdRaw as RootBCDData,
-    options,
+  const featureCategories = Object.keys(bcdRaw).filter(
+    (key) => key !== "__meta" && key !== "browsers",
   );
+
+  generateAllFiles(featureCategories, bcdRaw as RootBCDData, options);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
