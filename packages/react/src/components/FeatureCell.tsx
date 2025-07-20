@@ -1,18 +1,15 @@
-import styles from "./CompatTable.module.css";
+import styles from "./FeatureCell.module.css";
 import { useFeatureRow } from "./FeatureRow";
 import { StatusIcons } from "./Icon";
 
-interface CompatTableFeatureCellProps {
-  children?: React.ReactNode;
-}
-
-const CompatTableFeatureCell = ({
+function CompatTableFeatureCell({
   ref,
   children,
   ...props
-}: CompatTableFeatureCellProps & {
-  ref?: React.RefObject<HTMLTableHeaderCellElement | null>;
-}) => {
+}: {
+  children?: React.ReactNode;
+  ref?: React.RefObject<HTMLTableCellElement | null>;
+}) {
   const { feature } = useFeatureRow();
   const { name, compat, depth } = feature;
 
@@ -20,9 +17,9 @@ const CompatTableFeatureCell = ({
     return (
       <th
         ref={ref}
-        className={`${styles.bcFeature} ${styles[`bcFeatureDepth-${depth}`]}`}
+        className={`${styles["feature-cell"]} ${styles[`feature-cell--depth-${depth}`]}`}
         scope="row"
-        data-compat-table-feature-cell=""
+        data-depth={depth}
         {...props}
       >
         {children}
@@ -46,24 +43,24 @@ const CompatTableFeatureCell = ({
 
   const titleNode =
     compat.mdn_url && depth > 0 ? (
-      <a href={compat.mdn_url} className={styles.bcTableRowHeader}>
+      <a href={compat.mdn_url} className={styles["feature-header"]}>
         {titleContent}
       </a>
     ) : (
-      <div className={styles.bcTableRowHeader}>{titleContent}</div>
+      <div className={styles["feature-header"]}>{titleContent}</div>
     );
 
   return (
     <th
       ref={ref}
-      className={`${styles.bcFeature} ${styles[`bcFeatureDepth-${depth}`]}`}
+      className={`${styles["feature-cell"]} ${styles[`feature-cell--depth-${depth}`]}`}
       scope="row"
-      data-compat-table-feature-cell=""
+      data-depth={depth}
       {...props}
     >
       {titleNode}
     </th>
   );
-};
+}
 
 export { CompatTableFeatureCell };

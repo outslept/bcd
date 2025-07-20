@@ -1,19 +1,18 @@
-interface CompatTableBodyProps {
-  children: React.ReactNode;
-}
+import type { ReactNode, RefObject } from "react";
 
-const CompatTableBody = ({
+function CompatTableBody({
   ref,
   children,
   ...props
-}: CompatTableBodyProps & {
-  ref?: React.RefObject<HTMLTableSectionElement | null>;
-}) => {
+}: {
+  children: ReactNode;
+  ref?: RefObject<HTMLTableSectionElement | null>;
+}) {
   return (
-    <tbody ref={ref} data-compat-table-body="" {...props}>
+    <tbody ref={ref} {...props}>
       {children}
     </tbody>
   );
-};
+}
 
 export { CompatTableBody };

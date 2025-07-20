@@ -1,30 +1,23 @@
-import styles from "./CompatTable.module.css";
+import styles from "./Table.module.css";
+import type { ReactNode, RefObject } from "react";
 
-interface CompatTableTableProps {
-  children: React.ReactNode;
-}
-
-const CompatTableTable = ({
+function CompatTable({
   ref,
   children,
   ...props
-}: CompatTableTableProps & {
-  ref?: React.RefObject<HTMLTableElement | null>;
-}) => {
+}: {
+  children: ReactNode;
+  ref?: RefObject<HTMLTableElement | null>;
+}) {
   return (
-    <figure className={styles.tableContainer}>
-      <figure className={styles.tableContainerInner}>
-        <table
-          ref={ref}
-          className={`${styles.bcTable} ${styles.bcTableWeb}`}
-          data-compat-table-table=""
-          {...props}
-        >
+    <div className={styles["table-container"]}>
+      <div className={styles["table-viewport"]}>
+        <table ref={ref} className={styles.table} {...props}>
           {children}
         </table>
-      </figure>
-    </figure>
+      </div>
+    </div>
   );
-};
+}
 
-export { CompatTableTable };
+export { CompatTable };

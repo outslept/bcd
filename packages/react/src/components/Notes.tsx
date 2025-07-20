@@ -7,8 +7,8 @@ import {
 } from "../lib/support-analysis";
 import { bugURLToString, labelFromString } from "../lib/version-formatting";
 import { CellText } from "./CellText";
-import styles from "./CompatTable.module.css";
 import { Icon } from "./Icon";
+import styles from "./Notes.module.css";
 import type {
   BrowserStatement,
   SupportStatement,
@@ -135,23 +135,24 @@ function Notes({
 
       const hasNotes = supportNotes.length > 0;
       const itemKey = `item-${i}-${item.version_added}-${item.version_removed}`;
+      const supportClassName = getSupportClassName(item, browser);
 
       return (
         (i === 0 || hasNotes) && (
-          <div key={itemKey} className={styles.bcNotesWrapper}>
+          <div key={itemKey} className={styles["notes-wrapper"]}>
             <div
-              className={`${styles[`bcSupports-${getSupportClassName(item, browser)}`]} ${styles.bcSupports} ${styles.bcNotesHeader}`}
+              className={`${styles[`support-badge--${supportClassName}`]} ${styles["support-badge"]} ${styles["notes-header"]}`}
             >
               <CellText support={item} browser={browser} timeline={true} />
             </div>
-            <div className={styles.bcNotesContent}>
+            <div className={styles["notes-content"]}>
               {supportNotes.map(({ iconName, label, key }, noteIndex) => (
                 <div
                   key={key || `${itemKey}-note-${noteIndex}`}
-                  className={styles.bcNotesItem}
+                  className={styles["notes-item"]}
                 >
                   <Icon name={iconName} />
-                  <span className={styles.bcNotesText}>
+                  <span className={styles["notes-text"]}>
                     {typeof label === "string" ? (
                       // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
                       <span dangerouslySetInnerHTML={{ __html: label }} />

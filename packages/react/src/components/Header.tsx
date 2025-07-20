@@ -1,19 +1,16 @@
-interface CompatTableHeaderProps {
-  children: React.ReactNode;
-}
-
-const CompatTableHeader = ({
+function CompatTableHeader({
   ref,
   children,
   ...props
-}: CompatTableHeaderProps & {
+}: {
+  children: React.ReactNode;
   ref?: React.RefObject<HTMLTableSectionElement | null>;
-}) => {
+}) {
   return (
-    <thead ref={ref} data-compat-table-header="" {...props}>
+    <thead ref={ref} {...props}>
       {children}
     </thead>
   );
-};
+}
 
 export { CompatTableHeader };

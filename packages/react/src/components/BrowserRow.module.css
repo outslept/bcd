@@ -1,0 +1,99 @@
+.browser-row td,
+.browser-row th {
+  padding: 16px 8px;
+  text-align: center;
+  font-weight: 500;
+  background: white;
+  color: var(--gray-800);
+  border-bottom: 1px solid var(--gray-200);
+  border-right: 0.5px solid var(--gray-200);
+  height: 100px;
+  vertical-align: middle;
+}
+
+.dark .browser-row td,
+.dark .browser-row th {
+  background: var(--gray-50);
+  color: var(--gray-800);
+}
+
+.browser-row td:last-child,
+.browser-row th:last-child {
+  border-right: none;
+}
+
+.browser-cell {
+  min-width: 64px;
+  position: relative;
+}
+
+.browser-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-700);
+  white-space: nowrap;
+  margin-bottom: 8px;
+  display: block;
+  line-height: 1.2;
+}
+
+.browser-icon {
+  width: 20px;
+  height: 20px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(0.2);
+}
+
+@media (max-width: 768px) {
+  .browser-cell {
+    min-width: 48px;
+  }
+
+  .browser-row td,
+  .browser-row th {
+    height: 80px;
+    padding: 12px 6px;
+  }
+
+  .browser-label {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+
+  .browser-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .browser-cell {
+    min-width: 40px;
+  }
+
+  .browser-row td,
+  .browser-row th {
+    height: 60px;
+    padding: 8px 4px;
+  }
+
+  .browser-label {
+    font-size: 9px;
+    margin-bottom: 4px;
+  }
+
+  .browser-icon {
+    width: 14px;
+    height: 14px;
+  }
+}

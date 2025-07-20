@@ -1,17 +1,16 @@
 import { useCompatTable } from "../lib/store";
-import styles from "./CompatTable.module.css";
 import { iconMap } from "./Icon";
+import styles from "./PlatformRow.module.css";
+import type { Ref } from "react";
 
-interface CompatTablePlatformRowProps {
-  ref?: React.Ref<HTMLTableRowElement>;
-  children?: React.ReactNode;
-}
-
-const CompatTablePlatformRow = ({
+function CompatTablePlatformRow({
   ref,
   children,
   ...props
-}: CompatTablePlatformRowProps) => {
+}: {
+  ref?: Ref<HTMLTableRowElement>;
+  children?: React.ReactNode;
+}) {
   const { platforms, browsers, browserInfo } = useCompatTable();
 
   const platformsWithBrowsers = platforms.map((platform) => ({
@@ -23,43 +22,27 @@ const CompatTablePlatformRow = ({
 
   if (children) {
     return (
-      <tr
-        ref={ref}
-        className={styles.bcPlatforms}
-        data-compat-table-platform-row=""
-        {...props}
-      >
+      <tr ref={ref} className={styles["platform-row"]} {...props}>
         {children}
       </tr>
     );
   }
 
   return (
-    <tr
-      ref={ref}
-      className={styles.bcPlatforms}
-      data-compat-table-platform-row=""
-      {...props}
-    >
+    <tr ref={ref} className={styles["platform-row"]} {...props}>
       <td></td>
       {platformsWithBrowsers.map(({ platform, browsers: platformBrowsers }) => (
         <th
           key={platform}
-          className={`${styles.bcPlatform} ${styles[`bcPlatform-${platform}`]}`}
+          className={styles["platform-cell"]}
           colSpan={platformBrowsers.length}
-          title={platform}
+          data-platform={platform}
         >
-          <img
-            src={iconMap[platform]}
-            alt=""
-            aria-hidden="true"
-            className={styles.icon}
-          />
-          <span className={styles.visuallyHidden}>{platform}</span>
+          <img src={iconMap[platform]} alt={platform} className={styles.icon} />
         </th>
       ))}
     </tr>
   );
-};
+}
 
 export { CompatTablePlatformRow };

@@ -2,24 +2,21 @@ import { useCallback, useState } from "react";
 import { useCompatTable } from "../lib/store";
 import { getSupportClassName } from "../lib/support-analysis";
 import { CellText } from "./CellText";
-import styles from "./CompatTable.module.css";
 import { useFeatureRow } from "./FeatureRow";
 import { Notes } from "./Notes";
+import styles from "./SupportCell.module.css";
 import type { BrowserName } from "@mdn/browser-compat-data";
 
-interface CompatTableSupportCellProps {
-  browser: BrowserName;
-  children?: React.ReactNode;
-}
-
-const CompatTableSupportCell = ({
+function CompatTableSupportCell({
   ref,
   browser,
   children,
   ...props
-}: CompatTableSupportCellProps & {
-  ref?: React.RefObject<HTMLTableDataCellElement | null>;
-}) => {
+}: {
+  browser: BrowserName;
+  children?: React.ReactNode;
+  ref?: React.RefObject<HTMLTableCellElement | null>;
+}) {
   const { browserInfo } = useCompatTable();
   const { feature } = useFeatureRow();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -36,17 +33,21 @@ const CompatTableSupportCell = ({
     }
   }, [hasNotes]);
 
+  const cellClasses = [
+    styles["support-cell"],
+    styles[`support-cell--${supportClassName}`],
+    hasNotes && styles["support-cell--has-history"],
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   if (children) {
     return (
       <td
         ref={ref}
-        className={`
-            ${styles.bcSupport}
-            ${styles[`bcBrowser-${browser}`]}
-            ${styles[`bcSupports-${supportClassName}`]}
-            ${hasNotes ? styles.bcHasHistory : ""}
-          `}
-        data-compat-table-support-cell=""
+        className={cellClasses}
+        data-browser={browser}
+        data-support={supportClassName}
         {...props}
       >
         {children}
@@ -57,30 +58,33 @@ const CompatTableSupportCell = ({
   return (
     <td
       ref={ref}
-      className={`
-          ${styles.bcSupport}
-          ${styles[`bcBrowser-${browser}`]}
-          ${styles[`bcSupports-${supportClassName}`]}
-          ${hasNotes ? styles.bcHasHistory : ""}
-        `}
-      data-compat-table-support-cell=""
+      className={cellClasses}
+      data-browser={browser}
+      data-support={supportClassName}
       {...props}
     >
       <button
         type="button"
         title={hasNotes ? "Toggle history" : undefined}
         onClick={handleClick}
-        className={styles.compatCellButton}
+        className={styles["support-button"]}
+        aria-expanded={hasNotes ? isExpanded : undefined}
+        aria-label={`${browserStatement.name} support details`}
       >
         <CellText support={support} browser={browserStatement} />
       </button>
       {hasNotes && isExpanded && (
-        <div className={styles.timeline} tabIndex={0}>
-          <div className={styles.bcNotesList}>{notes}</div>
+        <div
+          className={styles.timeline}
+          tabIndex={0}
+          role="region"
+          aria-label="Support history"
+        >
+          <div className={styles["notes-list"]}>{notes}</div>
         </div>
       )}
     </td>
   );
-};
+}
 
 export { CompatTableSupportCell };

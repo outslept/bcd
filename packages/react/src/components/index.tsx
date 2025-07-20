@@ -1,5 +1,5 @@
 export { CompatTableRoot as Root } from "./Root";
-export { CompatTableTable as Table } from "./Table";
+export { CompatTable as Table } from "./Table";
 export { CompatTableHeader as Header } from "./Header";
 export { CompatTablePlatformRow as PlatformRow } from "./PlatformRow";
 export { CompatTableBrowserRow as BrowserRow } from "./BrowserRow";

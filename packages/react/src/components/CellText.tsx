@@ -6,7 +6,7 @@ import {
   getSupportBrowserReleaseDate,
   versionLabelFromSupport,
 } from "../lib/version-formatting";
-import styles from "./CompatTable.module.css";
+import styles from "./CellText.module.css";
 import { CellIcons, iconMap } from "./Icon";
 import type {
   BrowserStatement,
@@ -93,24 +93,30 @@ function CellText({
   return (
     <div
       className={
-        timeline ? styles.bcdTimelineCellTextWrapper : styles.bcdCellTextWrapper
+        timeline
+          ? styles["cell-text-wrapper--timeline"]
+          : styles["cell-text-wrapper"]
       }
     >
-      <div className={styles.bcdCellIcons}>
-        <span className={styles.iconWrap}>
+      <div className={styles["cell-icons"]}>
+        <span className={styles["icon-wrapper"]}>
           <abbr
-            className={`${styles[`bcLevel-${supportClassName}`]} ${styles.icon} ${styles[`icon-${supportClassName}`]}`}
+            className={`${styles[`support-level--${supportClassName}`]} ${styles.icon}`}
             title={title}
           >
-            <span className={styles.bcSupportLevel}>{title}</span>
-            <img src={iconMap[supportClassName]} alt="" aria-hidden="true" />
+            <span className={styles["support-level-text"]}>{title}</span>
+            <img
+              src={iconMap[supportClassName]}
+              alt={`${title} indicator`}
+              aria-hidden="true"
+            />
           </abbr>
         </span>
       </div>
-      <div className={styles.bcdCellTextCopy}>
-        <span className={styles.bcBrowserName}>{browser.name}</span>
+      <div className={styles["cell-content"]}>
+        <span className={styles["browser-name"]}>{browser.name}</span>
         <span
-          className={styles.bcVersionLabel}
+          className={styles["version-label"]}
           title={
             browserReleaseDate && !timeline
               ? `${browser.name} ${added} – Released ${browserReleaseDate}`

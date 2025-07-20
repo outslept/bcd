@@ -28,7 +28,7 @@ import {
   hasMore,
   hasNoteworthyNotes,
 } from "../lib/support-analysis";
-import styles from "./CompatTable.module.css";
+import styles from "./Icon.module.css";
 import type { StatusBlock, SupportStatement } from "@mdn/browser-compat-data";
 
 const iconMap: Record<string, string> = {
@@ -70,13 +70,34 @@ const iconMap: Record<string, string> = {
   more: ellipsisIcon,
 };
 
-interface StatusIcon {
-  title: string;
-  text: string;
-  iconClassName: string;
-}
+const iconLabels: Record<string, string> = {
+  chrome: "Chrome",
+  firefox: "Firefox",
+  safari: "Safari",
+  edge: "Edge",
+  opera: "Opera",
+  yes: "Supported",
+  partial: "Partially supported",
+  no: "Not supported",
+  unknown: "Unknown support",
+  preview: "Preview support",
+  experimental: "Experimental",
+  deprecated: "Deprecated",
+  nonstandard: "Non-standard",
+  footnote: "Additional information",
+  disabled: "Behind flag",
+  altname: "Alternative name",
+  prefix: "Vendor prefix required",
+  more: "More information",
+  desktop: "Desktop",
+  mobile: "Mobile",
+  server: "Server",
+  android: "Android",
+  nodejs: "Node.js",
+  deno: "Deno",
+};
 
-export function Icon({
+function Icon({
   name,
   title,
   className = "",
@@ -92,20 +113,26 @@ export function Icon({
     return null;
   }
 
+  const iconLabel = iconLabels[name] || name;
+  const iconTitle = title || iconLabel;
+
   return (
-    <abbr className={`${styles.onlyIcon} ${className}`} title={title}>
-      <span>{name}</span>
+    <abbr
+      className={`${styles["icon-wrapper"]} ${className}`}
+      title={iconTitle}
+    >
+      <span>{iconLabel}</span>
       <img
         src={iconSrc}
-        alt=""
-        className={`${styles.icon} ${styles[`icon-${name}`]}`}
+        alt={iconLabel}
+        className={styles.icon}
         aria-hidden="true"
       />
     </abbr>
   );
 }
 
-export function CellIcons({ support }: { support: SupportStatement }) {
+function CellIcons({ support }: { support: SupportStatement }) {
   const supportItem = getCurrentSupport(support);
   if (!supportItem) return null;
 
@@ -118,7 +145,7 @@ export function CellIcons({ support }: { support: SupportStatement }) {
   ].filter(Boolean) as Array<{ key: string; name: string }>;
 
   return icons.length ? (
-    <div className={styles.bcIcons}>
+    <div className={styles["icon-list"]}>
       {icons.map(({ key, name }) => (
         <Icon key={key} name={name} />
       ))}
@@ -126,53 +153,46 @@ export function CellIcons({ support }: { support: SupportStatement }) {
   ) : null;
 }
 
-export function StatusIcons({ status }: { status: StatusBlock }) {
-  const icons: StatusIcon[] = [];
+function StatusIcons({ status }: { status: StatusBlock }) {
+  const icons: Array<{
+    name: string;
+    title: string;
+    text: string;
+  }> = [];
 
   if (status.experimental) {
     icons.push({
+      name: "experimental",
       title: "Experimental. Expect behavior to change in the future.",
       text: "Experimental",
-      iconClassName: "icon-experimental",
     });
   }
 
   if (status.deprecated) {
     icons.push({
+      name: "deprecated",
       title: "Deprecated. Not for use in new websites.",
       text: "Deprecated",
-      iconClassName: "icon-deprecated",
     });
   }
 
   if (!status.standard_track) {
     icons.push({
+      name: "nonstandard",
       title: "Non-standard. Expect poor cross-browser support.",
       text: "Non-standard",
-      iconClassName: "icon-nonstandard",
     });
   }
 
   if (icons.length === 0) return null;
 
   return (
-    <div className={styles.bcIcons}>
+    <div className={styles["icon-list"]}>
       {icons.map((icon) => (
-        <abbr
-          key={icon.iconClassName}
-          className={`${styles.onlyIcon} ${styles.icon} ${styles[icon.iconClassName]}`}
-          title={icon.title}
-        >
-          <span>{icon.text}</span>
-          <img
-            src={iconMap[icon.iconClassName.replace("icon-", "")]}
-            alt=""
-            aria-hidden="true"
-          />
-        </abbr>
+        <Icon key={icon.name} name={icon.name} title={icon.title} />
       ))}
     </div>
   );
 }
 
-export { iconMap };
+export { CellIcons, Icon, iconMap, StatusIcons };

@@ -1,0 +1,54 @@
+.platform-row td,
+.platform-row th {
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--gray-50);
+  color: var(--gray-600);
+  border-bottom: 1px solid var(--gray-200);
+  border-right: 0.5px solid var(--gray-200);
+}
+
+.platform-row td:last-child,
+.platform-row th:last-child {
+  border-right: none;
+}
+
+.platform-cell {
+  position: relative;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+.icon:hover {
+  opacity: 1;
+}
+
+.icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(0.3);
+}
