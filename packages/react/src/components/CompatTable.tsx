@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { CompatTableProvider } from "../lib/store";
+import { useMemo, type ReactNode } from "react";
+import { CompatTableProvider, useCompatTable } from "../lib/store";
 import { gatherPlatformsAndBrowsers, listFeatures } from "../lib/utils";
 import styles from "./CompatTable.module.css";
 import type { Browsers, Identifier } from "@mdn/browser-compat-data";
@@ -79,5 +79,22 @@ function CompatTable({
     </CompatTableProvider>
   );
 }
+
+function CompatTableHeader({ children }: { children: ReactNode }) {
+  return <thead>{children}</thead>;
+}
+
+function CompatTableBody({
+  children,
+}: {
+  children: (context: { features: any[]; browsers: string[] }) => ReactNode;
+}) {
+  const { features, browsers } = useCompatTable();
+
+  return <tbody>{children({ features, browsers })}</tbody>;
+}
+
+CompatTable.Header = CompatTableHeader;
+CompatTable.Body = CompatTableBody;
 
 export { CompatTable };

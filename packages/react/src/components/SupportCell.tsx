@@ -13,7 +13,7 @@ function CompatTableSupportCell({
   children,
   ...props
 }: {
-  browser: BrowserName;
+  browser: BrowserName | string;
   children?: React.ReactNode;
   ref?: React.RefObject<HTMLTableCellElement | null>;
 }) {

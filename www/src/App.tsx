@@ -1,6 +1,13 @@
 import bcd, { type Identifier } from "@mdn/browser-compat-data";
 import { useState, type FormEvent } from "react";
-import * as CompatTable from "../../packages/react/src/components";
+import {
+  BrowserRow,
+  CompatTable,
+  FeatureCell,
+  FeatureRow,
+  PlatformRow,
+  SupportCell,
+} from "../../packages/react/src/components";
 import styles from "./App.module.css";
 
 const EXAMPLE_QUERIES = [
@@ -13,32 +20,6 @@ const EXAMPLE_QUERIES = [
   { query: "api.IntersectionObserver", label: "Intersection Observer" },
   { query: "css.properties.backdrop-filter", label: "CSS Backdrop Filter" },
 ];
-
-function CompatTableContent() {
-  const { features, browsers } = CompatTable.useCompatTable();
-
-  return (
-    <>
-      <thead>
-        <CompatTable.PlatformRow />
-        <CompatTable.BrowserRow />
-      </thead>
-      <tbody>
-        {features.map((feature) => (
-          <CompatTable.FeatureRow
-            key={`${feature.name}-${feature.depth}`}
-            feature={feature}
-          >
-            <CompatTable.FeatureCell />
-            {browsers.map((browser) => (
-              <CompatTable.SupportCell key={browser} browser={browser} />
-            ))}
-          </CompatTable.FeatureRow>
-        ))}
-      </tbody>
-    </>
-  );
-}
 
 function App() {
   const [selectedQuery, setSelectedQuery] = useState(EXAMPLE_QUERIES[0].query);
@@ -145,14 +126,32 @@ function App() {
           </div>
 
           {queryData ? (
-            <CompatTable.CompatTable
+            <CompatTable
               query={currentQuery}
               data={queryData}
               browserInfo={bcd.browsers}
               className={styles.compatTable}
             >
-              <CompatTableContent />
-            </CompatTable.CompatTable>
+              <CompatTable.Header>
+                <PlatformRow />
+                <BrowserRow />
+              </CompatTable.Header>
+              <CompatTable.Body>
+                {({ features, browsers }) =>
+                  features.map((feature) => (
+                    <FeatureRow
+                      key={`${feature.name}-${feature.depth}`}
+                      feature={feature}
+                    >
+                      <FeatureCell />
+                      {browsers.map((browser) => (
+                        <SupportCell key={browser} browser={browser} />
+                      ))}
+                    </FeatureRow>
+                  ))
+                }
+              </CompatTable.Body>
+            </CompatTable>
           ) : (
             <div className={styles.noData}>
               <h3>No Data Found</h3>
