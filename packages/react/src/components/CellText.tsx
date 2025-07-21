@@ -8,7 +8,7 @@ import {
   versionLabelFromSupport,
 } from "../lib/version-formatting";
 import styles from "./CellText.module.css";
-import { CellIcons, iconMap } from "./Icon";
+import { CellIcons } from "./Icon";
 import type {
   BrowserStatement,
   SupportStatement,
@@ -121,29 +121,16 @@ const CellText = memo(function CellText({
           : styles["cell-text-wrapper"]
       }
     >
-      <div className={styles["cell-icons"]}>
-        <span className={styles["icon-wrapper"]}>
-          <abbr
-            className={`${styles[`support-level--${supportClassName}`]} ${styles.icon}`}
-            title={title}
-          >
-            <span className={styles["support-level-text"]}>{title}</span>
-            <img
-              src={iconMap[supportClassName]}
-              alt={`${title} indicator`}
-              aria-hidden="true"
-            />
-          </abbr>
-        </span>
-      </div>
       <div className={styles["cell-content"]}>
-        <span className={styles["browser-name"]}>{browser.name}</span>
+        {timeline && (
+          <span className={styles["browser-name"]}>{browser.name}</span>
+        )}
         <span
           className={styles["version-label"]}
           title={
             browserReleaseDate && !timeline
               ? `${browser.name} ${added} – Released ${browserReleaseDate}`
-              : ""
+              : title
           }
         >
           {!timeline || added ? label : null}
