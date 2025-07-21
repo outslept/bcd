@@ -5,11 +5,11 @@
     "module": "Preserve",
     "strict": true,
     "strictNullChecks": true,
-    "outDir": "lib",
+    "outDir": "dist",
     "verbatimModuleSyntax": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.js", "src/**/*.ts"],
+  "include": ["src/**/*.ts", "index.ts"],
   "exclude": ["tests/**"]
 }
