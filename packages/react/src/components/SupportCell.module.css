@@ -15,6 +15,11 @@
     --compat-no: light-dark(oklch(60% 0.18 25), oklch(65% 0.18 25));
     --compat-unknown: light-dark(oklch(55% 0.01 258), oklch(60% 0.01 258));
     --compat-preview: light-dark(oklch(65% 0.18 290), oklch(70% 0.18 290));
+
+    --support-padding: 1rem 0.5rem;
+    --popup-width: 320px;
+    --popup-max-height: 300px;
+    --popup-padding: 1rem;
   }
 
   @supports not (color: light-dark(white, black)) {
@@ -59,7 +64,6 @@
     border-block-end: 1px solid var(--border);
     border-inline-end: 1px solid var(--border);
     background: var(--background);
-    transition: background 0.15s ease;
     container-type: inline-size;
 
     &:last-child {
@@ -70,17 +74,25 @@
       background: var(--muted);
     }
 
-    &--yes { border-inline-start: 3px solid var(--compat-yes); }
-    &--partial { border-inline-start: 3px solid var(--compat-partial); }
-    &--no { border-inline-start: 3px solid var(--compat-no); }
-    &--unknown { border-inline-start: 3px solid var(--compat-unknown); }
-    &--preview { border-inline-start: 3px solid var(--compat-preview); }
-    &--removed-partial { border-inline-start: 3px solid var(--compat-no); }
+    &--yes,
+    &--partial,
+    &--no,
+    &--unknown,
+    &--preview,
+    &--removed-partial {
+      border-inline-start: 3px solid;
+    }
+
+    &--yes { border-inline-start-color: var(--compat-yes); }
+    &--partial { border-inline-start-color: var(--compat-partial); }
+    &--no, &--removed-partial { border-inline-start-color: var(--compat-no); }
+    &--unknown { border-inline-start-color: var(--compat-unknown); }
+    &--preview { border-inline-start-color: var(--compat-preview); }
   }
 
   .support-button {
     width: 100%;
-    padding: 1rem 0.5rem;
+    padding: var(--support-padding);
     border: none;
     background: transparent;
     cursor: pointer;
@@ -99,12 +111,8 @@
     }
   }
 
-  .support-cell--has-history .support-button {
-    cursor: pointer;
-  }
-
   .popup {
-    width: 320px;
+    width: var(--popup-width);
     max-width: 90vw;
     background: var(--background);
     border: 1px solid var(--border);
@@ -112,7 +120,6 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     z-index: 1000;
     font-family: system-ui, sans-serif;
-    animation: slideIn 0.15s ease-out;
 
     &:focus {
       outline: 2px solid var(--accent-foreground);
@@ -121,49 +128,26 @@
   }
 
   .popup-content {
-    max-height: 300px;
+    max-height: var(--popup-max-height);
     overflow-y: auto;
-    padding: 1rem;
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-8px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+    padding: var(--popup-padding);
   }
 
   @container (inline-size < 48rem) {
-    .support-button {
-      padding: 0.75rem 0.375rem;
-    }
-
-    .popup {
-      width: 280px;
-    }
-
-    .popup-content {
-      max-height: 250px;
-      padding: 0.75rem;
+    :root {
+      --support-padding: 0.75rem 0.375rem;
+      --popup-width: 280px;
+      --popup-max-height: 250px;
+      --popup-padding: 0.75rem;
     }
   }
 
   @container (inline-size < 30rem) {
-    .support-button {
-      padding: 0.625rem 0.25rem;
-    }
-
-    .popup {
-      width: 240px;
-    }
-
-    .popup-content {
-      max-height: 200px;
-      padding: 0.5rem;
+    :root {
+      --support-padding: 0.625rem 0.25rem;
+      --popup-width: 240px;
+      --popup-max-height: 200px;
+      --popup-padding: 0.5rem;
     }
   }
 }
