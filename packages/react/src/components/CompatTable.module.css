@@ -1,4 +1,4 @@
-.compatTable {
+.compat-table {
   --compat-yes: #10b981;
   --compat-yes-bg: #ecfdf5;
   --compat-yes-border: #d1fae5;
@@ -35,7 +35,7 @@
   font-feature-settings: 'tnum' 1;
 }
 
-.dark .compatTable {
+.dark .compat-table {
   --compat-yes: #22c55e;
   --compat-yes-bg: #052e16;
   --compat-yes-border: #166534;
@@ -66,8 +66,62 @@
   --gray-900: #fafafa;
 }
 
+.table-container {
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  background: white;
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+}
+
+.dark .table-container {
+  background: var(--gray-50);
+  border-color: var(--gray-200);
+  box-shadow:
+    0 1px 3px 0 rgb(255 255 255 / 0.05),
+    0 1px 2px -1px rgb(255 255 255 / 0.05);
+}
+
+.table-viewport {
+  margin: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) transparent;
+}
+
+.table-viewport::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-viewport::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 3px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .table {
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 480px) {
-  .compatTable {
+  .compat-table {
     font-size: 11px;
   }
 }

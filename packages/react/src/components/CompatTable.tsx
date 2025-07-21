@@ -1,19 +1,10 @@
 import { useMemo } from "react";
 import { CompatTableProvider } from "../lib/store";
 import { gatherPlatformsAndBrowsers, listFeatures } from "../lib/utils";
-import styles from "./Root.module.css";
+import styles from "./CompatTable.module.css";
 import type { Browsers, Identifier } from "@mdn/browser-compat-data";
 
-interface CompatTableRootProps {
-  ref?: React.Ref<HTMLDivElement>;
-  query: string;
-  data: Identifier;
-  browserInfo: Browsers;
-  className?: string;
-  children: React.ReactNode;
-}
-
-const CompatTableRoot = ({
+function CompatTable({
   ref,
   query,
   data,
@@ -21,7 +12,14 @@ const CompatTableRoot = ({
   className,
   children,
   ...props
-}: CompatTableRootProps) => {
+}: {
+  ref?: React.Ref<HTMLTableElement>;
+  query: string;
+  data: Identifier;
+  browserInfo: Browsers;
+  className?: string;
+  children: React.ReactNode;
+}) {
   const state = useMemo(() => {
     const breadcrumbs = query.split(".");
     const category = breadcrumbs[0] ?? "";
@@ -69,16 +67,17 @@ const CompatTableRoot = ({
 
   return (
     <CompatTableProvider value={state}>
-      <div
-        ref={ref}
-        className={`${styles.compatTable} ${className || ""}`}
-        data-compat-table=""
-        {...props}
-      >
-        {children}
+      <div className={`${styles["compat-table"]} ${className || ""}`}>
+        <div className={styles["table-container"]}>
+          <div className={styles["table-viewport"]}>
+            <table ref={ref} className={styles.table} {...props}>
+              {children}
+            </table>
+          </div>
+        </div>
       </div>
     </CompatTableProvider>
   );
-};
+}
 
-export { CompatTableRoot };
+export { CompatTable };

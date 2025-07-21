@@ -18,12 +18,12 @@ function CompatTableContent() {
   const { features, browsers } = CompatTable.useCompatTable();
 
   return (
-    <CompatTable.Table>
-      <CompatTable.Header>
+    <>
+      <thead>
         <CompatTable.PlatformRow />
         <CompatTable.BrowserRow />
-      </CompatTable.Header>
-      <CompatTable.Body>
+      </thead>
+      <tbody>
         {features.map((feature) => (
           <CompatTable.FeatureRow
             key={`${feature.name}-${feature.depth}`}
@@ -35,8 +35,8 @@ function CompatTableContent() {
             ))}
           </CompatTable.FeatureRow>
         ))}
-      </CompatTable.Body>
-    </CompatTable.Table>
+      </tbody>
+    </>
   );
 }
 
@@ -145,14 +145,14 @@ function App() {
           </div>
 
           {queryData ? (
-            <CompatTable.Root
+            <CompatTable.CompatTable
               query={currentQuery}
               data={queryData}
               browserInfo={bcd.browsers}
               className={styles.compatTable}
             >
               <CompatTableContent />
-            </CompatTable.Root>
+            </CompatTable.CompatTable>
           ) : (
             <div className={styles.noData}>
               <h3>No Data Found</h3>
