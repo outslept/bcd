@@ -1,5 +1,3 @@
-import { iconMap } from "../components/Icon";
-import { findFirstCompatDepth } from "./data-processing";
 import type {
   BrowserName,
   Browsers,
@@ -15,15 +13,29 @@ interface Feature {
 
 const HIDDEN_BROWSERS: BrowserName[] = ["ie"];
 
-export function browserToIconName(browser: BrowserName): string {
-  if (iconMap[browser]) {
-    return browser;
+function findFirstCompatDepth(identifier: Identifier): number {
+  const queue: Array<[Identifier, number]> = [[identifier, 1]];
+  let index = 0;
+
+  while (index < queue.length) {
+    const [value, depth] = queue[index++];
+
+    if (value.__compat) {
+      return depth;
+    }
+
+    for (const subvalue of Object.values(value)) {
+      if (
+        typeof subvalue === "object" &&
+        subvalue !== null &&
+        "__compat" in subvalue
+      ) {
+        queue.push([subvalue, depth + 1]);
+      }
+    }
   }
 
-  const baseName = browser.split("_")[0];
-  if (iconMap[baseName]) {
-    return baseName;
-  }
+  return 0;
 }
 
 export function listFeatures(

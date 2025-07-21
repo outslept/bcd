@@ -5,7 +5,6 @@ import {
   isNotSupportedAtAll,
   versionIsPreview,
 } from "../lib/support-analysis";
-import { bugURLToString, labelFromString } from "../lib/version-formatting";
 import { CellText } from "./CellText";
 import { Icon } from "./Icon";
 import styles from "./Notes.module.css";
@@ -33,7 +32,13 @@ function Notes({
         )
           ? {
               iconName: "footnote",
-              label: `Removed in ${labelFromString(item.version_removed, browser)} and later`,
+              label: `Removed in ${(() => {
+                const version = item.version_removed;
+                if (typeof version !== "string") return "?";
+                if (version === "preview")
+                  return browser.preview_name ?? "Preview";
+                return version.replaceAll(/(\.0)+$/g, "");
+              })()} and later`,
             }
           : null,
         item.partial_implementation
@@ -106,7 +111,17 @@ function Notes({
               iconName: "footnote",
               label: (
                 <>
-                  See <a href={impl_url}>{bugURLToString(impl_url)}</a>.
+                  See{" "}
+                  <a href={impl_url}>
+                    {(() => {
+                      const match = impl_url.match(
+                        /^https:\/\/(?:crbug\.com|webkit\.org\/b|bugzil\.la)\/(\d+)/i,
+                      );
+                      const bugNumber = match ? match[1] : null;
+                      return bugNumber ? `bug ${bugNumber}` : impl_url;
+                    })()}
+                  </a>
+                  .
                 </>
               ),
               key: `impl-${urlIndex}`,

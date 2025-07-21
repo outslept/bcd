@@ -3,10 +3,6 @@ import {
   getCurrentSupport,
   getSupportClassName,
 } from "../lib/support-analysis";
-import {
-  getSupportBrowserReleaseDate,
-  versionLabelFromSupport,
-} from "../lib/version-formatting";
 import styles from "./CellText.module.css";
 import { CellIcons } from "./Icon";
 import type {
@@ -33,11 +29,41 @@ const CellText = memo(function CellText({
     const cacheKey = `${browser.name}-${JSON.stringify(support)}`;
     let browserReleaseDate = releaseDateCache.get(cacheKey);
     if (browserReleaseDate === undefined) {
-      browserReleaseDate = getSupportBrowserReleaseDate(support, browser);
+      if (
+        support &&
+        currentSupport?.version_added &&
+        typeof currentSupport.version_added === "string"
+      ) {
+        browserReleaseDate =
+          browser.releases[currentSupport.version_added]?.release_date ?? null;
+      } else {
+        browserReleaseDate = null;
+      }
       releaseDateCache.set(cacheKey, browserReleaseDate);
     }
 
     const supportClassName = getSupportClassName(support, browser);
+
+    const versionLabel = (() => {
+      if (typeof lastVersion === "string") {
+        const addedLabel =
+          typeof added === "string"
+            ? added === "preview"
+              ? (browser.preview_name ?? "Preview")
+              : added.replaceAll(/(\.0)+$/g, "")
+            : "?";
+        const removedLabel = lastVersion.replaceAll(/(\.0)+$/g, "");
+        return `${addedLabel}–${removedLabel}`;
+      }
+
+      if (typeof added === "string") {
+        return added === "preview"
+          ? (browser.preview_name ?? "Preview")
+          : added.replaceAll(/(\.0)+$/g, "");
+      }
+
+      return "?";
+    })();
 
     return {
       currentSupport,
@@ -45,11 +71,17 @@ const CellText = memo(function CellText({
       lastVersion,
       browserReleaseDate,
       supportClassName,
+      versionLabel,
     };
   }, [support, browser]);
 
-  const { added, lastVersion, browserReleaseDate, supportClassName } =
-    computedData;
+  const {
+    added,
+    lastVersion,
+    browserReleaseDate,
+    supportClassName,
+    versionLabel,
+  } = computedData;
 
   let status: { isSupported: string; label?: string };
   switch (added) {
@@ -68,7 +100,7 @@ const CellText = memo(function CellText({
     default:
       status = {
         isSupported: supportClassName,
-        label: versionLabelFromSupport(added, lastVersion, browser),
+        label: versionLabel,
       };
       break;
   }
