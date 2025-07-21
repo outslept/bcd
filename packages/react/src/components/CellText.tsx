@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import {
   getCurrentSupport,
   getSupportClassName,
@@ -13,7 +14,9 @@ import type {
   SupportStatement,
 } from "@mdn/browser-compat-data";
 
-function CellText({
+const releaseDateCache = new Map<string, string | null>();
+
+const CellText = memo(function CellText({
   support,
   browser,
   timeline = false,
@@ -22,11 +25,31 @@ function CellText({
   browser: BrowserStatement;
   timeline?: boolean;
 }) {
-  const currentSupport = getCurrentSupport(support);
-  const added = currentSupport?.version_added ?? null;
-  const lastVersion = currentSupport?.version_last ?? null;
-  const browserReleaseDate = getSupportBrowserReleaseDate(support, browser);
-  const supportClassName = getSupportClassName(support, browser);
+  const computedData = useMemo(() => {
+    const currentSupport = getCurrentSupport(support);
+    const added = currentSupport?.version_added ?? null;
+    const lastVersion = currentSupport?.version_last ?? null;
+
+    const cacheKey = `${browser.name}-${JSON.stringify(support)}`;
+    let browserReleaseDate = releaseDateCache.get(cacheKey);
+    if (browserReleaseDate === undefined) {
+      browserReleaseDate = getSupportBrowserReleaseDate(support, browser);
+      releaseDateCache.set(cacheKey, browserReleaseDate);
+    }
+
+    const supportClassName = getSupportClassName(support, browser);
+
+    return {
+      currentSupport,
+      added,
+      lastVersion,
+      browserReleaseDate,
+      supportClassName,
+    };
+  }, [support, browser]);
+
+  const { added, lastVersion, browserReleaseDate, supportClassName } =
+    computedData;
 
   let status: { isSupported: string; label?: string };
   switch (added) {
@@ -132,6 +155,6 @@ function CellText({
       {support && <CellIcons support={support} />}
     </div>
   );
-}
+});
 
 export { CellText };
