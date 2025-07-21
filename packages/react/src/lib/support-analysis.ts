@@ -5,10 +5,6 @@ import type {
   VersionValue,
 } from "@mdn/browser-compat-data";
 
-export function getFirst<T>(a: T | T[]): T | undefined {
-  return Array.isArray(a) ? a[0] : a;
-}
-
 export function asList<T>(a: T | T[]): T[] {
   return Array.isArray(a) ? a : [a];
 }
@@ -21,7 +17,7 @@ export function versionIsPreview(
   version: string | VersionValue | undefined,
   browser: BrowserStatement,
 ): boolean {
-  if (version == "preview") return true;
+  if (version === "preview") return true;
 
   if (browser && typeof version == "string" && browser.releases[version]) {
     return ["beta", "nightly", "planned"].includes(
@@ -36,7 +32,7 @@ export function hasNoteworthyNotes(support: SimpleSupportStatement): boolean {
   return (
     Boolean(
       (support.notes && support.notes.length) ||
-      (support.impl_url && support.impl_url.length)
+        (support.impl_url && support.impl_url.length),
     ) &&
     !support.version_removed &&
     !support.partial_implementation
@@ -44,7 +40,11 @@ export function hasNoteworthyNotes(support: SimpleSupportStatement): boolean {
 }
 
 export function hasLimitation(support: SimpleSupportStatement): boolean {
-  return hasMajorLimitation(support) || Boolean(support.notes) || Boolean(support.impl_url);
+  return (
+    hasMajorLimitation(support) ||
+    Boolean(support.notes) ||
+    Boolean(support.impl_url)
+  );
 }
 
 export function hasMajorLimitation(support: SimpleSupportStatement): boolean {
@@ -64,7 +64,7 @@ export function isFullySupportedWithoutLimitation(
 }
 
 export function isNotSupportedAtAll(support: SimpleSupportStatement): boolean {
-  return support.version_added == false && !hasLimitation(support);
+  return support.version_added === false && !hasLimitation(support);
 }
 
 export function isFullySupportedWithoutMajorLimitation(
@@ -106,7 +106,7 @@ export function getCurrentSupport(
   const noSupportItem = asList(support).find((item) => item.version_removed);
   if (noSupportItem) return noSupportItem;
 
-  return getFirst(support);
+  return Array.isArray(support) ? support[0] : support;
 }
 
 export type SupportClassName =
