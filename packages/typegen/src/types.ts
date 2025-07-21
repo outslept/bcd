@@ -27,18 +27,7 @@ export interface RootBCDData {
   webextensions?: Identifier;
 }
 
-export interface FeatureLevel {
-  category: string;
-  subcategory?: string;
-  feature: string;
-  subfeature?: string;
-  path: string[];
-  hasCompat: boolean;
-}
-
-export interface GenerationOptions {
-  byCategory: boolean;
-  bySubcategory: boolean;
-  byFeature: boolean;
-  bySubfeature: boolean;
+export interface Config {
+  outputDir: string;
+  pathSeparator: string;
 }

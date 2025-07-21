@@ -1,5 +1,16 @@
 import type { CodeBlockWriter } from "ts-morph";
 
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function needsQuotes(key: string): boolean {
+  if (key.length === 0) return true;
+  if (/^\d/.test(key)) return true;
+  if (!/^[a-z_$][\w$]*$/i.test(key)) return true;
+  return false;
+}
+
 export function writeValue(
   writer: CodeBlockWriter,
   value: unknown,
@@ -37,18 +48,7 @@ export function writeValue(
   }
 }
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-export function needsQuotes(key: string): boolean {
-  if (key.length === 0) return true;
-  if (/^\d/.test(key)) return true;
-  if (!/^[a-z_$][\w$]*$/i.test(key)) return true;
-  return false;
-}
-
-export function writeObject(
+function writeObject(
   writer: CodeBlockWriter,
   obj: Record<string, unknown>,
   indentLevel: number,
