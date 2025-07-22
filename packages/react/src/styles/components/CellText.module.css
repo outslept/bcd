@@ -62,7 +62,6 @@
     color: var(--foreground);
   }
 
-  /* Индикаторы подержки */
   .support-level--yes,
   .support-level--partial,
   .support-level--no,

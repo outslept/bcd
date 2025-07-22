@@ -6,17 +6,12 @@
   .platform-row {
     border-block-end: var(--border-width) solid var(--border);
 
-    & :is(td, th) {
+    th {
       text-align: center;
-      font-weight: 500;
-      font-size: var(--font-size-sm);
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
       background: var(--muted);
       color: var(--muted-foreground);
-      border-block-end: var(--border-width) solid var(--border);
       border-inline-end: var(--border-width) solid var(--border);
-      block-size: 3rem;
+      block-size: 2.5rem;
 
       &:last-child {
         border-inline-end: none;
@@ -29,40 +24,24 @@
     }
   }
 
-  .platform-cell {
-    cursor: default;
-    min-inline-size: 4rem;
+  .platform-spacer {
+    background: var(--background);
   }
 
   .icon {
-    display: inline-block;
     inline-size: var(--icon-size);
     block-size: var(--icon-size);
-    flex-shrink: 0;
     opacity: 0.7;
-    filter: drop-shadow(0 0.0625rem 0.125rem var(--border));
 
-    &:hover {
+    .platform-row th:hover & {
       opacity: 1;
-    }
-
-    & img {
-      inline-size: 100%;
-      block-size: 100%;
-      object-fit: contain;
     }
   }
 
-  /* Адаптивные изменения */
   @container (inline-size < 48rem) {
-    .platform-row :is(td, th) {
+    .platform-row th {
       block-size: 2.5rem;
-      font-size: var(--font-size-xs);
       padding: 0.625rem 0.375rem;
-    }
-
-    .platform-cell {
-      min-inline-size: 3rem;
     }
 
     .icon {
@@ -72,15 +51,9 @@
   }
 
   @container (inline-size < 30rem) {
-    .platform-row :is(td, th) {
+    .platform-row th {
       block-size: 2.25rem;
-      font-size: var(--font-size-xs);
       padding: var(--space-sm) var(--space-xs);
-      letter-spacing: 0.015em;
-    }
-
-    .platform-cell {
-      min-inline-size: 2.5rem;
     }
 
     .icon {
