@@ -166,7 +166,6 @@ function AppContent() {
               {queryData?.__compat?.description && (
                 <p
                   className={styles["demo-description"]}
-                  // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
                   dangerouslySetInnerHTML={{
                     __html: queryData.__compat.description,
                   }}
@@ -218,5 +217,4 @@ function App() {
   return <AppContent />;
 }
 
-// eslint-disable-next-line import/no-default-export
 export default App;

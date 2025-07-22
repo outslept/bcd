@@ -51,14 +51,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const updateResolvedTheme = useCallback((currentTheme: Theme) => {
     const resolved =
       currentTheme === "system" ? getSystemTheme() : currentTheme;
-    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
     setResolvedTheme(resolved);
     applyTheme(resolved);
   }, []);
 
   useEffect(() => {
     const stored = getStoredTheme();
-    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
     setThemeState(stored);
     updateResolvedTheme(stored);
   }, [updateResolvedTheme]);
