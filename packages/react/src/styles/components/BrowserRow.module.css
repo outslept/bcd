@@ -6,25 +6,33 @@
   .browser-row {
     border-block-end: var(--border-width) solid var(--border);
 
-    & :is(td, th) {
+    & td:first-child {
+      background: var(--background);
+      border-inline-end: var(--border-width) solid var(--border);
+    }
+
+    & th {
       text-align: center;
       border: none;
+      border-inline-end: var(--border-width) solid var(--border);
+      border-block-end: var(--border-width) solid var(--border);
       block-size: var(--cell-height);
       min-inline-size: var(--cell-min-width);
+      padding: var(--space-sm);
 
-      &:not(:last-child)::after {
-        content: '';
-        position: absolute;
-        inset-inline-end: 0;
-        inset-block: 25%;
-        inline-size: 1px;
-        background: color-mix(in oklch, var(--border) 40%, transparent);
+      &:last-child {
+        border-inline-end: none;
       }
     }
   }
 
   .browser-cell {
     cursor: default;
+    transition: background-color 0.05s ease;
+
+    &:hover {
+      background: color-mix(in oklch, var(--accent) 30%, transparent);
+    }
   }
 
   .browser-label {
@@ -39,10 +47,7 @@
   .browser-icon {
     margin-inline: auto;
     border-radius: var(--border-radius-md);
-
-    .browser-row th:hover & {
-      background: var(--accent);
-    }
+    padding: var(--space-xs);
 
     & .icon {
       opacity: 0.9;
@@ -50,6 +55,27 @@
       .browser-row th:hover & {
         opacity: 1;
       }
+    }
+  }
+
+  @container (inline-size < 48rem) {
+    .browser-row th {
+      padding: var(--space-xs);
+    }
+
+    .browser-label {
+      font-size: var(--font-size-sm);
+      margin-block-end: var(--space-sm);
+    }
+  }
+
+  @container (inline-size < 30rem) {
+    .browser-row th {
+      padding: var(--space-xs) calc(var(--space-xs) / 2);
+    }
+
+    .browser-label {
+      font-size: var(--font-size-xs);
     }
   }
 }
