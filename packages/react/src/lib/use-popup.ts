@@ -10,8 +10,8 @@ export interface UsePopupReturn {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenToggle: () => void;
-  triggerRef: RefObject<HTMLElement>;
-  contentRef: RefObject<HTMLElement>;
+  triggerRef: RefObject<HTMLElement | null>;
+  contentRef: RefObject<HTMLElement | null>;
 }
 
 export function usePopup({

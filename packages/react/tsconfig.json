@@ -9,6 +9,7 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "strict": false,
+    "strictNullChecks": true,
     "noEmit": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

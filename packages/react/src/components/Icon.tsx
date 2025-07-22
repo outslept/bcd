@@ -1,4 +1,5 @@
-import React from "react";
+import type { StatusBlock, SupportStatement } from "@mdn/browser-compat-data";
+
 import androidIcon from "../assets/android.svg";
 import checkIcon from "../assets/check.svg";
 import chromeIcon from "../assets/chrome.svg";
@@ -29,7 +30,6 @@ import {
   hasNoteworthyNotes,
 } from "../lib/support-analysis";
 import styles from "../styles/components/Icon.module.css";
-import type { StatusBlock, SupportStatement } from "@mdn/browser-compat-data";
 
 const iconMap: Record<string, string> = {
   chrome: chromeIcon,
@@ -114,7 +114,7 @@ function Icon({
   }
 
   const iconLabel = iconLabels[name] || name;
-  const iconTitle = title || iconLabel;
+  const iconTitle = title ?? iconLabel;
 
   return (
     <abbr
@@ -142,7 +142,7 @@ function CellIcons({ support }: { support: SupportStatement }) {
     supportItem.alternative_name && { key: "altname", name: "altname" },
     supportItem.flags && { key: "disabled", name: "disabled" },
     hasMore(support) && { key: "more", name: "more" },
-  ].filter(Boolean) as Array<{ key: string; name: string }>;
+  ].filter(Boolean) as { key: string; name: string }[];
 
   return icons.length ? (
     <div className={styles["icon-list"]}>
@@ -154,11 +154,11 @@ function CellIcons({ support }: { support: SupportStatement }) {
 }
 
 function StatusIcons({ status }: { status: StatusBlock }) {
-  const icons: Array<{
+  const icons: {
     name: string;
     title: string;
     text: string;
-  }> = [];
+  }[] = [];
 
   if (status.experimental) {
     icons.push({

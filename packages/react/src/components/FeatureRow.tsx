@@ -1,5 +1,5 @@
-import { createContext, use } from "react";
 import type { CompatStatement } from "@mdn/browser-compat-data";
+import { createContext, use } from "react";
 
 interface Feature {
   name: string;
@@ -11,7 +11,7 @@ interface FeatureRowContextValue {
   feature: Feature;
 }
 
-const FeatureRowContext = createContext<FeatureRowContextValue | null>(null);
+const FeatureRowContext = createContext<FeatureRowContextValue | undefined>(undefined);
 
 export function useFeatureRow() {
   const context = use(FeatureRowContext);

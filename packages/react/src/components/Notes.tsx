@@ -1,3 +1,9 @@
+import type {
+  BrowserStatement,
+  SupportStatement,
+} from "@mdn/browser-compat-data";
+import type { ReactNode } from "react";
+
 import {
   asList,
   getSupportClassName,
@@ -6,13 +12,9 @@ import {
   versionIsPreview,
 } from "../lib/support-analysis";
 import styles from "../styles/components/Notes.module.css";
+
 import { CellText } from "./CellText";
 import { Icon } from "./Icon";
-import type {
-  BrowserStatement,
-  SupportStatement,
-} from "@mdn/browser-compat-data";
-import type { ReactNode } from "react";
 
 function Notes({
   browser,
@@ -37,13 +39,11 @@ function Notes({
                 if (typeof version !== "string") return "?";
                 if (version === "preview")
                   return browser.preview_name ?? "Preview";
-                return version.replaceAll(/(\.0)+$/g, "");
+                return version.replace(/(\.0)+$/g, "");
               })()} and later`,
             }
           : null,
-        item.partial_implementation
-          ? { iconName: "footnote", label: "Partial support" }
-          : null,
+        { iconName: "footnote", label: "Partial support" },
         item.prefix
           ? {
               iconName: "prefix",
@@ -65,9 +65,9 @@ function Notes({
                   typeof item.version_removed === "string";
 
                 const parts = [
-                  hasAddedVersion && `From version ${item.version_added}`,
+                  hasAddedVersion && `From version ${String(item.version_added)}`,
                   hasRemovedVersion &&
-                    `${hasAddedVersion ? " until" : "Until"} ${item.version_removed} (exclusive)`,
+                    `${hasAddedVersion ? " until" : "Until"} ${String(item.version_removed)} (exclusive)`,
                   hasAddedVersion || hasRemovedVersion ? ": this" : "This",
                   " feature is behind the",
                   ...item.flags.map((flag, flagIndex) => {
@@ -77,9 +77,7 @@ function Notes({
                     const flagType =
                       flag.type === "preference"
                         ? ` preference${valueToSet}`
-                        : flag.type === "runtime_flag"
-                          ? ` runtime flag${valueToSet}`
-                          : "";
+                        : ` runtime flag${valueToSet}`;
                     return `${flag.name}${flagType}${flagIndex < item.flags.length - 1 ? " and the " : ""}`;
                   }),
                   ".",
@@ -99,7 +97,7 @@ function Notes({
               (note, noteIndex) => ({
                 iconName: "footnote",
                 label: note,
-                key: `note-${noteIndex}`,
+                key: `note-${String(noteIndex)}`,
               }),
             )
           : null,
@@ -114,17 +112,15 @@ function Notes({
                   See{" "}
                   <a href={impl_url}>
                     {(() => {
-                      const match = impl_url.match(
-                        /^https:\/\/(?:crbug\.com|webkit\.org\/b|bugzil\.la)\/(\d+)/i,
-                      );
-                      const bugNumber = match ? match[1] : null;
+                      const match = /^https:\/\/(?:crbug\.com|webkit\.org\/b|bugzil\.la)\/(\d+)/i.exec(impl_url);
+                      const bugNumber = match?.[1];
                       return bugNumber ? `bug ${bugNumber}` : impl_url;
                     })()}
                   </a>
                   .
                 </>
               ),
-              key: `impl-${urlIndex}`,
+              key: `impl-${String(urlIndex)}`,
             }))
           : null,
         versionIsPreview(item.version_added, browser)
@@ -138,18 +134,18 @@ function Notes({
             : null,
       ]
         .flat()
-        .filter(Boolean) as Array<{
+        .filter(Boolean) as {
         iconName: string;
         label: string | ReactNode;
         key?: string;
-      }>;
+      }[];
 
       if (supportNotes.length === 0) {
         supportNotes.push({ iconName: "unknown", label: "Support unknown" });
       }
 
       const hasNotes = supportNotes.length > 0;
-      const itemKey = `item-${i}-${item.version_added}-${item.version_removed}`;
+      const itemKey = `item-${String(i)}-${String(item.version_added)}-${String(item.version_removed)}`;
       const supportClassName = getSupportClassName(item, browser);
 
       return (
@@ -163,13 +159,12 @@ function Notes({
             <div className={styles["notes-content"]}>
               {supportNotes.map(({ iconName, label, key }, noteIndex) => (
                 <div
-                  key={key || `${itemKey}-note-${noteIndex}`}
+                  key={key ?? `${itemKey}-note-${String(noteIndex)}`}
                   className={styles["notes-item"]}
                 >
                   <Icon name={iconName} />
                   <span className={styles["notes-text"]}>
                     {typeof label === "string" ? (
-                      // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
                       <span dangerouslySetInnerHTML={{ __html: label }} />
                     ) : (
                       label

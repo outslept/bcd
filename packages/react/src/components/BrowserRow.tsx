@@ -1,5 +1,6 @@
 import { useCompatTable } from "../lib/store";
 import styles from "../styles/components/BrowserRow.module.css";
+
 import { iconMap } from "./Icon";
 
 function CompatTableBrowserRow({
@@ -37,12 +38,12 @@ function CompatTableBrowserRow({
             data-browser={browser}
           >
             <div className={styles["browser-label"]}>
-              {browserInfo[browser]?.name}
+              {browserInfo[browser].name}
             </div>
             <div className={styles["browser-icon"]}>
               <img
                 src={iconMap[iconName]}
-                alt={`${browserInfo[browser]?.name} browser icon`}
+                alt={`${browserInfo[browser].name} browser icon`}
                 className={styles.icon}
               />
             </div>

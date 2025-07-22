@@ -1,14 +1,16 @@
+import type {
+  BrowserStatement,
+  SupportStatement,
+} from "@mdn/browser-compat-data";
 import { memo, useMemo } from "react";
+
 import {
   getCurrentSupport,
   getSupportClassName,
 } from "../lib/support-analysis";
 import styles from "../styles/components/CellText.module.css";
+
 import { CellIcons } from "./Icon";
-import type {
-  BrowserStatement,
-  SupportStatement,
-} from "@mdn/browser-compat-data";
 
 const releaseDateCache = new Map<string, string | null>();
 
@@ -23,19 +25,18 @@ const CellText = memo(function CellText({
 }) {
   const computedData = useMemo(() => {
     const currentSupport = getCurrentSupport(support);
-    const added = currentSupport?.version_added ?? null;
-    const lastVersion = currentSupport?.version_last ?? null;
+    const added = currentSupport?.version_added;
+    const lastVersion = currentSupport?.version_last;
 
     const cacheKey = `${browser.name}-${JSON.stringify(support)}`;
     let browserReleaseDate = releaseDateCache.get(cacheKey);
     if (browserReleaseDate === undefined) {
       if (
-        support &&
         currentSupport?.version_added &&
         typeof currentSupport.version_added === "string"
       ) {
         browserReleaseDate =
-          browser.releases[currentSupport.version_added]?.release_date ?? null;
+          browser.releases[currentSupport.version_added].release_date ?? null;
       } else {
         browserReleaseDate = null;
       }
@@ -50,16 +51,16 @@ const CellText = memo(function CellText({
           typeof added === "string"
             ? added === "preview"
               ? (browser.preview_name ?? "Preview")
-              : added.replaceAll(/(\.0)+$/g, "")
+              : added.replace(/(\.0)+$/g, "")
             : "?";
-        const removedLabel = lastVersion.replaceAll(/(\.0)+$/g, "");
+        const removedLabel = lastVersion.replace(/(\.0)+$/g, "");
         return `${addedLabel}–${removedLabel}`;
       }
 
       if (typeof added === "string") {
         return added === "preview"
           ? (browser.preview_name ?? "Preview")
-          : added.replaceAll(/(\.0)+$/g, "");
+          : added.replace(/(\.0)+$/g, "");
       }
 
       return "?";
@@ -86,6 +87,7 @@ const CellText = memo(function CellText({
   let status: { isSupported: string; label?: string };
   switch (added) {
     case null:
+    case undefined:
       status = { isSupported: "unknown" };
       break;
     case true:
@@ -111,28 +113,28 @@ const CellText = memo(function CellText({
   switch (status.isSupported) {
     case "yes":
       title = "Full support";
-      label = status.label || "Yes";
+      label = status.label ?? "Yes";
       break;
     case "partial":
       title = "Partial support";
-      label = status.label || "Partial";
+      label = status.label ?? "Partial";
       break;
     case "removed-partial":
       if (timeline) {
         title = "Partial support";
-        label = status.label || "Partial";
+        label = status.label ?? "Partial";
       } else {
         title = "No support";
-        label = status.label || "No";
+        label = status.label ?? "No";
       }
       break;
     case "no":
       title = "No support";
-      label = status.label || "No";
+      label = status.label ?? "No";
       break;
     case "preview":
       title = "Preview support";
-      label = status.label || browser.preview_name || "Preview";
+      label = status.label ?? browser.preview_name ?? "Preview";
       break;
     case "unknown":
       title = "Support unknown";
@@ -161,7 +163,7 @@ const CellText = memo(function CellText({
           className={styles["version-label"]}
           title={
             browserReleaseDate && !timeline
-              ? `${browser.name} ${added} – Released ${browserReleaseDate}`
+              ? `${browser.name} ${String(added)} – Released ${browserReleaseDate}`
               : title
           }
         >

@@ -1,8 +1,9 @@
+import type { Browsers, Identifier } from "@mdn/browser-compat-data";
 import { useMemo, type ReactNode } from "react";
+
 import { CompatTableProvider, useCompatTable } from "../lib/store";
 import { gatherPlatformsAndBrowsers, listFeatures } from "../lib/utils";
 import styles from "../styles/components/CompatTable.module.css";
-import type { Browsers, Identifier } from "@mdn/browser-compat-data";
 
 function CompatTable({
   ref,
@@ -23,7 +24,7 @@ function CompatTable({
   const state = useMemo(() => {
     const breadcrumbs = query.split(".");
     const category = breadcrumbs[0] ?? "";
-    const name = breadcrumbs.at(-1) ?? "";
+    const name = breadcrumbs.at(-1);
 
     const [platforms, browsers] = gatherPlatformsAndBrowsers(
       category,
@@ -67,7 +68,7 @@ function CompatTable({
 
   return (
     <CompatTableProvider value={state}>
-      <div className={`${styles["compat-table"]} ${className || ""}`}>
+      <div className={`${styles["compat-table"]} ${className ?? ""}`}>
         <div className={styles["table-container"]}>
           <div className={styles["table-viewport"]}>
             <table ref={ref} className={styles.table} {...props}>

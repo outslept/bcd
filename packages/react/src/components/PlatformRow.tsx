@@ -1,7 +1,9 @@
+import type { Ref } from "react";
+
 import { useCompatTable } from "../lib/store";
 import styles from "../styles/components/PlatformRow.module.css";
+
 import { iconMap } from "./Icon";
-import type { Ref } from "react";
 
 function CompatTablePlatformRow({
   ref,

@@ -1,4 +1,7 @@
+import { type ReactNode, type RefObject } from "react";
+
 import styles from "../styles/components/FeatureCell.module.css";
+
 import { useFeatureRow } from "./FeatureRow";
 import { StatusIcons } from "./Icon";
 
@@ -7,8 +10,8 @@ function CompatTableFeatureCell({
   children,
   ...props
 }: {
-  children?: React.ReactNode;
-  ref?: React.RefObject<HTMLTableCellElement | null>;
+  children?: ReactNode;
+  ref?: RefObject<HTMLTableCellElement | null>;
 }) {
   const { feature } = useFeatureRow();
   const { name, compat, depth } = feature;
@@ -17,7 +20,7 @@ function CompatTableFeatureCell({
     return (
       <th
         ref={ref}
-        className={`${styles["feature-cell"]} ${styles[`feature-cell--depth-${depth}`]}`}
+        className={`${styles["feature-cell"]} ${styles[`feature-cell--depth-${String(depth)}`]}`}
         scope="row"
         data-depth={depth}
         {...props}
@@ -28,7 +31,6 @@ function CompatTableFeatureCell({
   }
 
   const title = compat.description ? (
-    // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
     <span dangerouslySetInnerHTML={{ __html: compat.description }} />
   ) : (
     <code>{name}</code>
@@ -53,7 +55,7 @@ function CompatTableFeatureCell({
   return (
     <th
       ref={ref}
-      className={`${styles["feature-cell"]} ${styles[`feature-cell--depth-${depth}`]}`}
+      className={`${styles["feature-cell"]} ${styles[`feature-cell--depth-${String(depth)}`]}`}
       scope="row"
       data-depth={depth}
       {...props}
