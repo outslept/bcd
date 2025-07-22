@@ -1,8 +1,8 @@
 import type {
   BrowserStatement,
   SupportStatement,
-} from "@mdn/browser-compat-data";
-import type { ReactNode } from "react";
+} from '@mdn/browser-compat-data'
+import type { ReactNode } from 'react'
 
 import {
   asList,
@@ -10,18 +10,18 @@ import {
   isFullySupportedWithoutLimitation,
   isNotSupportedAtAll,
   versionIsPreview,
-} from "../lib/support-analysis";
-import styles from "../styles/components/Notes.module.css";
+} from '../lib/support-analysis'
+import styles from '../styles/components/Notes.module.css'
 
-import { CellText } from "./CellText";
-import { Icon } from "./Icon";
+import { CellText } from './CellText'
+import { Icon } from './Icon'
 
 function Notes({
   browser,
   support,
 }: {
-  browser: BrowserStatement;
-  support: SupportStatement;
+  browser: BrowserStatement
+  support: SupportStatement
 }) {
   const notes = asList(support)
     .slice()
@@ -33,69 +33,70 @@ function Notes({
           (otherItem) => otherItem.version_added === item.version_removed,
         )
           ? {
-              iconName: "footnote",
+              iconName: 'footnote',
               label: `Removed in ${(() => {
-                const version = item.version_removed;
-                if (typeof version !== "string") return "?";
-                if (version === "preview")
-                  return browser.preview_name ?? "Preview";
-                return version.replace(/(\.0)+$/g, "");
+                const version = item.version_removed
+                if (typeof version !== 'string') return '?'
+                if (version === 'preview')
+                  return browser.preview_name ?? 'Preview'
+                return version.replace(/(\.0)+$/g, '')
               })()} and later`,
             }
           : null,
-        { iconName: "footnote", label: "Partial support" },
+        { iconName: 'footnote', label: 'Partial support' },
         item.prefix
           ? {
-              iconName: "prefix",
+              iconName: 'prefix',
               label: `Implemented with the vendor prefix: ${item.prefix}`,
             }
           : null,
         item.alternative_name
           ? {
-              iconName: "altname",
+              iconName: 'altname',
               label: `Alternate name: ${item.alternative_name}`,
             }
           : null,
         item.flags
           ? {
-              iconName: "disabled",
+              iconName: 'disabled',
               label: (() => {
-                const hasAddedVersion = typeof item.version_added === "string";
+                const hasAddedVersion = typeof item.version_added === 'string'
                 const hasRemovedVersion =
-                  typeof item.version_removed === "string";
+                  typeof item.version_removed === 'string'
 
                 const parts = [
-                  hasAddedVersion && `From version ${String(item.version_added)}`,
+                  hasAddedVersion &&
+                    `From version ${String(item.version_added)}`,
                   hasRemovedVersion &&
-                    `${hasAddedVersion ? " until" : "Until"} ${String(item.version_removed)} (exclusive)`,
-                  hasAddedVersion || hasRemovedVersion ? ": this" : "This",
-                  " feature is behind the",
+                    `${hasAddedVersion ? ' until' : 'Until'} ${String(item.version_removed)} (exclusive)`,
+                  hasAddedVersion || hasRemovedVersion ? ': this' : 'This',
+                  ' feature is behind the',
                   ...item.flags.map((flag, flagIndex) => {
                     const valueToSet = flag.value_to_set
                       ? ` (needs to be set to ${flag.value_to_set})`
-                      : "";
+                      : ''
                     const flagType =
-                      flag.type === "preference"
+                      flag.type === 'preference'
                         ? ` preference${valueToSet}`
-                        : ` runtime flag${valueToSet}`;
-                    return `${flag.name}${flagType}${flagIndex < (item.flags?.length ?? 0) - 1 ? " and the " : ""}`;
+                        : ` runtime flag${valueToSet}`
+                    return `${flag.name}${flagType}${flagIndex < (item.flags?.length ?? 0) - 1 ? ' and the ' : ''}`
                   }),
-                  ".",
+                  '.',
                   browser.pref_url &&
-                    item.flags.some((flag) => flag.type === "preference") &&
+                    item.flags.some((flag) => flag.type === 'preference') &&
                     ` To change preferences in ${browser.name}, visit ${browser.pref_url}.`,
                 ]
                   .filter(Boolean)
-                  .join("");
+                  .join('')
 
-                return parts;
+                return parts
               })(),
             }
           : null,
         item.notes
           ? (Array.isArray(item.notes) ? item.notes : [item.notes]).map(
               (note, noteIndex) => ({
-                iconName: "footnote",
+                iconName: 'footnote',
                 label: note,
                 key: `note-${String(noteIndex)}`,
               }),
@@ -106,15 +107,18 @@ function Notes({
               ? item.impl_url
               : [item.impl_url]
             ).map((impl_url, urlIndex) => ({
-              iconName: "footnote",
+              iconName: 'footnote',
               label: (
                 <>
-                  See{" "}
+                  See{' '}
                   <a href={impl_url}>
                     {(() => {
-                      const match = /^https:\/\/(?:crbug\.com|webkit\.org\/b|bugzil\.la)\/(\d+)/i.exec(impl_url);
-                      const bugNumber = match?.[1];
-                      return bugNumber ? `bug ${bugNumber}` : impl_url;
+                      const match =
+                        /^https:\/\/(?:crbug\.com|webkit\.org\/b|bugzil\.la)\/(\d+)/i.exec(
+                          impl_url,
+                        )
+                      const bugNumber = match?.[1]
+                      return bugNumber ? `bug ${bugNumber}` : impl_url
                     })()}
                   </a>
                   .
@@ -124,47 +128,47 @@ function Notes({
             }))
           : null,
         versionIsPreview(item.version_added, browser)
-          ? { iconName: "footnote", label: "Preview browser support" }
+          ? { iconName: 'footnote', label: 'Preview browser support' }
           : null,
         isFullySupportedWithoutLimitation(item) &&
         !versionIsPreview(item.version_added, browser)
-          ? { iconName: "footnote", label: "Full support" }
+          ? { iconName: 'footnote', label: 'Full support' }
           : isNotSupportedAtAll(item)
-            ? { iconName: "footnote", label: "No support" }
+            ? { iconName: 'footnote', label: 'No support' }
             : null,
       ]
         .flat()
         .filter(Boolean) as {
-        iconName: string;
-        label: string | ReactNode;
-        key?: string;
-      }[];
+        iconName: string
+        label: string | ReactNode
+        key?: string
+      }[]
 
       if (supportNotes.length === 0) {
-        supportNotes.push({ iconName: "unknown", label: "Support unknown" });
+        supportNotes.push({ iconName: 'unknown', label: 'Support unknown' })
       }
 
-      const hasNotes = supportNotes.length > 0;
-      const itemKey = `item-${String(i)}-${String(item.version_added)}-${String(item.version_removed)}`;
-      const supportClassName = getSupportClassName(item, browser);
+      const hasNotes = supportNotes.length > 0
+      const itemKey = `item-${String(i)}-${String(item.version_added)}-${String(item.version_removed)}`
+      const supportClassName = getSupportClassName(item, browser)
 
       return (
         (i === 0 || hasNotes) && (
-          <div key={itemKey} className={styles["notes-wrapper"]}>
+          <div key={itemKey} className={styles['notes-wrapper']}>
             <div
-              className={`${styles[`support-badge--${supportClassName}`]} ${styles["support-badge"]} ${styles["notes-header"]}`}
+              className={`${styles[`support-badge--${supportClassName}`]} ${styles['support-badge']} ${styles['notes-header']}`}
             >
               <CellText support={item} browser={browser} timeline={true} />
             </div>
-            <div className={styles["notes-content"]}>
+            <div className={styles['notes-content']}>
               {supportNotes.map(({ iconName, label, key }, noteIndex) => (
                 <div
                   key={key ?? `${itemKey}-note-${String(noteIndex)}`}
-                  className={styles["notes-item"]}
+                  className={styles['notes-item']}
                 >
                   <Icon name={iconName} />
-                  <span className={styles["notes-text"]}>
-                    {typeof label === "string" ? (
+                  <span className={styles['notes-text']}>
+                    {typeof label === 'string' ? (
                       <span dangerouslySetInnerHTML={{ __html: label }} />
                     ) : (
                       label
@@ -175,11 +179,11 @@ function Notes({
             </div>
           </div>
         )
-      );
+      )
     })
-    .filter(Boolean);
+    .filter(Boolean)
 
-  return notes.length > 0 ? <>{notes}</> : null;
+  return notes.length > 0 ? <>{notes}</> : null
 }
 
-export { Notes };
+export { Notes }

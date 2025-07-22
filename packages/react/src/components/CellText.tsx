@@ -1,70 +1,67 @@
 import type {
   BrowserStatement,
   SupportStatement,
-} from "@mdn/browser-compat-data";
-import { memo, useMemo } from "react";
+} from '@mdn/browser-compat-data'
+import { memo, useMemo } from 'react'
 
-import {
-  getCurrentSupport,
-  getSupportClassName,
-} from "../lib/support-analysis";
-import styles from "../styles/components/CellText.module.css";
+import { getCurrentSupport, getSupportClassName } from '../lib/support-analysis'
+import styles from '../styles/components/CellText.module.css'
 
-import { CellIcons } from "./Icon";
+import { CellIcons } from './Icon'
 
-const releaseDateCache = new Map<string, string | null>();
+const releaseDateCache = new Map<string, string | null>()
 
 const CellText = memo(function CellText({
   support,
   browser,
   timeline = false,
 }: {
-  support: SupportStatement | undefined;
-  browser: BrowserStatement;
-  timeline?: boolean;
+  support: SupportStatement | undefined
+  browser: BrowserStatement
+  timeline?: boolean
 }) {
   const computedData = useMemo(() => {
-    const currentSupport = getCurrentSupport(support);
-    const added = currentSupport?.version_added;
-    const lastVersion = currentSupport?.version_last;
+    const currentSupport = getCurrentSupport(support)
+    const added = currentSupport?.version_added
+    const lastVersion = currentSupport?.version_last
 
-    const cacheKey = `${browser.name}-${JSON.stringify(support)}`;
-    let browserReleaseDate = releaseDateCache.get(cacheKey);
+    const cacheKey = `${browser.name}-${JSON.stringify(support)}`
+    let browserReleaseDate = releaseDateCache.get(cacheKey)
     if (browserReleaseDate === undefined) {
       if (
         currentSupport?.version_added &&
-        typeof currentSupport.version_added === "string"
+        typeof currentSupport.version_added === 'string'
       ) {
         browserReleaseDate =
-          browser.releases[currentSupport.version_added].release_date ?? null;
+          browser.releases[currentSupport.version_added].release_date ?? null
       } else {
-        browserReleaseDate = null;
+        browserReleaseDate = null
       }
-      releaseDateCache.set(cacheKey, browserReleaseDate);
+      releaseDateCache.set(cacheKey, browserReleaseDate)
     }
 
-    const supportClassName = getSupportClassName(support, browser);
+    const supportClassName = getSupportClassName(support, browser)
 
     const versionLabel = (() => {
-      if (typeof lastVersion === "string") {
+      if (typeof lastVersion === 'string') {
         const addedLabel =
-          typeof added === "string"
-            ? added === "preview"
-              ? (browser.preview_name ?? "Preview")
-              : added.replace(/(\.0)+$/g, "")
-            : "?";
-        const removedLabel = lastVersion.replace(/(\.0)+$/g, "");
-        return `${addedLabel}–${removedLabel}`;
+          typeof added === 'string'
+            ? added === 'preview'
+              ? (browser.preview_name ?? 'Preview')
+              : added.replace(/(\.0)+$/g, '')
+            : '?'
+        const removedLabel = lastVersion.replace(/(\.0)+$/g, '')
+        return `${addedLabel}–${removedLabel}`
       }
 
-      if (typeof added === "string") {
-        return added === "preview"
-          ? (browser.preview_name ?? "Preview")
-          : added.replace(/(\.0)+$/g, "");
+      if (typeof added === 'string') {
+        return added === 'preview'
+          ? (browser.preview_name ?? 'Preview')
+          : added.replace(/(\.0)+$/g, '')
       }
 
-      return "?";
-    })();
+      return '?'
+    })()
 
     return {
       currentSupport,
@@ -73,8 +70,8 @@ const CellText = memo(function CellText({
       browserReleaseDate,
       supportClassName,
       versionLabel,
-    };
-  }, [support, browser]);
+    }
+  }, [support, browser])
 
   const {
     added,
@@ -82,85 +79,85 @@ const CellText = memo(function CellText({
     browserReleaseDate,
     supportClassName,
     versionLabel,
-  } = computedData;
+  } = computedData
 
-  let status: { isSupported: string; label?: string };
+  let status: { isSupported: string; label?: string }
   switch (added) {
     case null:
     case undefined:
-      status = { isSupported: "unknown" };
-      break;
+      status = { isSupported: 'unknown' }
+      break
     case true:
-      status = { isSupported: lastVersion ? "no" : "yes" };
-      break;
+      status = { isSupported: lastVersion ? 'no' : 'yes' }
+      break
     case false:
-      status = { isSupported: "no" };
-      break;
-    case "preview":
-      status = { isSupported: "preview" };
-      break;
+      status = { isSupported: 'no' }
+      break
+    case 'preview':
+      status = { isSupported: 'preview' }
+      break
     default:
       status = {
         isSupported: supportClassName,
         label: versionLabel,
-      };
-      break;
+      }
+      break
   }
 
-  let label: string;
-  let title = "";
+  let label: string
+  let title = ''
 
   switch (status.isSupported) {
-    case "yes":
-      title = "Full support";
-      label = status.label ?? "Yes";
-      break;
-    case "partial":
-      title = "Partial support";
-      label = status.label ?? "Partial";
-      break;
-    case "removed-partial":
+    case 'yes':
+      title = 'Full support'
+      label = status.label ?? 'Yes'
+      break
+    case 'partial':
+      title = 'Partial support'
+      label = status.label ?? 'Partial'
+      break
+    case 'removed-partial':
       if (timeline) {
-        title = "Partial support";
-        label = status.label ?? "Partial";
+        title = 'Partial support'
+        label = status.label ?? 'Partial'
       } else {
-        title = "No support";
-        label = status.label ?? "No";
+        title = 'No support'
+        label = status.label ?? 'No'
       }
-      break;
-    case "no":
-      title = "No support";
-      label = status.label ?? "No";
-      break;
-    case "preview":
-      title = "Preview support";
-      label = status.label ?? browser.preview_name ?? "Preview";
-      break;
-    case "unknown":
-      title = "Support unknown";
-      label = "?";
-      break;
+      break
+    case 'no':
+      title = 'No support'
+      label = status.label ?? 'No'
+      break
+    case 'preview':
+      title = 'Preview support'
+      label = status.label ?? browser.preview_name ?? 'Preview'
+      break
+    case 'unknown':
+      title = 'Support unknown'
+      label = '?'
+      break
     default:
-      title = "Support unknown";
-      label = "?";
+      title = 'Support unknown'
+      label = '?'
   }
 
-  title = `${browser.name} – ${title}`;
+  title = `${browser.name} – ${title}`
 
   return (
     <div
       className={
         timeline
-          ? styles["cell-text-wrapper--timeline"]
-          : styles["cell-text-wrapper"]
+          ? styles['cell-text-wrapper--timeline']
+          : styles['cell-text-wrapper']
       }
     >
-      <div className={styles["cell-content"]}>
+      <div className={styles['cell-content']}>
         {timeline && (
-          <span className={styles["browser-name"]}>{browser.name}</span>
+          <span className={styles['browser-name']}>{browser.name}</span>
         )}
         <span
-          className={styles["version-label"]}
+          className={styles['version-label']}
           title={
             browserReleaseDate && !timeline
               ? `${browser.name} ${String(added)} – Released ${browserReleaseDate}`
@@ -170,12 +167,12 @@ const CellText = memo(function CellText({
           {!timeline || added ? label : null}
           {browserReleaseDate && timeline
             ? ` (Released ${browserReleaseDate})`
-            : ""}
+            : ''}
         </span>
       </div>
       {support && <CellIcons support={support} />}
     </div>
-  );
-});
+  )
+})
 
-export { CellText };
+export { CellText }

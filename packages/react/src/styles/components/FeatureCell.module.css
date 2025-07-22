@@ -55,7 +55,9 @@
     }
 
     & code {
-      font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+      font-family:
+        ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono',
+        Consolas, monospace;
       font-size: var(--font-size-md);
       background: var(--accent);
       color: var(--accent-foreground);

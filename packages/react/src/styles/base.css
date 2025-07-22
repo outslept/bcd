@@ -5,7 +5,8 @@
   .compat-table {
     width: 100%;
     margin: 2rem 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     color: var(--foreground);
     font-feature-settings: 'tnum' 1;
     container-type: inline-size;

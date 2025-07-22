@@ -13,11 +13,14 @@
     --demo-accent_foreground: oklch(9% 0.02 258);
 
     --demo-radius: 0.5rem;
-    --demo-font_sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
-    --demo-font_mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+    --demo-font_sans:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui,
+      sans-serif;
+    --demo-font_mono:
+      ui-monospace, SFMono-Regular, 'SF Mono', Consolas, monospace;
   }
 
-  [data-theme="dark"] {
+  [data-theme='dark'] {
     --demo-background: oklch(9% 0.02 258);
     --demo-foreground: oklch(98% 0.004 258);
     --demo-muted: oklch(14% 0.02 258);
@@ -42,7 +45,7 @@
       --demo-accent_foreground: #18181b;
     }
 
-    [data-theme="dark"] {
+    [data-theme='dark'] {
       --demo-background: #0a0a0a;
       --demo-foreground: #fafafa;
       --demo-muted: #27272a;

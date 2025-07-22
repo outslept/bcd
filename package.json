@@ -9,8 +9,8 @@
     "lint:ci": "eslint . --fix",
     "test": "vitest",
     "test:ci": "vitest",
-    "format": "",
-    "format:ci": "",
+    "format": "prettier --write .",
+    "format:ci": "prettier --check .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

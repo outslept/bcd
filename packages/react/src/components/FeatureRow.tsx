@@ -1,31 +1,33 @@
-import type { CompatStatement } from "@mdn/browser-compat-data";
-import { createContext, use } from "react";
+import type { CompatStatement } from '@mdn/browser-compat-data'
+import { createContext, use } from 'react'
 
 interface Feature {
-  name: string;
-  compat: CompatStatement;
-  depth: number;
+  name: string
+  compat: CompatStatement
+  depth: number
 }
 
 interface FeatureRowContextValue {
-  feature: Feature;
+  feature: Feature
 }
 
-const FeatureRowContext = createContext<FeatureRowContextValue | undefined>(undefined);
+const FeatureRowContext = createContext<FeatureRowContextValue | undefined>(
+  undefined,
+)
 
 export function useFeatureRow() {
-  const context = use(FeatureRowContext);
+  const context = use(FeatureRowContext)
   if (!context) {
     throw new Error(
-      "FeatureRow components must be used within CompatTable.FeatureRow",
-    );
+      'FeatureRow components must be used within CompatTable.FeatureRow',
+    )
   }
-  return context;
+  return context
 }
 
 interface CompatTableFeatureRowProps {
-  feature: Feature;
-  children: React.ReactNode;
+  feature: Feature
+  children: React.ReactNode
 }
 
 const CompatTableFeatureRow = ({
@@ -34,7 +36,7 @@ const CompatTableFeatureRow = ({
   children,
   ...props
 }: CompatTableFeatureRowProps & {
-  ref?: React.RefObject<HTMLTableRowElement | null>;
+  ref?: React.RefObject<HTMLTableRowElement | null>
 }) => {
   return (
     <FeatureRowContext value={{ feature }}>
@@ -42,7 +44,7 @@ const CompatTableFeatureRow = ({
         {children}
       </tr>
     </FeatureRowContext>
-  );
-};
+  )
+}
 
-export { CompatTableFeatureRow };
+export { CompatTableFeatureRow }

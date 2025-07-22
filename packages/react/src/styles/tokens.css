@@ -1,12 +1,12 @@
 @layer tokens {
   :root {
-    --background: light-dark(#FFFFFF, #131419);
-    --foreground: light-dark(#000000, #E6E6E6);
-    --muted: light-dark(#F8F8F8, #1A1B21);
-    --muted-foreground: light-dark(#666666, #868F97);
-    --border: light-dark(#CCCCCC, #32333B);
-    --accent: light-dark(#F0F0F0, #232328);
-    --accent-foreground: light-dark(#000000, #E6E6E6);
+    --background: light-dark(#ffffff, #131419);
+    --foreground: light-dark(#000000, #e6e6e6);
+    --muted: light-dark(#f8f8f8, #1a1b21);
+    --muted-foreground: light-dark(#666666, #868f97);
+    --border: light-dark(#cccccc, #32333b);
+    --accent: light-dark(#f0f0f0, #232328);
+    --accent-foreground: light-dark(#000000, #e6e6e6);
 
     --compat-yes: light-dark(oklch(65% 0.15 160), oklch(70% 0.15 160));
     --compat-partial: light-dark(oklch(75% 0.15 85), oklch(80% 0.15 85));
@@ -37,12 +37,12 @@
 
   @supports not (color: light-dark(white, black)) {
     :root {
-      --background: #FFFFFF;
+      --background: #ffffff;
       --foreground: #000000;
-      --muted: #F8F8F8;
+      --muted: #f8f8f8;
       --muted-foreground: #666666;
-      --border: #CCCCCC;
-      --accent: #F0F0F0;
+      --border: #cccccc;
+      --accent: #f0f0f0;
       --accent-foreground: #000000;
       --compat-yes: #10b981;
       --compat-partial: #f59e0b;
@@ -54,12 +54,12 @@
     @media (prefers-color-scheme: dark) {
       :root {
         --background: #131419;
-        --foreground: #E6E6E6;
-        --muted: #1A1B21;
-        --muted-foreground: #868F97;
-        --border: #32333B;
+        --foreground: #e6e6e6;
+        --muted: #1a1b21;
+        --muted-foreground: #868f97;
+        --border: #32333b;
         --accent: #232328;
-        --accent-foreground: #E6E6E6;
+        --accent-foreground: #e6e6e6;
         --compat-yes: #22c55e;
         --compat-partial: #eab308;
         --compat-no: #f87171;

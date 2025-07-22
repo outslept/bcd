@@ -1,18 +1,40 @@
 @import './tokens.css';
 
 @layer utilities {
-  .support-yes { border-inline-start: 3px solid var(--compat-yes); }
-  .support-partial { border-inline-start: 3px solid var(--compat-partial); }
-  .support-no { border-inline-start: 3px solid var(--compat-no); }
-  .support-unknown { border-inline-start: 3px solid var(--compat-unknown); }
-  .support-preview { border-inline-start: 3px solid var(--compat-preview); }
-  .support-removed-partial { border-inline-start: 3px solid var(--compat-no); }
+  .support-yes {
+    border-inline-start: 3px solid var(--compat-yes);
+  }
+  .support-partial {
+    border-inline-start: 3px solid var(--compat-partial);
+  }
+  .support-no {
+    border-inline-start: 3px solid var(--compat-no);
+  }
+  .support-unknown {
+    border-inline-start: 3px solid var(--compat-unknown);
+  }
+  .support-preview {
+    border-inline-start: 3px solid var(--compat-preview);
+  }
+  .support-removed-partial {
+    border-inline-start: 3px solid var(--compat-no);
+  }
 
-  .text-support-yes { color: var(--compat-yes); }
-  .text-support-partial { color: var(--compat-partial); }
-  .text-support-no { color: var(--compat-no); }
-  .text-support-unknown { color: var(--compat-unknown); }
-  .text-support-preview { color: var(--compat-preview); }
+  .text-support-yes {
+    color: var(--compat-yes);
+  }
+  .text-support-partial {
+    color: var(--compat-partial);
+  }
+  .text-support-no {
+    color: var(--compat-no);
+  }
+  .text-support-unknown {
+    color: var(--compat-unknown);
+  }
+  .text-support-preview {
+    color: var(--compat-preview);
+  }
 
   .visually-hidden {
     position: absolute;
@@ -47,27 +69,32 @@
 
     &--yes {
       background: var(--compat-yes);
-      box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-yes) 20%, transparent);
+      box-shadow: 0 0 0 0.125rem
+        color-mix(in oklch, var(--compat-yes) 20%, transparent);
     }
 
     &--partial {
       background: var(--compat-partial);
-      box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-partial) 20%, transparent);
+      box-shadow: 0 0 0 0.125rem
+        color-mix(in oklch, var(--compat-partial) 20%, transparent);
     }
 
     &--no {
       background: var(--compat-no);
-      box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-no) 20%, transparent);
+      box-shadow: 0 0 0 0.125rem
+        color-mix(in oklch, var(--compat-no) 20%, transparent);
     }
 
     &--unknown {
       background: var(--compat-unknown);
-      box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-unknown) 20%, transparent);
+      box-shadow: 0 0 0 0.125rem
+        color-mix(in oklch, var(--compat-unknown) 20%, transparent);
     }
 
     &--preview {
       background: var(--compat-preview);
-      box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-preview) 20%, transparent);
+      box-shadow: 0 0 0 0.125rem
+        color-mix(in oklch, var(--compat-preview) 20%, transparent);
     }
   }
 }

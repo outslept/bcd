@@ -4,6 +4,6 @@ This repository provides TypeScript types and utility functions for working with
 
 ## Features
 
-* Generated TypeScript types for BCD.
-* Utility functions to query feature support, status, and more.
-* Enables autocompletion and type-checking when working with BCD in TypeScript projects.
+- Generated TypeScript types for BCD.
+- Utility functions to query feature support, status, and more.
+- Enables autocompletion and type-checking when working with BCD in TypeScript projects.

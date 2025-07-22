@@ -1,9 +1,9 @@
-import type { Browsers, Identifier } from "@mdn/browser-compat-data";
-import { useMemo, type ReactNode } from "react";
+import type { Browsers, Identifier } from '@mdn/browser-compat-data'
+import { useMemo, type ReactNode } from 'react'
 
-import { CompatTableProvider, useCompatTable } from "../lib/store";
-import { gatherPlatformsAndBrowsers, listFeatures } from "../lib/utils";
-import styles from "../styles/components/CompatTable.module.css";
+import { CompatTableProvider, useCompatTable } from '../lib/store'
+import { gatherPlatformsAndBrowsers, listFeatures } from '../lib/utils'
+import styles from '../styles/components/CompatTable.module.css'
 
 function CompatTable({
   ref,
@@ -14,46 +14,46 @@ function CompatTable({
   children,
   ...props
 }: {
-  ref?: React.Ref<HTMLTableElement>;
-  query: string;
-  data: Identifier;
-  browserInfo: Browsers;
-  className?: string;
-  children: React.ReactNode;
+  ref?: React.Ref<HTMLTableElement>
+  query: string
+  data: Identifier
+  browserInfo: Browsers
+  className?: string
+  children: React.ReactNode
 }) {
   const state = useMemo(() => {
-    const breadcrumbs = query.split(".");
-    const category = breadcrumbs[0] ?? "";
-    const name = breadcrumbs.at(-1);
+    const breadcrumbs = query.split('.')
+    const category = breadcrumbs[0] ?? ''
+    const name = breadcrumbs.at(-1)
 
     const [platforms, browsers] = gatherPlatformsAndBrowsers(
       category,
       data,
       browserInfo,
-    );
-    let features = listFeatures(data, "", name);
+    )
+    let features = listFeatures(data, '', name)
 
-    const MAX_FEATURES = 100;
+    const MAX_FEATURES = 100
     if (features.length > MAX_FEATURES) {
-      features = features.filter(({ depth }) => depth < 2);
+      features = features.filter(({ depth }) => depth < 2)
     }
     if (features.length > MAX_FEATURES) {
       features = features.filter(
         ({ compat: { status } }) => status?.standard_track,
-      );
+      )
     }
     if (features.length > MAX_FEATURES) {
       features = features.filter(
         ({ compat: { status } }) => !status?.deprecated,
-      );
+      )
     }
     if (features.length > MAX_FEATURES) {
       features = features.filter(
         ({ compat: { status } }) => !status?.experimental,
-      );
+      )
     }
     if (features.length > MAX_FEATURES) {
-      features = features.slice(0, MAX_FEATURES);
+      features = features.slice(0, MAX_FEATURES)
     }
 
     return {
@@ -63,14 +63,14 @@ function CompatTable({
       platforms,
       browsers,
       features,
-    };
-  }, [query, data, browserInfo]);
+    }
+  }, [query, data, browserInfo])
 
   return (
     <CompatTableProvider value={state}>
-      <div className={`${styles["compat-table"]} ${className ?? ""}`}>
-        <div className={styles["table-container"]}>
-          <div className={styles["table-viewport"]}>
+      <div className={`${styles['compat-table']} ${className ?? ''}`}>
+        <div className={styles['table-container']}>
+          <div className={styles['table-viewport']}>
             <table ref={ref} className={styles.table} {...props}>
               {children}
             </table>
@@ -78,24 +78,24 @@ function CompatTable({
         </div>
       </div>
     </CompatTableProvider>
-  );
+  )
 }
 
 function CompatTableHeader({ children }: { children: ReactNode }) {
-  return <thead>{children}</thead>;
+  return <thead>{children}</thead>
 }
 
 function CompatTableBody({
   children,
 }: {
-  children: (context: { features: any[]; browsers: string[] }) => ReactNode;
+  children: (context: { features: any[]; browsers: string[] }) => ReactNode
 }) {
-  const { features, browsers } = useCompatTable();
+  const { features, browsers } = useCompatTable()
 
-  return <tbody>{children({ features, browsers })}</tbody>;
+  return <tbody>{children({ features, browsers })}</tbody>
 }
 
-CompatTable.Header = CompatTableHeader;
-CompatTable.Body = CompatTableBody;
+CompatTable.Header = CompatTableHeader
+CompatTable.Body = CompatTableBody
 
-export { CompatTable };
+export { CompatTable }

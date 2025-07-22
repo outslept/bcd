@@ -78,26 +78,31 @@
 
   .support-level--yes {
     background: var(--compat-yes);
-    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-yes) 20%, transparent);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-yes) 20%, transparent);
   }
 
   .support-level--partial {
     background: var(--compat-partial);
-    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-partial) 20%, transparent);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-partial) 20%, transparent);
   }
 
   .support-level--no {
     background: var(--compat-no);
-    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-no) 20%, transparent);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-no) 20%, transparent);
   }
 
   .support-level--unknown {
     background: var(--compat-unknown);
-    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-unknown) 20%, transparent);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-unknown) 20%, transparent);
   }
 
   .support-level--preview {
     background: var(--compat-preview);
-    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-preview) 20%, transparent);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-preview) 20%, transparent);
   }
 }

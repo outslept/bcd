@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "packageManager": "pnpm@10.6.5",
   "type": "module",
-    "scripts": {
+  "scripts": {
     "prebuild": "node -e \"const fs=require('fs'); function rimraf(p){return fs.promises.rm(p,{recursive:true,force:true,maxRetries:process.platform==='win32'?10:0})}; rimraf('dist').catch(()=>{})\"",
     "build": "tsc",
     "generate": "node dist/index.js",
