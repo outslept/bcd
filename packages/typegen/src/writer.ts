@@ -34,7 +34,7 @@ export function writeValue(
       writer.newLine();
       value.forEach((item, index) => {
         writer.withIndentationLevel(indentLevel + 1, () =>
-          writeValue(writer, item, indentLevel + 1),
+          { writeValue(writer, item, indentLevel + 1); },
         );
         if (index < value.length - 1) writer.write(",");
         writer.newLine();

@@ -1,4 +1,3 @@
-import { isIdentifier } from "./shared";
 import type {
   BrowserName,
   CompatStatement,
@@ -6,6 +5,8 @@ import type {
   SimpleSupportStatement,
   SupportBlock,
 } from "@mdn/browser-compat-data";
+
+import { isIdentifier } from "./shared.js";
 
 function cleanSupport(support: SupportBlock): SupportBlock {
   const cleaned: SupportBlock = {};

@@ -1,7 +1,8 @@
-import { createConstFile, getOutputPath, isIdentifier } from "./shared";
-import { cleanData } from "./transform";
-import type { Config, RootBCDData } from "./types";
 import type { Project } from "ts-morph";
+
+import { createConstFile, getOutputPath, isIdentifier } from "./shared.js";
+import { cleanData } from "./transform.js";
+import type { Config, RootBCDData } from "./types.js";
 
 export function generateFiles(
   project: Project,

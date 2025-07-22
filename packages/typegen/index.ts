@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync } from "node:fs";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+
 import bcdRaw from "@mdn/browser-compat-data/forLegacyNode";
 import {
   IndentationText,
@@ -10,8 +11,9 @@ import {
   QuoteKind,
   ScriptTarget,
 } from "ts-morph";
-import { generateFiles } from "./src/generator";
-import type { Config, RootBCDData } from "./src/types";
+
+import { generateFiles } from "./src/generator.js";
+import type { Config, RootBCDData } from "./src/types.js";
 
 const CONFIG: Config = {
   outputDir: "generated",
@@ -51,7 +53,7 @@ export async function generateAllFiles(bcdData: RootBCDData): Promise<void> {
 }
 
 function main(): void {
-  generateAllFiles(bcdRaw as RootBCDData);
+  void generateAllFiles(bcdRaw as RootBCDData);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -1,9 +1,11 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { VariableDeclarationKind, type Project } from "ts-morph";
-import { writeValue } from "./writer";
-import type { Config } from "./types";
+
 import type { Identifier } from "@mdn/browser-compat-data";
+import { VariableDeclarationKind, type Project } from "ts-morph";
+
+import type { Config } from "./types.js";
+import { writeValue } from "./writer.js";
 
 export function isIdentifier(value: unknown): value is Identifier {
   return (
@@ -54,7 +56,7 @@ export function createConstFile(
     declarations: [
       {
         name,
-        initializer: (writer) => writeValue(writer, data, 0),
+        initializer: (writer) => { writeValue(writer, data, 0); },
       },
     ],
   });
