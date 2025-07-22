@@ -1,4 +1,5 @@
 import bcd, { type BrowserName, type Identifier } from "@mdn/browser-compat-data";
+import { ThemeProvider , useTheme } from "next-themes";
 import { useState, type FormEvent } from "react";
 
 import {
@@ -11,7 +12,6 @@ import {
 } from "../../packages/react/src/components";
 
 import styles from "./App.module.css";
-import { useTheme } from "./theme-provider";
 
 const EXAMPLE_QUERIES = [
   { query: "api.fetch", label: "Fetch API" },
@@ -69,7 +69,7 @@ function AppContent() {
 
   const cycleTheme = () => {
     const themes = ["light", "dark", "system"] as const;
-    const currentIndex = themes.indexOf(theme);
+    const currentIndex = themes.indexOf(theme as "light" | "dark" | "system");
     const nextIndex = (currentIndex + 1) % themes.length;
     setTheme(themes[nextIndex]);
   };
@@ -81,6 +81,8 @@ function AppContent() {
       case "dark":
         return <MoonIcon />;
       case "system":
+        return <SystemIcon />;
+      default:
         return <SystemIcon />;
     }
   };
@@ -117,7 +119,6 @@ function AppContent() {
         className={styles["demo-theme_toggle"]}
         onClick={cycleTheme}
         aria-label={`Switch to ${theme === "light" ? "dark" : theme === "dark" ? "system" : "light"} theme`}
-        title={`Current: ${theme} theme`}
       >
         {getThemeIcon()}
       </button>
@@ -218,7 +219,16 @@ function AppContent() {
 }
 
 function App() {
-  return <AppContent />;
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <AppContent />
+    </ThemeProvider>
+  );
 }
 
 export default App;
