@@ -28,7 +28,7 @@ import {
   hasMore,
   hasNoteworthyNotes,
 } from "../lib/support-analysis";
-import styles from "./Icon.module.css";
+import styles from "../styles/components/Icon.module.css";
 import type { StatusBlock, SupportStatement } from "@mdn/browser-compat-data";
 
 const iconMap: Record<string, string> = {

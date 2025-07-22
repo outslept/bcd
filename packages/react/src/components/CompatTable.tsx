@@ -1,7 +1,7 @@
 import { useMemo, type ReactNode } from "react";
 import { CompatTableProvider, useCompatTable } from "../lib/store";
 import { gatherPlatformsAndBrowsers, listFeatures } from "../lib/utils";
-import styles from "./CompatTable.module.css";
+import styles from "../styles/components/CompatTable.module.css";
 import type { Browsers, Identifier } from "@mdn/browser-compat-data";
 
 function CompatTable({

@@ -1,4 +1,4 @@
-import styles from "./FeatureCell.module.css";
+import styles from "../styles/components/FeatureCell.module.css";
 import { useFeatureRow } from "./FeatureRow";
 import { StatusIcons } from "./Icon";
 

@@ -1,5 +1,5 @@
 import { useCompatTable } from "../lib/store";
-import styles from "./BrowserRow.module.css";
+import styles from "../styles/components/BrowserRow.module.css";
 import { iconMap } from "./Icon";
 
 function CompatTableBrowserRow({

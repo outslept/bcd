@@ -5,9 +5,9 @@ import {
   isNotSupportedAtAll,
   versionIsPreview,
 } from "../lib/support-analysis";
+import styles from "../styles/components/Notes.module.css";
 import { CellText } from "./CellText";
 import { Icon } from "./Icon";
-import styles from "./Notes.module.css";
 import type {
   BrowserStatement,
   SupportStatement,

@@ -3,10 +3,10 @@ import { createPortal } from "react-dom";
 import { useCompatTable } from "../lib/store";
 import { getSupportClassName } from "../lib/support-analysis";
 import { usePopup } from "../lib/use-popup";
+import styles from "../styles/components/SupportCell.module.css";
 import { CellText } from "./CellText";
 import { useFeatureRow } from "./FeatureRow";
 import { Notes } from "./Notes";
-import styles from "./SupportCell.module.css";
 import type { BrowserName } from "@mdn/browser-compat-data";
 
 function CompatTableSupportCell({

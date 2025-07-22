@@ -1,0 +1,104 @@
+@import '../tokens.css';
+@import '../utilities.css';
+@import '../base.css';
+
+@layer components {
+  .cell-text-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: 2.5rem;
+    padding: var(--space-xs);
+    border-radius: var(--border-radius-sm);
+
+    &:hover {
+      background: var(--muted);
+    }
+
+    &--timeline {
+      justify-content: flex-start;
+      padding: var(--space-md);
+      background: var(--background);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--border-radius-md);
+      margin-block-end: var(--space-sm);
+
+      &:hover {
+        background: var(--accent);
+        border-color: var(--accent-foreground);
+      }
+
+      & .cell-content {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.125rem;
+      }
+    }
+  }
+
+  .cell-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-direction: column;
+  }
+
+  .browser-name {
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+    color: var(--muted-foreground);
+    letter-spacing: -0.005em;
+
+    .cell-text-wrapper:hover & {
+      color: var(--foreground);
+    }
+  }
+
+  .version-label {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+
+  /* Индикаторы подержки */
+  .support-level--yes,
+  .support-level--partial,
+  .support-level--no,
+  .support-level--unknown,
+  .support-level--preview {
+    display: inline-block;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    margin-inline-end: 0.375rem;
+    flex-shrink: 0;
+    border: 1px solid var(--background);
+  }
+
+  .support-level--yes {
+    background: var(--compat-yes);
+    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-yes) 20%, transparent);
+  }
+
+  .support-level--partial {
+    background: var(--compat-partial);
+    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-partial) 20%, transparent);
+  }
+
+  .support-level--no {
+    background: var(--compat-no);
+    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-no) 20%, transparent);
+  }
+
+  .support-level--unknown {
+    background: var(--compat-unknown);
+    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-unknown) 20%, transparent);
+  }
+
+  .support-level--preview {
+    background: var(--compat-preview);
+    box-shadow: 0 0 0 0.125rem color-mix(in oklch, var(--compat-preview) 20%, transparent);
+  }
+}

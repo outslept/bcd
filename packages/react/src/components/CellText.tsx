@@ -3,7 +3,7 @@ import {
   getCurrentSupport,
   getSupportClassName,
 } from "../lib/support-analysis";
-import styles from "./CellText.module.css";
+import styles from "../styles/components/CellText.module.css";
 import { CellIcons } from "./Icon";
 import type {
   BrowserStatement,
