@@ -9,21 +9,79 @@ import {
   SupportCell,
 } from "../../packages/react/src/components";
 import styles from "./App.module.css";
+import { useTheme } from "./theme-provider";
 
 const EXAMPLE_QUERIES = [
   { query: "api.fetch", label: "Fetch API" },
-  { query: "css.properties.display", label: "CSS Display Property" },
-  { query: "html.elements.canvas", label: "HTML Canvas Element" },
-  { query: "javascript.builtins.Promise", label: "JavaScript Promise" },
-  { query: "api.WebGL2RenderingContext", label: "WebGL 2.0" },
-  { query: "css.properties.grid", label: "CSS Grid" },
-  { query: "api.IntersectionObserver", label: "Intersection Observer" },
-  { query: "css.properties.backdrop-filter", label: "CSS Backdrop Filter" },
+  { query: "css.properties.display", label: "CSS Display" },
+  { query: "html.elements.canvas", label: "Canvas" },
+  { query: "javascript.builtins.Promise", label: "Promise" },
 ];
 
-function App() {
+const SunIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <circle cx="12" cy="12" r="5" />
+    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+  </svg>
+);
+
+const MoonIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+);
+
+const SystemIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+    <line x1="8" y1="21" x2="16" y2="21" />
+    <line x1="12" y1="17" x2="12" y2="21" />
+  </svg>
+);
+
+function AppContent() {
+  const { theme, setTheme } = useTheme();
   const [selectedQuery, setSelectedQuery] = useState(EXAMPLE_QUERIES[0].query);
   const [customQuery, setCustomQuery] = useState("");
+
+  const cycleTheme = () => {
+    const themes = ["light", "dark", "system"] as const;
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
+  };
+
+  const getThemeIcon = () => {
+    switch (theme) {
+      case "light":
+        return <SunIcon />;
+      case "dark":
+        return <MoonIcon />;
+      case "system":
+        return <SystemIcon />;
+    }
+  };
 
   const getDataForQuery = (query: string): Identifier | null => {
     const parts = query.split(".");
@@ -51,18 +109,27 @@ function App() {
   const queryData = getDataForQuery(currentQuery);
 
   return (
-    <div className={styles.app}>
-      <main className={styles.main}>
-        <section className={styles.controls}>
-          <div className={styles.querySelector}>
-            <h2>Select a Feature</h2>
-            <div className={styles.exampleQueries}>
+    <div className={styles["demo-app"]}>
+      <button
+        type="button"
+        className={styles["demo-theme_toggle"]}
+        onClick={cycleTheme}
+        aria-label={`Switch to ${theme === "light" ? "dark" : theme === "dark" ? "system" : "light"} theme`}
+        title={`Current: ${theme} theme`}
+      >
+        {getThemeIcon()}
+      </button>
+
+      <main className={styles["demo-main"]}>
+        <div className={styles["demo-container"]}>
+          <div className={styles["demo-controls"]}>
+            <div className={styles["demo-query_tabs"]}>
               {EXAMPLE_QUERIES.map(({ query, label }) => (
                 <button
                   type="button"
                   key={query}
-                  className={`${styles.queryButton} ${
-                    selectedQuery === query ? styles.active : ""
+                  className={`${styles["demo-tab"]} ${
+                    selectedQuery === query ? styles["demo-tab_active"] : ""
                   }`}
                   onClick={() => {
                     setSelectedQuery(query);
@@ -73,142 +140,83 @@ function App() {
                 </button>
               ))}
             </div>
-          </div>
 
-          <div className={styles.customQuery}>
-            <h3>Or Enter Custom Query</h3>
-            <form onSubmit={handleQuerySubmit} className={styles.queryForm}>
+            <form
+              onSubmit={handleQuerySubmit}
+              className={styles["demo-search_form"]}
+            >
               <input
                 type="text"
                 value={customQuery}
                 onChange={(e) => setCustomQuery(e.target.value)}
-                placeholder="e.g., api.fetch, css.properties.flexbox, html.elements.video"
-                className={styles.queryInput}
+                placeholder="Enter custom query (e.g., api.fetch)"
+                className={styles["demo-search_input"]}
               />
-              <button type="submit" className={styles.submitButton}>
-                Load
+              <button type="submit" className={styles["demo-search_button"]}>
+                Search
               </button>
             </form>
-            <p className={styles.queryHelp}>
-              Use dot notation to navigate the BCD structure. Examples:
-              <code>api.fetch</code>, <code>css.properties.grid</code>,{" "}
-              <code>html.elements.canvas</code>
-            </p>
-          </div>
-        </section>
-
-        <section className={styles.results}>
-          <div className={styles.queryInfo}>
-            <h2>
-              Compatibility for: <code>{currentQuery}</code>
-            </h2>
-            {queryData?.__compat?.description && (
-              <p
-                className={styles.description}
-                // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
-                dangerouslySetInnerHTML={{
-                  __html: queryData.__compat.description,
-                }}
-              />
-            )}
-            {queryData?.__compat?.mdn_url && (
-              <p className={styles.mdnLink}>
-                <a
-                  href={queryData.__compat.mdn_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.externalLink}
-                >
-                  View on MDN ↗
-                </a>
-              </p>
-            )}
           </div>
 
-          {queryData ? (
-            <CompatTable
-              query={currentQuery}
-              data={queryData}
-              browserInfo={bcd.browsers}
-              className={styles.compatTable}
-            >
-              <CompatTable.Header>
-                <PlatformRow />
-                <BrowserRow />
-              </CompatTable.Header>
-              <CompatTable.Body>
-                {({ features, browsers }) =>
-                  features.map((feature) => (
-                    <FeatureRow
-                      key={`${feature.name}-${feature.depth}`}
-                      feature={feature}
-                    >
-                      <FeatureCell />
-                      {browsers.map((browser) => (
-                        <SupportCell key={browser} browser={browser} />
-                      ))}
-                    </FeatureRow>
-                  ))
-                }
-              </CompatTable.Body>
-            </CompatTable>
-          ) : (
-            <div className={styles.noData}>
-              <h3>No Data Found</h3>
-              <p>
-                The query <code>{currentQuery}</code> did not match any data in
-                the BCD. Please check your query and try again.
-              </p>
-              <details className={styles.helpDetails}>
-                <summary>Query Help</summary>
-                <div className={styles.helpContent}>
-                  <h4>Available top-level categories:</h4>
-                  <ul>
-                    <li>
-                      <code>api</code> - Web APIs
-                    </li>
-                    <li>
-                      <code>css</code> - CSS features
-                    </li>
-                    <li>
-                      <code>html</code> - HTML elements and attributes
-                    </li>
-                    <li>
-                      <code>http</code> - HTTP features
-                    </li>
-                    <li>
-                      <code>javascript</code> - JavaScript language features
-                    </li>
-                    <li>
-                      <code>svg</code> - SVG features
-                    </li>
-                    <li>
-                      <code>webextensions</code> - WebExtension APIs
-                    </li>
-                  </ul>
-                  <h4>Example queries:</h4>
-                  <ul>
-                    <li>
-                      <code>api.fetch</code>
-                    </li>
-                    <li>
-                      <code>css.properties.display</code>
-                    </li>
-                    <li>
-                      <code>html.elements.canvas</code>
-                    </li>
-                    <li>
-                      <code>javascript.builtins.Promise</code>
-                    </li>
-                  </ul>
-                </div>
-              </details>
+          <div className={styles["demo-results"]}>
+            <div className={styles["demo-result_header"]}>
+              <code className={styles["demo-current_query"]}>
+                {currentQuery}
+              </code>
+              {queryData?.__compat?.description && (
+                <p
+                  className={styles["demo-description"]}
+                  // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+                  dangerouslySetInnerHTML={{
+                    __html: queryData.__compat.description,
+                  }}
+                />
+              )}
             </div>
-          )}
-        </section>
+
+            {queryData ? (
+              <CompatTable
+                query={currentQuery}
+                data={queryData}
+                browserInfo={bcd.browsers}
+              >
+                <CompatTable.Header>
+                  <PlatformRow />
+                  <BrowserRow />
+                </CompatTable.Header>
+                <CompatTable.Body>
+                  {({ features, browsers }) =>
+                    features.map((feature) => (
+                      <FeatureRow
+                        key={`${feature.name}-${feature.depth}`}
+                        feature={feature}
+                      >
+                        <FeatureCell />
+                        {browsers.map((browser) => (
+                          <SupportCell key={browser} browser={browser} />
+                        ))}
+                      </FeatureRow>
+                    ))
+                  }
+                </CompatTable.Body>
+              </CompatTable>
+            ) : (
+              <div className={styles["demo-no_results"]}>
+                <p>
+                  No data found for <code>{currentQuery}</code>
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
 }
 
+function App() {
+  return <AppContent />;
+}
+
+// eslint-disable-next-line import/no-default-export
 export default App;
