@@ -1,12 +1,12 @@
 @layer tokens {
   :root {
-    --background: light-dark(oklch(100% 0 0), oklch(11% 0.02 258));
-    --foreground: light-dark(oklch(9% 0 0), oklch(98% 0.004 258));
-    --muted: light-dark(oklch(96% 0 0), oklch(18% 0.015 258));
-    --muted-foreground: light-dark(oklch(47% 0.004 258), oklch(65% 0.008 258));
-    --border: light-dark(oklch(91% 0.006 258), oklch(18% 0.015 258));
-    --accent: light-dark(oklch(96% 0 0), oklch(18% 0.015 258));
-    --accent-foreground: light-dark(oklch(9% 0.02 258), oklch(98% 0.004 258));
+    --background: light-dark(#FFFFFF, #131419);
+    --foreground: light-dark(#000000, #E6E6E6);
+    --muted: light-dark(#F8F8F8, #1A1B21);
+    --muted-foreground: light-dark(#666666, #868F97);
+    --border: light-dark(#CCCCCC, #32333B);
+    --accent: light-dark(#F0F0F0, #232328);
+    --accent-foreground: light-dark(#000000, #E6E6E6);
 
     --compat-yes: light-dark(oklch(65% 0.15 160), oklch(70% 0.15 160));
     --compat-partial: light-dark(oklch(75% 0.15 85), oklch(80% 0.15 85));
@@ -37,13 +37,13 @@
 
   @supports not (color: light-dark(white, black)) {
     :root {
-      --background: hsl(0 0% 100%);
-      --foreground: hsl(0 0% 9%);
-      --muted: hsl(210 40% 96%);
-      --muted-foreground: hsl(215 16% 47%);
-      --border: hsl(214 32% 91%);
-      --accent: hsl(210 40% 96%);
-      --accent-foreground: hsl(222 84% 5%);
+      --background: #FFFFFF;
+      --foreground: #000000;
+      --muted: #F8F8F8;
+      --muted-foreground: #666666;
+      --border: #CCCCCC;
+      --accent: #F0F0F0;
+      --accent-foreground: #000000;
       --compat-yes: #10b981;
       --compat-partial: #f59e0b;
       --compat-no: #ef4444;
@@ -53,13 +53,13 @@
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --background: hsl(222 84% 5%);
-        --foreground: hsl(210 40% 98%);
-        --muted: hsl(217 33% 18%);
-        --muted-foreground: hsl(215 20% 65%);
-        --border: hsl(217 33% 18%);
-        --accent: hsl(217 33% 18%);
-        --accent-foreground: hsl(210 40% 98%);
+        --background: #131419;
+        --foreground: #E6E6E6;
+        --muted: #1A1B21;
+        --muted-foreground: #868F97;
+        --border: #32333B;
+        --accent: #232328;
+        --accent-foreground: #E6E6E6;
         --compat-yes: #22c55e;
         --compat-partial: #eab308;
         --compat-no: #f87171;

@@ -19,13 +19,18 @@
 
       &:hover {
         background: var(--accent);
-        color: var(--foreground);
+        color: var(--accent-foreground);
       }
     }
   }
 
   .platform-spacer {
-    background: var(--background);
+    background: var(--muted);
+    border-inline-end: var(--border-width) solid var(--border);
+  }
+
+  .platform-row:hover .platform-spacer {
+    background: var(--accent);
   }
 
   .icon {

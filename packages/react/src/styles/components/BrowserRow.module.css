@@ -28,7 +28,6 @@
 
   .browser-cell {
     cursor: default;
-    transition: background-color 0.05s ease;
 
     &:hover {
       background: color-mix(in oklch, var(--accent) 30%, transparent);

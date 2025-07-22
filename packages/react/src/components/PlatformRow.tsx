@@ -30,12 +30,13 @@ function CompatTablePlatformRow({
 
   return (
     <tr ref={ref} className={styles["platform-row"]} {...props}>
-      <td></td>
+      <td className={styles["platform-spacer"]}></td>
       {platformsWithBrowsers.map(({ platform, browsers: platformBrowsers }) => (
         <th
           key={platform}
           className={styles["platform-cell"]}
           colSpan={platformBrowsers.length}
+          scope="colgroup"
           data-platform={platform}
         >
           <img src={iconMap[platform]} alt={platform} className={styles.icon} />

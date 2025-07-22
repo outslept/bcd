@@ -33,7 +33,6 @@
     &::-webkit-scrollbar-thumb {
       background: var(--muted-foreground);
       border-radius: 3px;
-      transition: background-color 0.15s ease;
 
       &:hover {
         background: var(--foreground);
