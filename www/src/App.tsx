@@ -1,5 +1,6 @@
-import bcd, { type Identifier } from "@mdn/browser-compat-data";
+import bcd, { type BrowserName, type Identifier } from "@mdn/browser-compat-data";
 import { useState, type FormEvent } from "react";
+
 import {
   BrowserRow,
   CompatTable,
@@ -8,6 +9,7 @@ import {
   PlatformRow,
   SupportCell,
 } from "../../packages/react/src/components";
+
 import styles from "./App.module.css";
 import { useTheme } from "./theme-provider";
 
@@ -85,17 +87,17 @@ function AppContent() {
 
   const getDataForQuery = (query: string): Identifier | null => {
     const parts = query.split(".");
-    let current: any = bcd;
+    let current: unknown = bcd;
 
     for (const part of parts) {
       if (current && typeof current === "object" && part in current) {
-        current = current[part];
+        current = (current as Record<string, unknown>)[part];
       } else {
         return null;
       }
     }
 
-    return current && typeof current === "object" ? current : null;
+    return current && typeof current === "object" ? current as Identifier : null;
   };
 
   const handleQuerySubmit = (e: FormEvent) => {
@@ -128,9 +130,8 @@ function AppContent() {
                 <button
                   type="button"
                   key={query}
-                  className={`${styles["demo-tab"]} ${
-                    selectedQuery === query ? styles["demo-tab_active"] : ""
-                  }`}
+                  className={`${styles["demo-tab"]} ${selectedQuery === query ? styles["demo-tab_active"] : ""
+                    }`}
                   onClick={() => {
                     setSelectedQuery(query);
                     setCustomQuery("");
@@ -148,7 +149,7 @@ function AppContent() {
               <input
                 type="text"
                 value={customQuery}
-                onChange={(e) => setCustomQuery(e.target.value)}
+                onChange={(e) => { setCustomQuery(e.target.value); }}
                 placeholder="Enter custom query (e.g., api.fetch)"
                 className={styles["demo-search_input"]}
               />
@@ -185,17 +186,20 @@ function AppContent() {
                 </CompatTable.Header>
                 <CompatTable.Body>
                   {({ features, browsers }) =>
-                    features.map((feature) => (
-                      <FeatureRow
-                        key={`${feature.name}-${feature.depth}`}
-                        feature={feature}
-                      >
-                        <FeatureCell />
-                        {browsers.map((browser) => (
-                          <SupportCell key={browser} browser={browser} />
-                        ))}
-                      </FeatureRow>
-                    ))
+                    features.map((feature) => {
+                      const typedFeature = feature as { name: string; depth: number; compat: any };
+                      return (
+                        <FeatureRow
+                          key={`${typedFeature.name}-${String(typedFeature.depth)}`}
+                          feature={typedFeature}
+                        >
+                          <FeatureCell />
+                          {browsers.map((browser) => (
+                            <SupportCell key={browser} browser={browser as BrowserName} />
+                          ))}
+                        </FeatureRow>
+                      );
+                    })
                   }
                 </CompatTable.Body>
               </CompatTable>

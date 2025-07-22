@@ -78,7 +78,7 @@ function Notes({
                       flag.type === "preference"
                         ? ` preference${valueToSet}`
                         : ` runtime flag${valueToSet}`;
-                    return `${flag.name}${flagType}${flagIndex < item.flags.length - 1 ? " and the " : ""}`;
+                    return `${flag.name}${flagType}${flagIndex < (item.flags?.length ?? 0) - 1 ? " and the " : ""}`;
                   }),
                   ".",
                   browser.pref_url &&
