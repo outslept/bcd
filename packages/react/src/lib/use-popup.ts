@@ -24,7 +24,7 @@ function debounce<T extends (...args: unknown[]) => void>(
   fn: T,
   delay: number,
 ): T {
-  let timeoutId: number | undefined
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
   return ((...args: Parameters<T>) => {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => fn(...args), delay)
