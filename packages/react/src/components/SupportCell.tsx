@@ -3,7 +3,12 @@ import { useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 import { useCompatTable } from '../lib/store'
-import { getSupportClassName, hasMore, hasNoteworthyNotes, getCurrentSupport } from '../lib/support-analysis'
+import {
+  getSupportClassName,
+  hasMore,
+  hasNoteworthyNotes,
+  getCurrentSupport,
+} from '../lib/support-analysis'
 import { usePopup } from '../lib/use-popup'
 import styles from '../styles/components/SupportCell.module.css'
 
@@ -29,11 +34,15 @@ function CompatTableSupportCell({
   const supportClassName = getSupportClassName(support, browserStatement)
 
   const currentSupport = getCurrentSupport(support)
-  const hasNotes = (hasMore(support) ||
-    (currentSupport && hasNoteworthyNotes(currentSupport)) ??
-    (currentSupport?.flags) ??
-    (currentSupport?.prefix)) ??
-    (currentSupport?.alternative_name)
+
+  // TODO: get rid of this monstrosity eventually
+  const hasNotes = [
+    hasMore(support),
+    currentSupport && hasNoteworthyNotes(currentSupport),
+    currentSupport?.flags != null,
+    currentSupport?.prefix != null,
+    currentSupport?.alternative_name != null,
+  ].some(Boolean)
 
   const popup = usePopup()
 

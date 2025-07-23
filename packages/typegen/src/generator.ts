@@ -66,10 +66,11 @@ function walkAndGenerate(
 
     for (const key of childKeys) {
       const child = node[key]
-      const newPath = node.__compat ? [...path, currentNodeName, key]
-          : [...path, key]
+      const newPath = node.__compat
+        ? [...path, currentNodeName, key]
+        : [...path, key]
 
-        walkAndGenerate(project, child, newPath, config)
+      walkAndGenerate(project, child, newPath, config)
     }
   }
 }
