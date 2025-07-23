@@ -1,11 +1,39 @@
 import type { Browsers, Identifier } from '@mdn/browser-compat-data'
-import { useMemo, type ReactNode } from 'react'
+import { type Ref, useMemo, type ReactNode } from 'react'
 
 import { CompatTableProvider, useCompatTable } from '../lib/store'
 import { gatherPlatformsAndBrowsers, listFeatures } from '../lib/utils'
 import styles from '../styles/components/CompatTable.module.css'
 
 import type { Feature } from './FeatureRow'
+
+const MAX_FEATURES = 100
+
+function filterFeatures(features: Feature[]): Feature[] {
+  if (features.length <= MAX_FEATURES) return features
+
+  const filtered: Feature[] = []
+
+  for (const feature of features) {
+    // Skip deep nested features first
+    if (feature.depth >= 2) continue
+    // Skip non-standard features
+    if (!feature.compat.status?.standard_track) continue
+    // Skip deprecated features
+    if (feature.compat.status.deprecated) continue
+    // Skip experimental features
+    if (feature.compat.status.experimental) continue
+
+    filtered.push(feature)
+
+    // Early exit when we have enough
+    if (filtered.length >= MAX_FEATURES) break
+  }
+
+  return filtered.length > MAX_FEATURES
+    ? filtered.slice(0, MAX_FEATURES)
+    : filtered
+}
 
 function CompatTable({
   ref,
@@ -16,12 +44,12 @@ function CompatTable({
   children,
   ...props
 }: {
-  ref?: React.Ref<HTMLTableElement>
+  ref?: Ref<HTMLTableElement>
   query: string
   data: Identifier
   browserInfo: Browsers
   className?: string
-  children: React.ReactNode
+  children: ReactNode
 }) {
   const state = useMemo(() => {
     const breadcrumbs = query.split('.')
@@ -33,30 +61,9 @@ function CompatTable({
       data,
       browserInfo,
     )
-    let features = listFeatures(data, '', name)
 
-    const MAX_FEATURES = 100
-    if (features.length > MAX_FEATURES) {
-      features = features.filter(({ depth }) => depth < 2)
-    }
-    if (features.length > MAX_FEATURES) {
-      features = features.filter(
-        ({ compat: { status } }) => status?.standard_track,
-      )
-    }
-    if (features.length > MAX_FEATURES) {
-      features = features.filter(
-        ({ compat: { status } }) => !status?.deprecated,
-      )
-    }
-    if (features.length > MAX_FEATURES) {
-      features = features.filter(
-        ({ compat: { status } }) => !status?.experimental,
-      )
-    }
-    if (features.length > MAX_FEATURES) {
-      features = features.slice(0, MAX_FEATURES)
-    }
+    const allFeatures = listFeatures(data, '', name)
+    const features = filterFeatures(allFeatures)
 
     return {
       query,
