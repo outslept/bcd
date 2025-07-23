@@ -23,18 +23,20 @@ const CellText = memo(function CellText({
   const lastVersion = currentSupport?.version_last
   const supportClassName = getSupportClassName(support, browser)
 
-  const browserReleaseDate = currentSupport?.version_added &&
+  const browserReleaseDate =
+    currentSupport?.version_added &&
     typeof currentSupport.version_added === 'string'
-    ? browser.releases[currentSupport.version_added].release_date ?? null
-    : null
+      ? (browser.releases[currentSupport.version_added].release_date ?? null)
+      : null
 
   const versionLabel = (() => {
     if (typeof lastVersion === 'string') {
-      const addedLabel = typeof added === 'string'
-        ? added === 'preview'
-          ? (browser.preview_name ?? 'Preview')
-          : added.replace(/(\.0)+$/g, '')
-        : '?'
+      const addedLabel =
+        typeof added === 'string'
+          ? added === 'preview'
+            ? (browser.preview_name ?? 'Preview')
+            : added.replace(/(\.0)+$/g, '')
+          : '?'
       const removedLabel = lastVersion.replace(/(\.0)+$/g, '')
       return `${addedLabel}–${removedLabel}`
     }

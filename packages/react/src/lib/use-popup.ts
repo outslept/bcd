@@ -20,8 +20,11 @@ interface Position {
   top: number
 }
 
-function debounce<T extends (...args: unknown[]) => void>(fn: T, delay: number): T {
-  let timeoutId;
+function debounce<T extends (...args: unknown[]) => void>(
+  fn: T,
+  delay: number,
+): T {
+  let timeoutId: number | undefined
   return ((...args: Parameters<T>) => {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => fn(...args), delay)
@@ -72,10 +75,9 @@ export function usePopup({
     setPosition(calculatePosition())
   }, [calculatePosition])
 
-  const debouncedUpdatePosition = useCallback(
-    debounce(updatePosition, 16),
-    [updatePosition]
-  )
+  const debouncedUpdatePosition = useCallback(debounce(updatePosition, 16), [
+    updatePosition,
+  ])
 
   useEffect(() => {
     if (!open || !triggerRef.current || !contentRef.current) return
@@ -88,8 +90,12 @@ export function usePopup({
       const content = contentRef.current
       const trigger = triggerRef.current
 
-      if (content && !content.contains(target) &&
-          trigger && !trigger.contains(target)) {
+      if (
+        content &&
+        !content.contains(target) &&
+        trigger &&
+        !trigger.contains(target)
+      ) {
         closePopup()
       }
     }

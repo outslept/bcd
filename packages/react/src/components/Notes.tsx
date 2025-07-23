@@ -30,7 +30,8 @@ function formatVersion(version: unknown, browser: BrowserStatement): string {
 }
 
 function formatBugUrl(url: string): string | ReactNode {
-  const match = /^https:\/\/(?:crbug\.com|webkit\.org\/b|bugzil\.la)\/(\d+)/i.exec(url)
+  const match =
+    /^https:\/\/(?:crbug\.com|webkit\.org\/b|bugzil\.la)\/(\d+)/i.exec(url)
   const bugNumber = match?.[1]
   return bugNumber ? `bug ${bugNumber}` : url
 }
@@ -46,22 +47,33 @@ function generateFlagDescription(
 
   const versionPart = [
     hasAddedVersion && `From version ${String(item.version_added)}`,
-    hasRemovedVersion && `${hasAddedVersion ? ' until' : 'Until'} ${String(item.version_removed)} (exclusive)`,
-  ].filter(Boolean).join('')
+    hasRemovedVersion &&
+      `${hasAddedVersion ? ' until' : 'Until'} ${String(item.version_removed)} (exclusive)`,
+  ]
+    .filter(Boolean)
+    .join('')
 
   const prefix = hasAddedVersion || hasRemovedVersion ? ': this' : 'This'
 
-  const flagsPart = item.flags.map((flag, flagIndex) => {
-    const valueToSet = flag.value_to_set ? ` (needs to be set to ${flag.value_to_set})` : ''
-    const flagType = flag.type === 'preference' ? ` preference${valueToSet}` : ` runtime flag${valueToSet}`
-    const connector = flagIndex < (item.flags?.length ?? 0) - 1 ? ' and the ' : ''
-    return `${flag.name}${flagType}${connector}`
-  }).join('')
+  const flagsPart = item.flags
+    .map((flag, flagIndex) => {
+      const valueToSet = flag.value_to_set
+        ? ` (needs to be set to ${flag.value_to_set})`
+        : ''
+      const flagType =
+        flag.type === 'preference'
+          ? ` preference${valueToSet}`
+          : ` runtime flag${valueToSet}`
+      const connector =
+        flagIndex < (item.flags?.length ?? 0) - 1 ? ' and the ' : ''
+      return `${flag.name}${flagType}${connector}`
+    })
+    .join('')
 
-  const urlPart = browser.pref_url &&
-    item.flags.some((flag) => flag.type === 'preference')
-    ? ` To change preferences in ${browser.name}, visit ${browser.pref_url}.`
-    : ''
+  const urlPart =
+    browser.pref_url && item.flags.some((flag) => flag.type === 'preference')
+      ? ` To change preferences in ${browser.name}, visit ${browser.pref_url}.`
+      : ''
 
   return `${versionPart}${prefix} feature is behind the ${flagsPart}.${urlPart}`
 }
@@ -74,8 +86,12 @@ function generateSupportNotes(
   const notes: NoteItem[] = []
 
   // Version removed note
-  if (item.version_removed &&
-      !asList(support).some(otherItem => otherItem.version_added === item.version_removed)) {
+  if (
+    item.version_removed &&
+    !asList(support).some(
+      (otherItem) => otherItem.version_added === item.version_removed,
+    )
+  ) {
     notes.push({
       iconName: 'footnote',
       label: `Removed in ${formatVersion(item.version_removed, browser)} and later`,
@@ -123,7 +139,9 @@ function generateSupportNotes(
 
   // Implementation URLs
   if (item.impl_url) {
-    const urlsList = Array.isArray(item.impl_url) ? item.impl_url : [item.impl_url]
+    const urlsList = Array.isArray(item.impl_url)
+      ? item.impl_url
+      : [item.impl_url]
     urlsList.forEach((url, urlIndex) => {
       notes.push({
         iconName: 'footnote',
@@ -143,16 +161,27 @@ function generateSupportNotes(
   }
 
   // Support status notes
-  if (isFullySupportedWithoutLimitation(item) && !versionIsPreview(item.version_added, browser)) {
+  if (
+    isFullySupportedWithoutLimitation(item) &&
+    !versionIsPreview(item.version_added, browser)
+  ) {
     notes.push({ iconName: 'footnote', label: 'Full support' })
   } else if (isNotSupportedAtAll(item)) {
     notes.push({ iconName: 'footnote', label: 'No support' })
   }
 
-  return notes.length > 0 ? notes : [{ iconName: 'unknown', label: 'Support unknown' }]
+  return notes.length > 0
+    ? notes
+    : [{ iconName: 'unknown', label: 'Support unknown' }]
 }
 
-function Notes({ browser, support }: { browser: BrowserStatement; support: SupportStatement }) {
+function Notes({
+  browser,
+  support,
+}: {
+  browser: BrowserStatement
+  support: SupportStatement
+}) {
   const supportItems = asList(support)
 
   const notes = supportItems
