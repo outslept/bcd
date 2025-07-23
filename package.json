@@ -11,8 +11,7 @@
     "test": "vitest",
     "test:ci": "vitest",
     "format": "prettier --write .",
-    "format:ci": "prettier --check .",
-    "typecheck": "tsc --noEmit"
+    "format:ci": "prettier --check ."
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^1.49.0",
