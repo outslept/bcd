@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r run build",
-    "lint": "eslint .",
-    "lint:ci": "eslint . --fix",
+    "lint": "eslint --cache --fix .",
+    "lint:ci": "eslint --cache .",
     "test": "vitest",
     "test:ci": "vitest",
     "format": "prettier --write .",
