@@ -2,6 +2,9 @@
   "name": "@bcd/react-compat-table",
   "version": "0.0.0",
   "packageManager": "pnpm@10.6.5",
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "@mdn/browser-compat-data": "^6.0.12",
     "react": "^19.1.0",

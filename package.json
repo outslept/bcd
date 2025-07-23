@@ -5,6 +5,7 @@
   "packageManager": "pnpm@10.6.5",
   "type": "module",
   "scripts": {
+    "build": "pnpm -r run build",
     "lint": "eslint .",
     "lint:ci": "eslint . --fix",
     "test": "vitest",
