@@ -73,40 +73,36 @@ export function isFullySupportedWithoutMajorLimitation(
   return Boolean(support.version_added) && !hasMajorLimitation(support)
 }
 
+function calculateSupportPriority(item: SimpleSupportStatement): number {
+  // higher prio = better support
+  if (isFullySupportedWithoutLimitation(item)) return 6
+  if (isFullySupportedWithoutMajorLimitation(item)) return 5
+  if (!item.version_removed && (item.prefix || item.alternative_name)) return 4
+  if (!item.version_removed && item.partial_implementation) return 3
+  if (!item.version_removed && item.flags) return 2
+  if (item.version_removed) return 1
+  return 0
+}
+
 export function getCurrentSupport(
   support: SupportStatement | undefined,
 ): SimpleSupportStatement | undefined {
   if (!support) return undefined
 
-  const noLimitationSupportItem = asList(support).find((item) =>
-    isFullySupportedWithoutLimitation(item),
-  )
-  if (noLimitationSupportItem) return noLimitationSupportItem
+  const items = asList(support)
 
-  const minorLimitationSupportItem = asList(support).find((item) =>
-    isFullySupportedWithoutMajorLimitation(item),
-  )
-  if (minorLimitationSupportItem) return minorLimitationSupportItem
+  let bestItem = items[0]
+  let bestPriority = calculateSupportPriority(bestItem)
 
-  const altnamePrefixSupportItem = asList(support).find(
-    (item) => !item.version_removed && (item.prefix || item.alternative_name),
-  )
-  if (altnamePrefixSupportItem) return altnamePrefixSupportItem
+  for (let i = 1; i < items.length; i++) {
+    const priority = calculateSupportPriority(items[i])
+    if (priority > bestPriority) {
+      bestItem = items[i]
+      bestPriority = priority
+    }
+  }
 
-  const partialSupportItem = asList(support).find(
-    (item) => !item.version_removed && item.partial_implementation,
-  )
-  if (partialSupportItem) return partialSupportItem
-
-  const flagSupportItem = asList(support).find(
-    (item) => !item.version_removed && item.flags,
-  )
-  if (flagSupportItem) return flagSupportItem
-
-  const noSupportItem = asList(support).find((item) => item.version_removed)
-  if (noSupportItem) return noSupportItem
-
-  return Array.isArray(support) ? support[0] : support
+  return bestItem
 }
 
 export type SupportClassName =
