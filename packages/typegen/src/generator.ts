@@ -64,14 +64,12 @@ function walkAndGenerate(
     const currentNodeName = path.at(-1)
     if (!currentNodeName) return
 
-    for (const [key, child] of Object.entries(node)) {
-      if (key !== '__compat') {
-        const newPath = node.__compat
-          ? [...path, currentNodeName, key]
+    for (const key of childKeys) {
+      const child = node[key]
+      const newPath = node.__compat ? [...path, currentNodeName, key]
           : [...path, key]
 
         walkAndGenerate(project, child, newPath, config)
-      }
     }
   }
 }
