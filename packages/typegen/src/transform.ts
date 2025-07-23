@@ -12,12 +12,14 @@ function cleanSupport(support: SupportBlock): SupportBlock {
   const cleaned: SupportBlock = {}
 
   for (const [browserName, statement] of Object.entries(support)) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- TODO investigate types and remove this later, I believe we need this for now
     if (!statement) continue
 
     const typedBrowserName = browserName as BrowserName
 
     if (Array.isArray(statement)) {
       const filtered = statement.filter(
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- TODO investigate types and remove this later, I believe we need this for now
         (s): s is SimpleSupportStatement => s != null,
       )
 
