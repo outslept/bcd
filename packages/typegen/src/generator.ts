@@ -53,7 +53,7 @@ function walkAndGenerate(
 
     const cleanedData = cleanData(node)
 
-    if (cleanedData && Object.keys(cleanedData).length > 0) {
+    if (Object.keys(cleanedData).length > 0) {
       createConstFile(project, constName, cleanedData, filePath)
     }
   }
