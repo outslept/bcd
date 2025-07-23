@@ -25,10 +25,11 @@ function CompatTableBrowserRow({
     <tr ref={ref} className={styles['browser-row']} {...props}>
       <td></td>
       {browsers.map((browser) => {
+        const baseName = browser.split('_')[0]
         const iconName = iconMap[browser]
           ? browser
-          : iconMap[browser.split('_')[0]]
-            ? browser.split('_')[0]
+          : iconMap[baseName]
+            ? baseName
             : browser
 
         return (
