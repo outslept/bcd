@@ -66,35 +66,35 @@
     block-size: 0.5rem;
     border-radius: 50%;
     border: 1px solid var(--background);
+  }
 
-    &--yes {
-      background: var(--compat-yes);
-      box-shadow: 0 0 0 0.125rem
-        color-mix(in oklch, var(--compat-yes) 20%, transparent);
-    }
+  .support-indicator--yes {
+    background: var(--compat-yes);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-yes) 20%, transparent);
+  }
 
-    &--partial {
-      background: var(--compat-partial);
-      box-shadow: 0 0 0 0.125rem
-        color-mix(in oklch, var(--compat-partial) 20%, transparent);
-    }
+  .support-indicator--partial {
+    background: var(--compat-partial);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-partial) 20%, transparent);
+  }
 
-    &--no {
-      background: var(--compat-no);
-      box-shadow: 0 0 0 0.125rem
-        color-mix(in oklch, var(--compat-no) 20%, transparent);
-    }
+  .support-indicator--no {
+    background: var(--compat-no);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-no) 20%, transparent);
+  }
 
-    &--unknown {
-      background: var(--compat-unknown);
-      box-shadow: 0 0 0 0.125rem
-        color-mix(in oklch, var(--compat-unknown) 20%, transparent);
-    }
+  .support-indicator--unknown {
+    background: var(--compat-unknown);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-unknown) 20%, transparent);
+  }
 
-    &--preview {
-      background: var(--compat-preview);
-      box-shadow: 0 0 0 0.125rem
-        color-mix(in oklch, var(--compat-preview) 20%, transparent);
-    }
+  .support-indicator--preview {
+    background: var(--compat-preview);
+    box-shadow: 0 0 0 0.125rem
+      color-mix(in oklch, var(--compat-preview) 20%, transparent);
   }
 }

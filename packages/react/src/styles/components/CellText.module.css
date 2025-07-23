@@ -14,25 +14,25 @@
     &:hover {
       background: var(--muted);
     }
+  }
 
-    &--timeline {
-      justify-content: flex-start;
-      padding: var(--space-md);
-      background: var(--background);
-      border: var(--border-width) solid var(--border);
-      border-radius: var(--border-radius-md);
-      margin-block-end: var(--space-sm);
+  .cell-text-wrapper--timeline {
+    justify-content: flex-start;
+    padding: var(--space-md);
+    background: var(--background);
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--border-radius-md);
+    margin-block-end: var(--space-sm);
 
-      &:hover {
-        background: var(--accent);
-        border-color: var(--accent-foreground);
-      }
+    &:hover {
+      background: var(--accent);
+      border-color: var(--accent-foreground);
+    }
 
-      & .cell-content {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 0.125rem;
-      }
+    & .cell-content {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.125rem;
     }
   }
 

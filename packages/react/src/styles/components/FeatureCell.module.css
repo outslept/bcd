@@ -13,30 +13,30 @@
     line-height: 1.4;
     font-feature-settings: 'kern' 1;
     font-size: var(--font-size-lg);
+  }
 
-    &--depth-0 {
-      font-weight: 600;
-      background: var(--muted);
-      font-size: var(--font-size-xl);
+  .feature-cell--depth-0 {
+    font-weight: 600;
+    background: var(--muted);
+    font-size: var(--font-size-xl);
 
-      &:hover {
-        background: var(--accent);
-      }
+    &:hover {
+      background: var(--accent);
     }
+  }
 
-    &--depth-1 {
-      padding-inline-start: 2rem;
-      font-size: 0.8125rem;
-    }
+  .feature-cell--depth-1 {
+    padding-inline-start: 2rem;
+    font-size: 0.8125rem;
+  }
 
-    &--depth-2 {
-      padding-inline-start: 2.75rem;
-      font-size: var(--font-size-md);
-      color: var(--muted-foreground);
+  .feature-cell--depth-2 {
+    padding-inline-start: 2.75rem;
+    font-size: var(--font-size-md);
+    color: var(--muted-foreground);
 
-      &:hover {
-        color: var(--foreground);
-      }
+    &:hover {
+      color: var(--foreground);
     }
   }
 

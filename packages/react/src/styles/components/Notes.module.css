@@ -70,16 +70,16 @@
     font-weight: 500;
     background: var(--accent);
     color: var(--accent-foreground);
+  }
 
-    &--yes,
-    &--partial,
-    &--no,
-    &--removed-partial,
-    &--unknown,
-    &--preview {
-      background: inherit;
-      color: inherit;
-    }
+  .support-badge--yes,
+  .support-badge--partial,
+  .support-badge--no,
+  .support-badge--removed-partial,
+  .support-badge--unknown,
+  .support-badge--preview {
+    background: inherit;
+    color: inherit;
   }
 
   @container (inline-size < 30rem) {

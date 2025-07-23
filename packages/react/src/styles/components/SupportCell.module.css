@@ -7,23 +7,27 @@
     padding: 0;
     text-align: center;
     border-inline-end: var(--border-width) solid var(--border);
+  }
 
-    &--yes {
-      border-inline-start: 3px solid var(--compat-yes);
-    }
-    &--partial {
-      border-inline-start: 3px solid var(--compat-partial);
-    }
-    &--no,
-    &--removed-partial {
-      border-inline-start: 3px solid var(--compat-no);
-    }
-    &--unknown {
-      border-inline-start: 3px solid var(--compat-unknown);
-    }
-    &--preview {
-      border-inline-start: 3px solid var(--compat-preview);
-    }
+  .support-cell--yes {
+    border-inline-start: 3px solid var(--compat-yes);
+  }
+
+  .support-cell--partial {
+    border-inline-start: 3px solid var(--compat-partial);
+  }
+
+  .support-cell--no,
+  .support-cell--removed-partial {
+    border-inline-start: 3px solid var(--compat-no);
+  }
+
+  .support-cell--unknown {
+    border-inline-start: 3px solid var(--compat-unknown);
+  }
+
+  .support-cell--preview {
+    border-inline-start: 3px solid var(--compat-preview);
   }
 
   .support-button {
