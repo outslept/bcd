@@ -5,6 +5,8 @@ import { CompatTableProvider, useCompatTable } from '../lib/store'
 import { gatherPlatformsAndBrowsers, listFeatures } from '../lib/utils'
 import styles from '../styles/components/CompatTable.module.css'
 
+import type { Feature } from './FeatureRow'
+
 function CompatTable({
   ref,
   query,
@@ -88,7 +90,7 @@ function CompatTableHeader({ children }: { children: ReactNode }) {
 function CompatTableBody({
   children,
 }: {
-  children: (context: { features: any[]; browsers: string[] }) => ReactNode
+  children: (context: { features: Feature[]; browsers: string[] }) => ReactNode
 }) {
   const { features, browsers } = useCompatTable()
 

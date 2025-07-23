@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 import { useCompatTable } from '../lib/store'
-import { getSupportClassName } from '../lib/support-analysis'
+import { getSupportClassName, hasMore, hasNoteworthyNotes, getCurrentSupport } from '../lib/support-analysis'
 import { usePopup } from '../lib/use-popup'
 import styles from '../styles/components/SupportCell.module.css'
 
@@ -27,8 +27,13 @@ function CompatTableSupportCell({
   const browserStatement = browserInfo[browser]
   const support = feature.compat.support[browser] ?? { version_added: null }
   const supportClassName = getSupportClassName(support, browserStatement)
-  const notes = <Notes browser={browserStatement} support={support} />
-  const hasNotes = !!notes
+
+  const currentSupport = getCurrentSupport(support)
+  const hasNotes = (hasMore(support) ||
+    (currentSupport && hasNoteworthyNotes(currentSupport)) ??
+    (currentSupport?.flags) ??
+    (currentSupport?.prefix)) ??
+    (currentSupport?.alternative_name)
 
   const popup = usePopup()
 
@@ -110,7 +115,9 @@ function CompatTableSupportCell({
             tabIndex={-1}
             aria-label="Support history"
           >
-            <div className={styles['popup-content']}>{notes}</div>
+            <div className={styles['popup-content']}>
+              <Notes browser={browserStatement} support={support} />
+            </div>
           </div>,
           document.body,
         )}

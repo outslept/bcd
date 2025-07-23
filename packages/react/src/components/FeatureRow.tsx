@@ -1,7 +1,7 @@
 import type { CompatStatement } from '@mdn/browser-compat-data'
 import { createContext, use } from 'react'
 
-interface Feature {
+export interface Feature {
   name: string
   compat: CompatStatement
   depth: number

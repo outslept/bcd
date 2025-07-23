@@ -1,5 +1,6 @@
 import bcd, {
   type BrowserName,
+  type CompatStatement,
   type Identifier,
 } from '@mdn/browser-compat-data'
 import { ThemeProvider, useTheme } from 'next-themes'
@@ -199,7 +200,7 @@ function AppContent() {
                       const typedFeature = feature as {
                         name: string
                         depth: number
-                        compat: any
+                        compat: CompatStatement
                       }
                       return (
                         <FeatureRow
