@@ -8,7 +8,11 @@ import type {
 } from '@mdn/browser-compat-data'
 import { useState, useEffect, type Ref } from 'react'
 
-import { gatherPlatformsAndBrowsers, listFeatures, filterFeatures } from '../lib/bcd-features'
+import {
+  gatherPlatformsAndBrowsers,
+  listFeatures,
+  filterFeatures,
+} from '../lib/bcd-features'
 import { generateSupportNotes } from '../lib/bcd-formatting'
 import {
   getCurrentSupport,
@@ -57,7 +61,13 @@ const iconConfig: Record<string, keyof typeof Icons> = {
   more: 'ellipsis',
 }
 
-function Notes({ browser, support }: { browser: BrowserStatement; support: SupportStatement }) {
+function Notes({
+  browser,
+  support,
+}: {
+  browser: BrowserStatement
+  support: SupportStatement
+}) {
   const supportItems = Array.isArray(support) ? support : [support]
 
   const notes = supportItems
@@ -73,15 +83,19 @@ function Notes({ browser, support }: { browser: BrowserStatement; support: Suppo
       const added = currentSupport?.version_added
       const lastVersion = currentSupport?.version_last
 
-      const browserReleaseDate = added && typeof added === 'string'
-        ? browser.releases[added].release_date
-        : null
+      const browserReleaseDate =
+        added && typeof added === 'string'
+          ? browser.releases[added].release_date
+          : null
 
       let label = '?'
       if (typeof lastVersion === 'string') {
-        const addedLabel = typeof added === 'string'
-          ? added === 'preview' ? 'Preview' : added.replace(/(\.0)+$/g, '')
-          : '?'
+        const addedLabel =
+          typeof added === 'string'
+            ? added === 'preview'
+              ? 'Preview'
+              : added.replace(/(\.0)+$/g, '')
+            : '?'
         const removedLabel = lastVersion.replace(/(\.0)+$/g, '')
         label = `${addedLabel}–${removedLabel}`
       } else if (typeof added === 'string') {
@@ -90,7 +104,9 @@ function Notes({ browser, support }: { browser: BrowserStatement; support: Suppo
 
       return (
         <div key={itemKey} className={styles['bcd-notes-wrapper']}>
-          <div className={`${styles['bcd-notes-header']} ${styles[`bcd-support-badge--${supportClassName}`]}`}>
+          <div
+            className={`${styles['bcd-notes-header']} ${styles[`bcd-support-badge--${supportClassName}`]}`}
+          >
             <div className={styles['bcd-cell-text-wrapper--timeline']}>
               <span className={styles['bcd-browser-name']}>{browser.name}</span>
               <span className={styles['bcd-version-label']}>
@@ -125,7 +141,11 @@ function Notes({ browser, support }: { browser: BrowserStatement; support: Suppo
   return notes.length > 0 ? <>{notes}</> : null
 }
 
-function SupportCell({ feature, browser, browserInfo }: {
+function SupportCell({
+  feature,
+  browser,
+  browserInfo,
+}: {
   feature: Feature
   browser: BrowserName
   browserInfo: Browsers
@@ -139,13 +159,13 @@ function SupportCell({ feature, browser, browserInfo }: {
 
   const hasNotes = Boolean(
     (Array.isArray(support) && support.length > 1) ||
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    (currentSupport && hasNoteworthyNotes(currentSupport)) ||
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    currentSupport?.flags ||
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    currentSupport?.prefix ||
-    currentSupport?.alternative_name
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      (currentSupport && hasNoteworthyNotes(currentSupport)) ||
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      currentSupport?.flags ||
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      currentSupport?.prefix ||
+      currentSupport?.alternative_name,
   )
 
   const added = currentSupport?.version_added
@@ -153,9 +173,12 @@ function SupportCell({ feature, browser, browserInfo }: {
 
   let label = '?'
   if (typeof lastVersion === 'string') {
-    const addedLabel = typeof added === 'string'
-      ? added === 'preview' ? 'Preview' : added.replace(/(\.0)+$/g, '')
-      : '?'
+    const addedLabel =
+      typeof added === 'string'
+        ? added === 'preview'
+          ? 'Preview'
+          : added.replace(/(\.0)+$/g, '')
+        : '?'
     const removedLabel = lastVersion.replace(/(\.0)+$/g, '')
     label = `${addedLabel}–${removedLabel}`
   } else if (typeof added === 'string') {
@@ -177,7 +200,10 @@ function SupportCell({ feature, browser, browserInfo }: {
 
   const cellContent = (
     <div className={styles['bcd-cell-text-wrapper']}>
-      <span className={styles['bcd-version-label']} title={`${browserStatement.name} – ${label}`}>
+      <span
+        className={styles['bcd-version-label']}
+        title={`${browserStatement.name} – ${label}`}
+      >
         {label}
       </span>
       {icons.length > 0 && (
@@ -207,7 +233,9 @@ function SupportCell({ feature, browser, browserInfo }: {
             aria-haspopup="dialog"
             aria-expanded={showNotes}
             aria-label={`${browserStatement.name} support details`}
-            onClick={() => { setShowNotes(!showNotes); }}
+            onClick={() => {
+              setShowNotes(!showNotes)
+            }}
           >
             {cellContent}
           </button>
@@ -218,9 +246,7 @@ function SupportCell({ feature, browser, browserInfo }: {
           )}
         </>
       ) : (
-        <div className={styles['bcd-support-button']}>
-          {cellContent}
-        </div>
+        <div className={styles['bcd-support-button']}>{cellContent}</div>
       )}
     </td>
   )
@@ -258,7 +284,11 @@ export function CompatTable({
         const category = queryParts[0] ?? ''
         const name = queryParts.at(-1)
 
-        const [platforms, browsers] = gatherPlatformsAndBrowsers(category, data, browserInfo)
+        const [platforms, browsers] = gatherPlatformsAndBrowsers(
+          category,
+          data,
+          browserInfo,
+        )
         const allFeatures = listFeatures(data, '', name)
         const features = filterFeatures(allFeatures)
 
@@ -316,7 +346,7 @@ export function CompatTable({
               <th scope="col"></th>
               {platforms.map((platform) => {
                 const platformBrowserCount = browsers.filter(
-                  (browser) => browserInfo[browser].type === platform
+                  (browser) => browserInfo[browser].type === platform,
                 ).length
                 const IconComponent = Icons[iconConfig[platform]]
 
@@ -347,9 +377,7 @@ export function CompatTable({
                     data-browser={browser}
                     scope="col"
                   >
-                    <div className={styles['bcd-browser-label']}>
-                      {name}
-                    </div>
+                    <div className={styles['bcd-browser-label']}>{name}</div>
                     <IconComponent
                       className={styles['bcd-icon']}
                       aria-label={`${name} browser icon`}
@@ -365,7 +393,9 @@ export function CompatTable({
               const { name, compat, depth } = feature
 
               const title = compat.description ? (
-                <span dangerouslySetInnerHTML={{ __html: compat.description }} />
+                <span
+                  dangerouslySetInnerHTML={{ __html: compat.description }}
+                />
               ) : (
                 <code>{name}</code>
               )
@@ -374,7 +404,8 @@ export function CompatTable({
               if (compat.status) {
                 if (compat.status.experimental) statusIcons.push('experimental')
                 if (compat.status.deprecated) statusIcons.push('deprecated')
-                if (!compat.status.standard_track) statusIcons.push('nonstandard')
+                if (!compat.status.standard_track)
+                  statusIcons.push('nonstandard')
               }
 
               const content = (
@@ -384,7 +415,12 @@ export function CompatTable({
                     <div className={styles['bcd-icon-list']}>
                       {statusIcons.map((iconName) => {
                         const IconComponent = Icons[iconConfig[iconName]]
-                        return <IconComponent key={iconName} className={styles['bcd-icon']} />
+                        return (
+                          <IconComponent
+                            key={iconName}
+                            className={styles['bcd-icon']}
+                          />
+                        )
                       })}
                     </div>
                   )}
@@ -399,11 +435,16 @@ export function CompatTable({
                     data-depth={depth}
                   >
                     {compat.mdn_url && depth > 0 ? (
-                      <a href={compat.mdn_url} className={styles['bcd-feature-header']}>
+                      <a
+                        href={compat.mdn_url}
+                        className={styles['bcd-feature-header']}
+                      >
                         {content}
                       </a>
                     ) : (
-                      <div className={styles['bcd-feature-header']}>{content}</div>
+                      <div className={styles['bcd-feature-header']}>
+                        {content}
+                      </div>
                     )}
                   </th>
 

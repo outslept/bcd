@@ -1,5 +1,12 @@
 import bcd, { type Identifier } from '@mdn/browser-compat-data'
-import { Sun, Moon, Monitor, AlertTriangle, RotateCcw, RefreshCw } from 'lucide-react'
+import {
+  Sun,
+  Moon,
+  Monitor,
+  AlertTriangle,
+  RotateCcw,
+  RefreshCw,
+} from 'lucide-react'
 import { ThemeProvider, useTheme } from 'next-themes'
 import { useState, type FormEvent, type ErrorInfo } from 'react'
 import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary'
@@ -13,11 +20,11 @@ const EXAMPLE_QUERIES = [
   { query: 'css.properties.display', label: 'CSS Display' },
   { query: 'html.elements.canvas', label: 'Canvas' },
   { query: 'javascript.builtins.Promise', label: 'Promise' },
-];
+]
 
 function ErrorFallback({
   error,
-  resetErrorBoundary
+  resetErrorBoundary,
 }: {
   error: Error
   resetErrorBoundary: () => void
@@ -29,9 +36,7 @@ function ErrorFallback({
         <h2>Something went wrong</h2>
         <details className={styles['demo-error_details']}>
           <summary>Error details</summary>
-          <pre className={styles['demo-error_message']}>
-            {error.message}
-          </pre>
+          <pre className={styles['demo-error_message']}>{error.message}</pre>
         </details>
         <div className={styles['demo-error_actions']}>
           <button
@@ -44,7 +49,9 @@ function ErrorFallback({
           </button>
           <button
             type="button"
-            onClick={() => { window.location.reload(); }}
+            onClick={() => {
+              window.location.reload()
+            }}
             className={styles['demo-error_button']}
           >
             <RefreshCw size={16} />
@@ -59,7 +66,7 @@ function ErrorFallback({
 function CompatTableErrorFallback({
   error,
   resetErrorBoundary,
-  query
+  query,
 }: {
   error: Error
   resetErrorBoundary: () => void
@@ -67,12 +74,12 @@ function CompatTableErrorFallback({
 }) {
   return (
     <div className={styles['demo-compat_error']} role="alert">
-      <p>Failed to render compatibility table for <code>{query}</code></p>
+      <p>
+        Failed to render compatibility table for <code>{query}</code>
+      </p>
       <details>
         <summary>Error details</summary>
-        <pre style={{ color: 'red', fontSize: '12px' }}>
-          {error.message}
-        </pre>
+        <pre style={{ color: 'red', fontSize: '12px' }}>{error.message}</pre>
       </details>
       <button
         type="button"
@@ -105,9 +112,12 @@ function AppContent() {
 
   const getNextTheme = () => {
     switch (theme) {
-      case 'light': return 'dark'
-      case 'dark': return 'system'
-      default: return 'light'
+      case 'light':
+        return 'dark'
+      case 'dark':
+        return 'system'
+      default:
+        return 'light'
     }
   }
 
@@ -124,7 +134,9 @@ function AppContent() {
         }
       }
 
-      return current && typeof current === 'object' ? (current as Identifier) : null
+      return current && typeof current === 'object'
+        ? (current as Identifier)
+        : null
     } catch (error) {
       showBoundary(error)
       return null
@@ -149,9 +161,13 @@ function AppContent() {
         onClick={cycleTheme}
         aria-label={`Switch to ${getNextTheme()} theme`}
       >
-        {theme === 'light' ? <Sun size={20} /> :
-          theme === 'dark' ? <Moon size={20} /> :
-            <Monitor size={20} />}
+        {theme === 'light' ? (
+          <Sun size={20} />
+        ) : theme === 'dark' ? (
+          <Moon size={20} />
+        ) : (
+          <Monitor size={20} />
+        )}
       </button>
 
       <main className={styles['demo-main']}>
@@ -173,11 +189,16 @@ function AppContent() {
               ))}
             </div>
 
-            <form onSubmit={handleQuerySubmit} className={styles['demo-search_form']}>
+            <form
+              onSubmit={handleQuerySubmit}
+              className={styles['demo-search_form']}
+            >
               <input
                 type="text"
                 value={customQuery}
-                onChange={(e) => { setCustomQuery(e.target.value); }}
+                onChange={(e) => {
+                  setCustomQuery(e.target.value)
+                }}
                 placeholder="Enter custom query (e.g., api.fetch)"
                 className={styles['demo-search_input']}
               />
@@ -195,16 +216,18 @@ function AppContent() {
               {queryData?.__compat?.description && (
                 <p
                   className={styles['demo-description']}
-                  dangerouslySetInnerHTML={{ __html: queryData.__compat.description }}
+                  dangerouslySetInnerHTML={{
+                    __html: queryData.__compat.description,
+                  }}
                 />
               )}
             </div>
 
             {queryData ? (
               <ErrorBoundary
-                FallbackComponent={(props) =>
+                FallbackComponent={(props) => (
                   <CompatTableErrorFallback {...props} query={currentQuery} />
-                }
+                )}
                 onError={logError}
                 resetKeys={[currentQuery]}
               >
@@ -236,10 +259,7 @@ function App() {
       enableSystem
       disableTransitionOnChange
     >
-      <ErrorBoundary
-        FallbackComponent={ErrorFallback}
-        onError={logError}
-      >
+      <ErrorBoundary FallbackComponent={ErrorFallback} onError={logError}>
         <AppContent />
       </ErrorBoundary>
     </ThemeProvider>

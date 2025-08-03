@@ -22,10 +22,7 @@ export function versionIsPreview(
 
 export function hasNoteworthyNotes(support: SimpleSupportStatement) {
   return (
-    Boolean(
-      (support.notes?.length) ??
-        (support.impl_url?.length),
-    ) &&
+    Boolean(support.notes?.length ?? support.impl_url?.length) &&
     !support.version_removed &&
     !support.partial_implementation
   )
@@ -49,7 +46,9 @@ export function hasMajorLimitation(support: SimpleSupportStatement) {
   )
 }
 
-export function isFullySupportedWithoutLimitation(support: SimpleSupportStatement) {
+export function isFullySupportedWithoutLimitation(
+  support: SimpleSupportStatement,
+) {
   return Boolean(support.version_added) && !hasLimitation(support)
 }
 
@@ -57,7 +56,9 @@ export function isNotSupportedAtAll(support: SimpleSupportStatement) {
   return support.version_added === false && !hasLimitation(support)
 }
 
-export function isFullySupportedWithoutMajorLimitation(support: SimpleSupportStatement) {
+export function isFullySupportedWithoutMajorLimitation(
+  support: SimpleSupportStatement,
+) {
   return Boolean(support.version_added) && !hasMajorLimitation(support)
 }
 
@@ -98,9 +99,16 @@ export function getSupportClassName(
   const currentSupport = getCurrentSupport(support)
   if (!currentSupport) return 'unknown'
 
-  const { flags, version_added, version_removed, partial_implementation } = currentSupport
+  const { flags, version_added, version_removed, partial_implementation } =
+    currentSupport
 
-  let className: 'no' | 'yes' | 'partial' | 'preview' | 'removed-partial' | 'unknown'
+  let className:
+    | 'no'
+    | 'yes'
+    | 'partial'
+    | 'preview'
+    | 'removed-partial'
+    | 'unknown'
 
   if (version_added == null) {
     className = 'unknown'
@@ -108,7 +116,7 @@ export function getSupportClassName(
     className = 'preview'
   } else if (version_added) {
     className = 'yes'
-    if (version_removed || (flags?.length)) {
+    if (version_removed || flags?.length) {
       className = 'no'
     }
   } else {

@@ -4,7 +4,11 @@ import type {
   SupportStatement,
 } from '@mdn/browser-compat-data'
 import type { ReactNode } from 'react'
-import { versionIsPreview, isFullySupportedWithoutLimitation, isNotSupportedAtAll } from './bcd-support'
+import {
+  versionIsPreview,
+  isFullySupportedWithoutLimitation,
+  isNotSupportedAtAll,
+} from './bcd-support'
 
 export function formatVersion(version: unknown, browser: BrowserStatement) {
   if (typeof version !== 'string') return '?'
@@ -19,7 +23,10 @@ export function formatBugUrl(url: string) {
   return bugNumber ? `bug ${bugNumber}` : url
 }
 
-function generateFlagDescription(item: SimpleSupportStatement, browser: BrowserStatement) {
+function generateFlagDescription(
+  item: SimpleSupportStatement,
+  browser: BrowserStatement,
+) {
   if (!item.flags) return ''
 
   const hasAddedVersion = typeof item.version_added === 'string'

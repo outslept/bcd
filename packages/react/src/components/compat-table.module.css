@@ -64,7 +64,8 @@
     overflow: auto;
     background: var(--background);
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--foreground) 20%, transparent 80%) transparent;
+    scrollbar-color: color-mix(in srgb, var(--foreground) 20%, transparent 80%)
+      transparent;
   }
 
   .bcd-table-container::-webkit-scrollbar {
@@ -88,7 +89,8 @@
   /* Platform Row */
   .bcd-platform-row {
     background: var(--background);
-    border-bottom: 1px solid color-mix(in srgb, var(--border) 90%, transparent 10%);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--border) 90%, transparent 10%);
   }
 
   .bcd-platform-row th,
@@ -102,7 +104,8 @@
     letter-spacing: 0.02em;
     text-transform: none;
     border: none;
-    border-right: 1px solid color-mix(in srgb, var(--border) 70%, transparent 30%);
+    border-right: 1px solid
+      color-mix(in srgb, var(--border) 70%, transparent 30%);
     transition: all 0.1s ease;
     padding: 0.5rem 0.75rem;
   }
@@ -123,10 +126,7 @@
     width: 0.875rem;
     height: 0.875rem;
     transition: all 0.1s ease;
-    filter:
-      brightness(0)
-      saturate(100%)
-      invert(var(--icon-invert, 0));
+    filter: brightness(0) saturate(100%) invert(var(--icon-invert, 0));
     opacity: 0.5;
   }
 
@@ -138,7 +138,8 @@
   /* Browser Row */
   .bcd-browser-row {
     background: var(--background);
-    border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent 20%);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--border) 80%, transparent 20%);
   }
 
   .bcd-browser-row th,
@@ -147,7 +148,8 @@
     min-width: 5rem;
     padding: calc(var(--space) * 2) calc(var(--space) * 1.25);
     border: none;
-    border-right: 1px solid color-mix(in srgb, var(--border) 60%, transparent 40%);
+    border-right: 1px solid
+      color-mix(in srgb, var(--border) 60%, transparent 40%);
     transition: all 0.1s ease;
     vertical-align: bottom;
   }
@@ -186,10 +188,7 @@
     width: var(--icon-size);
     height: var(--icon-size);
     transition: all 0.1s ease;
-    filter:
-      brightness(0)
-      saturate(100%)
-      invert(var(--icon-invert, 0));
+    filter: brightness(0) saturate(100%) invert(var(--icon-invert, 0));
     opacity: 0.7;
     display: block;
     margin: 0 auto;
@@ -211,8 +210,10 @@
     line-height: 1.45;
     color: var(--foreground);
     border: none;
-    border-right: 1px solid color-mix(in srgb, var(--border) 70%, transparent 30%);
-    border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent 40%);
+    border-right: 1px solid
+      color-mix(in srgb, var(--border) 70%, transparent 30%);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--border) 60%, transparent 40%);
     background: var(--background);
     transition: all 0.1s ease;
   }
@@ -221,26 +222,26 @@
     background: color-mix(in srgb, var(--foreground) 1%, transparent 99%);
   }
 
-  .bcd-feature-cell[data-depth="0"] {
+  .bcd-feature-cell[data-depth='0'] {
     font-weight: 550;
     font-size: 0.9375rem;
     letter-spacing: -0.01em;
   }
 
-  .bcd-feature-cell[data-depth="1"] {
+  .bcd-feature-cell[data-depth='1'] {
     padding-left: calc(var(--space) * 3);
     color: color-mix(in srgb, var(--foreground) 85%, transparent 15%);
     font-weight: 420;
   }
 
-  .bcd-feature-cell[data-depth="2"] {
+  .bcd-feature-cell[data-depth='2'] {
     padding-left: calc(var(--space) * 4);
     color: color-mix(in srgb, var(--foreground) 60%, transparent 40%);
     font-size: 0.8125rem;
     font-weight: 400;
   }
 
-  .bcd-feature-cell[data-depth="2"]:hover {
+  .bcd-feature-cell[data-depth='2']:hover {
     color: color-mix(in srgb, var(--foreground) 80%, transparent 20%);
   }
 
@@ -278,8 +279,10 @@
     text-align: center;
     position: relative;
     border: none;
-    border-right: 1px solid color-mix(in srgb, var(--border) 60%, transparent 40%);
-    border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent 50%);
+    border-right: 1px solid
+      color-mix(in srgb, var(--border) 60%, transparent 40%);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--border) 50%, transparent 50%);
     background: var(--background);
     transition: all 0.1s ease;
   }
@@ -311,7 +314,8 @@
   }
 
   .bcd-support-button:focus-visible {
-    outline: 1.5px solid color-mix(in srgb, var(--foreground) 60%, transparent 40%);
+    outline: 1.5px solid
+      color-mix(in srgb, var(--foreground) 60%, transparent 40%);
     outline-offset: -1.5px;
     background: color-mix(in srgb, var(--foreground) 3%, transparent 97%);
   }
@@ -412,7 +416,8 @@
     overflow-y: auto;
     animation: popup-appear 0.15s ease;
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--foreground) 20%, transparent 80%) transparent;
+    scrollbar-color: color-mix(in srgb, var(--foreground) 20%, transparent 80%)
+      transparent;
   }
 
   @keyframes popup-appear {
@@ -439,7 +444,8 @@
   .bcd-notes-wrapper:not(:last-child) {
     margin-bottom: calc(var(--space) * 1.25);
     padding-bottom: calc(var(--space) * 1.25);
-    border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent 40%);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--border) 60%, transparent 40%);
   }
 
   .bcd-notes-header {
@@ -498,7 +504,8 @@
     color: color-mix(in srgb, var(--foreground) 85%, transparent 15%);
     text-decoration: none;
     font-weight: 500;
-    border-bottom: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent 70%);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--foreground) 30%, transparent 70%);
     transition: all 0.1s ease;
   }
 
