@@ -1,16 +1,10 @@
-import bcd, {
-  type BrowserName,
-  type CompatStatement,
-  type Identifier,
-} from '@mdn/browser-compat-data'
+import bcd, { type Identifier } from '@mdn/browser-compat-data'
 import { Sun, Moon, Monitor, AlertTriangle, RotateCcw, RefreshCw } from 'lucide-react'
 import { ThemeProvider, useTheme } from 'next-themes'
-import { useState, type FormEvent , type ErrorInfo } from 'react'
+import { useState, type FormEvent, type ErrorInfo } from 'react'
 import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary'
 
-import {
-  CompatTable,
-} from '../../packages/react/src/components/compat-table'
+import { CompatTable } from '../../packages/react/src/components/compat-table'
 
 import styles from './App.module.css'
 
@@ -19,7 +13,7 @@ const EXAMPLE_QUERIES = [
   { query: 'css.properties.display', label: 'CSS Display' },
   { query: 'html.elements.canvas', label: 'Canvas' },
   { query: 'javascript.builtins.Promise', label: 'Promise' },
-]
+];
 
 function ErrorFallback({
   error,
@@ -109,16 +103,11 @@ function AppContent() {
     setTheme(themes[nextIndex])
   }
 
-  const getThemeIcon = () => {
+  const getNextTheme = () => {
     switch (theme) {
-      case 'light':
-        return <Sun size={20} />
-      case 'dark':
-        return <Moon size={20} />
-      case 'system':
-        return <Monitor size={20} />
-      default:
-        return <Monitor size={20} />
+      case 'light': return 'dark'
+      case 'dark': return 'system'
+      default: return 'light'
     }
   }
 
@@ -135,9 +124,7 @@ function AppContent() {
         }
       }
 
-      return current && typeof current === 'object'
-        ? (current as Identifier)
-        : null
+      return current && typeof current === 'object' ? (current as Identifier) : null
     } catch (error) {
       showBoundary(error)
       return null
@@ -160,9 +147,11 @@ function AppContent() {
         type="button"
         className={styles['demo-theme_toggle']}
         onClick={cycleTheme}
-        aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'} theme`}
+        aria-label={`Switch to ${getNextTheme()} theme`}
       >
-        {getThemeIcon()}
+        {theme === 'light' ? <Sun size={20} /> :
+          theme === 'dark' ? <Moon size={20} /> :
+            <Monitor size={20} />}
       </button>
 
       <main className={styles['demo-main']}>
@@ -173,9 +162,7 @@ function AppContent() {
                 <button
                   type="button"
                   key={query}
-                  className={`${styles['demo-tab']} ${
-                    selectedQuery === query ? styles['demo-tab_active'] : ''
-                  }`}
+                  className={`${styles['demo-tab']} ${selectedQuery === query ? styles['demo-tab_active'] : ''}`}
                   onClick={() => {
                     setSelectedQuery(query)
                     setCustomQuery('')
@@ -186,16 +173,11 @@ function AppContent() {
               ))}
             </div>
 
-            <form
-              onSubmit={handleQuerySubmit}
-              className={styles['demo-search_form']}
-            >
+            <form onSubmit={handleQuerySubmit} className={styles['demo-search_form']}>
               <input
                 type="text"
                 value={customQuery}
-                onChange={(e) => {
-                  setCustomQuery(e.target.value)
-                }}
+                onChange={(e) => { setCustomQuery(e.target.value); }}
                 placeholder="Enter custom query (e.g., api.fetch)"
                 className={styles['demo-search_input']}
               />
@@ -213,9 +195,7 @@ function AppContent() {
               {queryData?.__compat?.description && (
                 <p
                   className={styles['demo-description']}
-                  dangerouslySetInnerHTML={{
-                    __html: queryData.__compat.description,
-                  }}
+                  dangerouslySetInnerHTML={{ __html: queryData.__compat.description }}
                 />
               )}
             </div>
@@ -232,37 +212,7 @@ function AppContent() {
                   query={currentQuery}
                   data={queryData}
                   browserInfo={bcd.browsers}
-                >
-                  <CompatTable.Header>
-                    <CompatTable.PlatformRow />
-                    <CompatTable.BrowserRow />
-                  </CompatTable.Header>
-                  <CompatTable.Body>
-                    {({ features, browsers }) =>
-                      features.map((feature) => {
-                        const typedFeature = feature as {
-                          name: string
-                          depth: number
-                          compat: CompatStatement
-                        }
-                        return (
-                          <CompatTable.FeatureRow
-                            key={`${typedFeature.name}-${String(typedFeature.depth)}`}
-                            feature={typedFeature}
-                          >
-                            <CompatTable.FeatureCell />
-                            {browsers.map((browser) => (
-                              <CompatTable.SupportCell
-                                key={browser}
-                                browser={browser as BrowserName}
-                              />
-                            ))}
-                          </CompatTable.FeatureRow>
-                        )
-                      })
-                    }
-                  </CompatTable.Body>
-                </CompatTable>
+                />
               </ErrorBoundary>
             ) : (
               <div className={styles['demo-no_results']}>
