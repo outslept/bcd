@@ -3,17 +3,14 @@ import bcd, {
   type CompatStatement,
   type Identifier,
 } from '@mdn/browser-compat-data'
+import { Sun, Moon, Monitor, AlertTriangle, RotateCcw, RefreshCw } from 'lucide-react'
 import { ThemeProvider, useTheme } from 'next-themes'
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent , type ErrorInfo } from 'react'
+import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary'
 
 import {
-  BrowserRow,
   CompatTable,
-  FeatureCell,
-  FeatureRow,
-  PlatformRow,
-  SupportCell,
-} from '../../packages/react/src/components'
+} from '../../packages/react/src/components/compat-table'
 
 import styles from './App.module.css'
 
@@ -24,52 +21,86 @@ const EXAMPLE_QUERIES = [
   { query: 'javascript.builtins.Promise', label: 'Promise' },
 ]
 
-const SunIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <circle cx="12" cy="12" r="5" />
-    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-  </svg>
-)
+function ErrorFallback({
+  error,
+  resetErrorBoundary
+}: {
+  error: Error
+  resetErrorBoundary: () => void
+}) {
+  return (
+    <div className={styles['demo-error']} role="alert">
+      <div className={styles['demo-error_content']}>
+        <AlertTriangle size={48} color="#ef4444" />
+        <h2>Something went wrong</h2>
+        <details className={styles['demo-error_details']}>
+          <summary>Error details</summary>
+          <pre className={styles['demo-error_message']}>
+            {error.message}
+          </pre>
+        </details>
+        <div className={styles['demo-error_actions']}>
+          <button
+            type="button"
+            onClick={resetErrorBoundary}
+            className={styles['demo-error_button']}
+          >
+            <RotateCcw size={16} />
+            Try again
+          </button>
+          <button
+            type="button"
+            onClick={() => { window.location.reload(); }}
+            className={styles['demo-error_button']}
+          >
+            <RefreshCw size={16} />
+            Reload page
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-const MoonIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-  </svg>
-)
+function CompatTableErrorFallback({
+  error,
+  resetErrorBoundary,
+  query
+}: {
+  error: Error
+  resetErrorBoundary: () => void
+  query: string
+}) {
+  return (
+    <div className={styles['demo-compat_error']} role="alert">
+      <p>Failed to render compatibility table for <code>{query}</code></p>
+      <details>
+        <summary>Error details</summary>
+        <pre style={{ color: 'red', fontSize: '12px' }}>
+          {error.message}
+        </pre>
+      </details>
+      <button
+        type="button"
+        onClick={resetErrorBoundary}
+        className={styles['demo-error_button']}
+      >
+        Retry
+      </button>
+    </div>
+  )
+}
 
-const SystemIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-    <line x1="8" y1="21" x2="16" y2="21" />
-    <line x1="12" y1="17" x2="12" y2="21" />
-  </svg>
-)
+function logError(error: Error, info: ErrorInfo) {
+  console.error('Error caught by boundary:', error)
+  console.error('Component stack:', info.componentStack)
+}
 
 function AppContent() {
   const { theme, setTheme } = useTheme()
   const [selectedQuery, setSelectedQuery] = useState(EXAMPLE_QUERIES[0].query)
   const [customQuery, setCustomQuery] = useState('')
+  const { showBoundary } = useErrorBoundary()
 
   const cycleTheme = () => {
     const themes = ['light', 'dark', 'system'] as const
@@ -81,31 +112,36 @@ function AppContent() {
   const getThemeIcon = () => {
     switch (theme) {
       case 'light':
-        return <SunIcon />
+        return <Sun size={20} />
       case 'dark':
-        return <MoonIcon />
+        return <Moon size={20} />
       case 'system':
-        return <SystemIcon />
+        return <Monitor size={20} />
       default:
-        return <SystemIcon />
+        return <Monitor size={20} />
     }
   }
 
   const getDataForQuery = (query: string): Identifier | null => {
-    const parts = query.split('.')
-    let current: unknown = bcd
+    try {
+      const parts = query.split('.')
+      let current: unknown = bcd
 
-    for (const part of parts) {
-      if (current && typeof current === 'object' && part in current) {
-        current = (current as Record<string, unknown>)[part]
-      } else {
-        return null
+      for (const part of parts) {
+        if (current && typeof current === 'object' && part in current) {
+          current = (current as Record<string, unknown>)[part]
+        } else {
+          return null
+        }
       }
-    }
 
-    return current && typeof current === 'object'
-      ? (current as Identifier)
-      : null
+      return current && typeof current === 'object'
+        ? (current as Identifier)
+        : null
+    } catch (error) {
+      showBoundary(error)
+      return null
+    }
   }
 
   const handleQuerySubmit = (e: FormEvent) => {
@@ -185,41 +221,49 @@ function AppContent() {
             </div>
 
             {queryData ? (
-              <CompatTable
-                query={currentQuery}
-                data={queryData}
-                browserInfo={bcd.browsers}
+              <ErrorBoundary
+                FallbackComponent={(props) =>
+                  <CompatTableErrorFallback {...props} query={currentQuery} />
+                }
+                onError={logError}
+                resetKeys={[currentQuery]}
               >
-                <CompatTable.Header>
-                  <PlatformRow />
-                  <BrowserRow />
-                </CompatTable.Header>
-                <CompatTable.Body>
-                  {({ features, browsers }) =>
-                    features.map((feature) => {
-                      const typedFeature = feature as {
-                        name: string
-                        depth: number
-                        compat: CompatStatement
-                      }
-                      return (
-                        <FeatureRow
-                          key={`${typedFeature.name}-${String(typedFeature.depth)}`}
-                          feature={typedFeature}
-                        >
-                          <FeatureCell />
-                          {browsers.map((browser) => (
-                            <SupportCell
-                              key={browser}
-                              browser={browser as BrowserName}
-                            />
-                          ))}
-                        </FeatureRow>
-                      )
-                    })
-                  }
-                </CompatTable.Body>
-              </CompatTable>
+                <CompatTable
+                  query={currentQuery}
+                  data={queryData}
+                  browserInfo={bcd.browsers}
+                >
+                  <CompatTable.Header>
+                    <CompatTable.PlatformRow />
+                    <CompatTable.BrowserRow />
+                  </CompatTable.Header>
+                  <CompatTable.Body>
+                    {({ features, browsers }) =>
+                      features.map((feature) => {
+                        const typedFeature = feature as {
+                          name: string
+                          depth: number
+                          compat: CompatStatement
+                        }
+                        return (
+                          <CompatTable.FeatureRow
+                            key={`${typedFeature.name}-${String(typedFeature.depth)}`}
+                            feature={typedFeature}
+                          >
+                            <CompatTable.FeatureCell />
+                            {browsers.map((browser) => (
+                              <CompatTable.SupportCell
+                                key={browser}
+                                browser={browser as BrowserName}
+                              />
+                            ))}
+                          </CompatTable.FeatureRow>
+                        )
+                      })
+                    }
+                  </CompatTable.Body>
+                </CompatTable>
+              </ErrorBoundary>
             ) : (
               <div className={styles['demo-no_results']}>
                 <p>
@@ -242,7 +286,12 @@ function App() {
       enableSystem
       disableTransitionOnChange
     >
-      <AppContent />
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onError={logError}
+      >
+        <AppContent />
+      </ErrorBoundary>
     </ThemeProvider>
   )
 }
