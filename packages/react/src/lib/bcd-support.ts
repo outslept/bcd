@@ -5,21 +5,13 @@ import type {
   VersionValue,
 } from '@mdn/browser-compat-data'
 
-export function asList<T>(a: T | T[]): T[] {
-  return Array.isArray(a) ? a : [a]
-}
-
-export function hasMore(support: SupportStatement | undefined): boolean {
-  return Array.isArray(support) && support.length > 1
-}
-
 export function versionIsPreview(
   version: string | VersionValue | undefined,
   browser: BrowserStatement,
-): boolean {
+) {
   if (version === 'preview') return true
 
-  if (browser && typeof version == 'string' && browser.releases[version]) {
+  if (typeof version === 'string') {
     return ['beta', 'nightly', 'planned'].includes(
       browser.releases[version].status,
     )
@@ -28,18 +20,18 @@ export function versionIsPreview(
   return false
 }
 
-export function hasNoteworthyNotes(support: SimpleSupportStatement): boolean {
+export function hasNoteworthyNotes(support: SimpleSupportStatement) {
   return (
     Boolean(
-      (support.notes && support.notes.length) ||
-        (support.impl_url && support.impl_url.length),
+      (support.notes?.length) ??
+        (support.impl_url?.length),
     ) &&
     !support.version_removed &&
     !support.partial_implementation
   )
 }
 
-export function hasLimitation(support: SimpleSupportStatement): boolean {
+export function hasLimitation(support: SimpleSupportStatement) {
   return (
     hasMajorLimitation(support) ||
     Boolean(support.notes) ||
@@ -47,7 +39,7 @@ export function hasLimitation(support: SimpleSupportStatement): boolean {
   )
 }
 
-export function hasMajorLimitation(support: SimpleSupportStatement): boolean {
+export function hasMajorLimitation(support: SimpleSupportStatement) {
   return (
     support.partial_implementation ||
     Boolean(support.alternative_name) ||
@@ -57,24 +49,19 @@ export function hasMajorLimitation(support: SimpleSupportStatement): boolean {
   )
 }
 
-export function isFullySupportedWithoutLimitation(
-  support: SimpleSupportStatement,
-): boolean {
+export function isFullySupportedWithoutLimitation(support: SimpleSupportStatement) {
   return Boolean(support.version_added) && !hasLimitation(support)
 }
 
-export function isNotSupportedAtAll(support: SimpleSupportStatement): boolean {
+export function isNotSupportedAtAll(support: SimpleSupportStatement) {
   return support.version_added === false && !hasLimitation(support)
 }
 
-export function isFullySupportedWithoutMajorLimitation(
-  support: SimpleSupportStatement,
-): boolean {
+export function isFullySupportedWithoutMajorLimitation(support: SimpleSupportStatement) {
   return Boolean(support.version_added) && !hasMajorLimitation(support)
 }
 
-function calculateSupportPriority(item: SimpleSupportStatement): number {
-  // higher prio = better support
+function calculateSupportPriority(item: SimpleSupportStatement) {
   if (isFullySupportedWithoutLimitation(item)) return 6
   if (isFullySupportedWithoutMajorLimitation(item)) return 5
   if (!item.version_removed && (item.prefix || item.alternative_name)) return 4
@@ -84,13 +71,10 @@ function calculateSupportPriority(item: SimpleSupportStatement): number {
   return 0
 }
 
-export function getCurrentSupport(
-  support: SupportStatement | undefined,
-): SimpleSupportStatement | undefined {
+export function getCurrentSupport(support: SupportStatement | undefined) {
   if (!support) return undefined
 
-  const items = asList(support)
-
+  const items = Array.isArray(support) ? support : [support]
   let bestItem = items[0]
   let bestPriority = calculateSupportPriority(bestItem)
 
@@ -105,34 +89,26 @@ export function getCurrentSupport(
   return bestItem
 }
 
-export type SupportClassName =
-  | 'no'
-  | 'yes'
-  | 'partial'
-  | 'preview'
-  | 'removed-partial'
-  | 'unknown'
-
 export function getSupportClassName(
   support: SupportStatement | undefined,
   browser: BrowserStatement,
-): SupportClassName {
+) {
   if (!support) return 'unknown'
 
   const currentSupport = getCurrentSupport(support)
   if (!currentSupport) return 'unknown'
 
-  const { flags, version_added, version_removed, partial_implementation } =
-    currentSupport
+  const { flags, version_added, version_removed, partial_implementation } = currentSupport
 
-  let className: SupportClassName
+  let className: 'no' | 'yes' | 'partial' | 'preview' | 'removed-partial' | 'unknown'
+
   if (version_added == null) {
     className = 'unknown'
   } else if (versionIsPreview(version_added, browser)) {
     className = 'preview'
   } else if (version_added) {
     className = 'yes'
-    if (version_removed || (flags && flags.length)) {
+    if (version_removed || (flags?.length)) {
       className = 'no'
     }
   } else {

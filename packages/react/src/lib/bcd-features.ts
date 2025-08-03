@@ -11,10 +11,8 @@ interface Feature {
   depth: number
 }
 
-const HIDDEN_BROWSERS: BrowserName[] = ['ie']
-
-function findFirstCompatDepth(identifier: Identifier): number {
-  const queue: Array<[Identifier, number]> = [[identifier, 1]]
+function findFirstCompatDepth(identifier: Identifier) {
+  const queue: [Identifier, number][] = [[identifier, 1]]
   let index = 0
 
   while (index < queue.length) {
@@ -25,11 +23,7 @@ function findFirstCompatDepth(identifier: Identifier): number {
     }
 
     for (const subvalue of Object.values(value)) {
-      if (
-        typeof subvalue === 'object' &&
-        subvalue !== null &&
-        '__compat' in subvalue
-      ) {
+      if (typeof subvalue === 'object' && '__compat' in subvalue) {
         queue.push([subvalue, depth + 1])
       }
     }
@@ -90,7 +84,9 @@ export function gatherPlatformsAndBrowsers(
   category: string,
   data: Identifier,
   browserInfo: Browsers,
-): [string[], BrowserName[]] {
+) {
+  const hiddenBrowsers: BrowserName[] = ['ie']
+
   const hasNodeJSData = data.__compat && 'nodejs' in data.__compat.support
   const hasDenoData = data.__compat && 'deno' in data.__compat.support
 
@@ -121,7 +117,30 @@ export function gatherPlatformsAndBrowsers(
     browsers = browsers.filter((browser) => browser !== 'nodejs')
   }
 
-  browsers = browsers.filter((browser) => !HIDDEN_BROWSERS.includes(browser))
+  browsers = browsers.filter((browser) => !hiddenBrowsers.includes(browser))
 
-  return [platforms, browsers]
+  return [platforms, browsers] as const
+}
+
+export function filterFeatures(features: Feature[]) {
+  const maxFeatures = 100
+
+  if (features.length <= maxFeatures) return features
+
+  const filtered: Feature[] = []
+
+  for (const feature of features) {
+    if (feature.depth >= 2) continue
+    if (!feature.compat.status?.standard_track) continue
+    if (feature.compat.status.deprecated) continue
+    if (feature.compat.status.experimental) continue
+
+    filtered.push(feature)
+
+    if (filtered.length >= maxFeatures) break
+  }
+
+  return filtered.length > maxFeatures
+    ? filtered.slice(0, maxFeatures)
+    : filtered
 }
