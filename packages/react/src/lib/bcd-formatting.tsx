@@ -10,12 +10,14 @@ import {
   isNotSupportedAtAll,
 } from './bcd-support'
 
+/** Convert a raw version value into a short human label. */
 export function formatVersion(version: unknown, browser: BrowserStatement) {
   if (typeof version !== 'string') return '?'
   if (version === 'preview') return browser.preview_name ?? 'Preview'
   return version.replace(/(\.0)+$/g, '')
 }
 
+/** If URL looks like a bug tracker, show "bug 12345" instead of full url. */
 export function formatBugUrl(url: string) {
   const match =
     /^https:\/\/(?:crbug\.com|webkit\.org\/b|bugzil\.la)\/(\d+)/i.exec(url)
@@ -23,63 +25,59 @@ export function formatBugUrl(url: string) {
   return bugNumber ? `bug ${bugNumber}` : url
 }
 
+/** Build a human-readable description for flags/prefs. */
 function generateFlagDescription(
   item: SimpleSupportStatement,
   browser: BrowserStatement,
 ) {
   if (!item.flags) return ''
 
-  const hasAddedVersion = typeof item.version_added === 'string'
-  const hasRemovedVersion = typeof item.version_removed === 'string'
+  const hasAdded = typeof item.version_added === 'string'
+  const hasRemoved = typeof item.version_removed === 'string'
 
   const versionPart = [
-    hasAddedVersion && `From version ${String(item.version_added)}`,
-    hasRemovedVersion &&
-      `${hasAddedVersion ? ' until' : 'Until'} ${String(item.version_removed)} (exclusive)`,
+    hasAdded && `From version ${String(item.version_added)}`,
+    hasRemoved &&
+      `${hasAdded ? ' until' : 'Until'} ${String(item.version_removed)} (exclusive)`,
   ]
     .filter(Boolean)
     .join('')
 
-  const prefix = hasAddedVersion || hasRemovedVersion ? ': this' : 'This'
+  const prefix = hasAdded || hasRemoved ? ': this' : 'This'
 
   const flagsPart = item.flags
-    .map((flag, flagIndex) => {
-      const valueToSet = flag.value_to_set
-        ? ` (needs to be set to ${flag.value_to_set})`
-        : ''
-      const flagType =
-        flag.type === 'preference'
-          ? ` preference${valueToSet}`
-          : ` runtime flag${valueToSet}`
-      const connector =
-        flagIndex < (item.flags?.length ?? 0) - 1 ? ' and the ' : ''
-      return `${flag.name}${flagType}${connector}`
+    .map((flag, idx) => {
+      const valuePart = flag.value_to_set ? ` (needs to be set to ${flag.value_to_set})` : ''
+      const typePart = flag.type === 'preference' ? ` preference${valuePart}` : ` runtime flag${valuePart}`
+      const connector = idx < (item.flags?.length ?? 0) - 1 ? ' and the ' : ''
+      return `${flag.name}${typePart}${connector}`
     })
     .join('')
 
   const urlPart =
-    browser.pref_url && item.flags.some((flag) => flag.type === 'preference')
+    browser.pref_url && item.flags.some((f) => f.type === 'preference')
       ? ` To change preferences in ${browser.name}, visit ${browser.pref_url}.`
       : ''
 
   return `${versionPart}${prefix} feature is behind the ${flagsPart}.${urlPart}`
 }
 
+/**
+ * Build a list of small note objects that the UI can render.
+ * Each note has: { iconName, label, key? }
+ */
 export function generateSupportNotes(
   item: SimpleSupportStatement,
   browser: BrowserStatement,
   support: SupportStatement,
 ) {
-  const notes: Array<{
-    iconName: string
-    label: string | ReactNode
-    key?: string
-  }> = []
+  const notes: Array<{ iconName: string; label: string | ReactNode; key?: string }> = []
 
+  // If feature was removed and not re-introduced at that same removed version:
   if (
     item.version_removed &&
     !(Array.isArray(support) ? support : [support]).some(
-      (otherItem) => otherItem.version_added === item.version_removed,
+      (other) => other.version_added === item.version_removed,
     )
   ) {
     notes.push({
@@ -88,7 +86,10 @@ export function generateSupportNotes(
     })
   }
 
-  notes.push({ iconName: 'footnote', label: 'Partial support' })
+  // Partial implementation is only added when explicitly signaled.
+  if (item.partial_implementation) {
+    notes.push({ iconName: 'footnote', label: 'Partial support' })
+  }
 
   if (item.prefix) {
     notes.push({
@@ -112,47 +113,36 @@ export function generateSupportNotes(
   }
 
   if (item.notes) {
-    const notesList = Array.isArray(item.notes) ? item.notes : [item.notes]
-    notesList.forEach((note, noteIndex) => {
-      notes.push({
-        iconName: 'footnote',
-        label: note,
-        key: `note-${String(noteIndex)}`,
-      })
-    })
+    const arr = Array.isArray(item.notes) ? item.notes : [item.notes]
+    arr.forEach((n, idx) =>
+      notes.push({ iconName: 'footnote', label: n, key: `note-${idx}` }),
+    )
   }
 
   if (item.impl_url) {
-    const urlsList = Array.isArray(item.impl_url)
-      ? item.impl_url
-      : [item.impl_url]
-    urlsList.forEach((url, urlIndex) => {
+    const urls = Array.isArray(item.impl_url) ? item.impl_url : [item.impl_url]
+    urls.forEach((u, idx) =>
       notes.push({
         iconName: 'footnote',
         label: (
           <>
-            See <a href={url}>{formatBugUrl(url)}</a>.
+            See <a href={u}>{formatBugUrl(u)}</a>.
           </>
         ),
-        key: `impl-${String(urlIndex)}`,
-      })
-    })
+        key: `impl-${idx}`,
+      }),
+    )
   }
 
   if (versionIsPreview(item.version_added, browser)) {
     notes.push({ iconName: 'footnote', label: 'Preview browser support' })
   }
 
-  if (
-    isFullySupportedWithoutLimitation(item) &&
-    !versionIsPreview(item.version_added, browser)
-  ) {
+  if (isFullySupportedWithoutLimitation(item) && !versionIsPreview(item.version_added, browser)) {
     notes.push({ iconName: 'footnote', label: 'Full support' })
   } else if (isNotSupportedAtAll(item)) {
     notes.push({ iconName: 'footnote', label: 'No support' })
   }
 
-  return notes.length > 0
-    ? notes
-    : [{ iconName: 'unknown', label: 'Support unknown' }]
+  return notes.length > 0 ? notes : [{ iconName: 'unknown', label: 'Support unknown' }]
 }
