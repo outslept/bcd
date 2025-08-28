@@ -59,6 +59,9 @@ importers:
       '@mdn/browser-compat-data':
         specifier: ^6.0.12
         version: 6.0.24
+      main-thread-scheduling:
+        specifier: ^14.3.0
+        version: 14.3.0
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -1696,6 +1699,10 @@ packages:
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
 
+  main-thread-scheduling@14.3.0:
+    resolution: {integrity: sha512-HOQ4zgJW496MoUgPN2yG0D9XcTkx5Rl1b+vKBkNkiUBeAvI+KRAy2cmyCiPfFH1EZr4rEQWovXTdH5Q2/PKFBQ==}
+    engines: {node: '>=10'}
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -1779,6 +1786,10 @@ packages:
   oxc-parser@0.74.0:
     resolution: {integrity: sha512-2tDN/ttU8WE6oFh8EzKNam7KE7ZXSG5uXmvX85iNzxdJfMssDWcj3gpYzZi1E04XuE7m3v1dVWl/8BE886vPGw==}
     engines: {node: '>=20.0.0'}
+
+  p-is-promise@4.0.0:
+    resolution: {integrity: sha512-4G3B+86qsIAX/+ip/yhHX9WUcyFKYkQYtE5bGkjpZyGK0Re53RbHky2UKt6RQVkDbUXb8EJRb4iga2SaI360nQ==}
+    engines: {node: '>=12'}
 
   p-limit@3.1.0:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
@@ -3916,6 +3927,10 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  main-thread-scheduling@14.3.0:
+    dependencies:
+      p-is-promise: 4.0.0
+
   math-intrinsics@1.1.0: {}
 
   merge2@1.4.1: {}
@@ -4020,6 +4035,8 @@ snapshots:
       '@oxc-parser/binding-wasm32-wasi': 0.74.0
       '@oxc-parser/binding-win32-arm64-msvc': 0.74.0
       '@oxc-parser/binding-win32-x64-msvc': 0.74.0
+
+  p-is-promise@4.0.0: {}
 
   p-limit@3.1.0:
     dependencies:
