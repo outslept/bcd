@@ -67,11 +67,13 @@ function getIconComponent(key: string): IconComponent | null {
 function Notes(params: { browser: BrowserStatement; support?: SupportStatement }) {
   if (!params.support) return null
 
-  const list = Array.isArray(params.support) ? params.support : [params.support]
+  const support = params.support
+  const list = Array.isArray(support) ? support : [support]
   const rev = [...list].reverse()
 
   const blocks = rev.flatMap((item, idx) => {
-    const notes = generateSupportNotes(item, params.browser, params.support)
+    const notes = generateSupportNotes(item, params.browser, support)
+
     if (idx !== 0 && notes.length === 0) return []
 
     const key = `support-${String(idx)}-${String(item.version_added)}-${String(item.version_removed)}`
