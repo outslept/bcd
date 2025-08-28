@@ -1,0 +1,50 @@
+@layer tokens {
+  :root {
+    --background: light-dark(#ffffff, #0a0a0a);
+    --foreground: light-dark(#000000, #fafafa);
+    --muted: light-dark(#f8f9fa, #161616);
+    --muted-foreground: light-dark(#6c757d, #a1a1aa);
+    --border: light-dark(#e9ecef, #262626);
+    --accent: light-dark(#f8f9fa, #1a1a1a);
+    --icon-invert: light-dark(0, 1);
+
+    --space: 0.5rem;
+    --icon-size: 1.25rem;
+    --icon-size-sm: 0.875rem;
+    --cell-height: 20rem;
+    --font-size: 0.8125rem;
+  }
+
+  @container (width < 48rem) {
+    :root {
+      --cell-height: 18rem;
+      --icon-size: 1rem;
+      --icon-size-sm: 0.75rem;
+      --font-size: 0.75rem;
+    }
+  }
+
+  @supports not (color: light-dark(white, black)) {
+    :root {
+      --background: #ffffff;
+      --foreground: #000000;
+      --muted: #f8f9fa;
+      --muted-foreground: #6c757d;
+      --border: #e9ecef;
+      --accent: #f8f9fa;
+      --icon-invert: 0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #0a0a0a;
+        --foreground: #fafafa;
+        --muted: #161616;
+        --muted-foreground: #a1a1aa;
+        --border: #262626;
+        --accent: #1a1a1a;
+        --icon-invert: 1;
+      }
+    }
+  }
+}
