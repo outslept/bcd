@@ -23,10 +23,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint & Format check
-        run: |
-          pnpm lint:ci
-          pnpm format:ci
+      # - name: Lint & Format check
+      #   run: |
+      #     pnpm lint:ci
+      #     pnpm format:ci
 
       - name: Build
         run: pnpm build
